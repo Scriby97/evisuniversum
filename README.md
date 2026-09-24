@@ -18,8 +18,10 @@ Ohne `.env.local` zeigt die Website Platzhalter-Inhalte.
 
 Sanity-Projekt: `wg30antz`, Dataset `production` (Project ID steht in `studio/sanity.config.ts` und `web/.env.local`).
 
-1. **Studio veröffentlichen:** `cd studio && npx sanity login && npm run deploy` → https://evisuniversum.sanity.studio.
-2. **Evi einladen:** sanity.io/manage → Projekt → Members.
+Studio: https://evisuniversum.sanity.studio (Projekt gehört Evis Konto).
+
+1. ~~Studio veröffentlichen~~ ✔ – neu deployen nach Schema-Änderungen: `cd studio && npm run deploy`
+2. ~~Startinhalte übertragen~~ ✔ – `npx sanity exec scripts/seed.ts --with-user-token` (überschreibt nichts Bestehendes)
 3. **Web3Forms:** auf https://web3forms.com mit evis.universum@gmx.ch einen Access Key erstellen → `NEXT_PUBLIC_WEB3FORMS_KEY`.
 4. **Cloudflare Pages:** Repo verbinden, Root directory `web`, Build command `npm run build`,
    Output directory `out`, die drei `NEXT_PUBLIC_*` Variablen setzen.

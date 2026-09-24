@@ -7,4 +7,7 @@ export default defineCliConfig({
   },
   // Studio ist nach `npm run deploy` unter https://evisuniversum.sanity.studio erreichbar
   studioHost: 'evisuniversum',
+  deployment: {
+    appId: 'qmd80bxugb94yx3m64y60u43',
+  },
 })
