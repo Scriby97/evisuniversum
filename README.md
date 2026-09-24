@@ -23,9 +23,10 @@ Studio: https://evisuniversum.sanity.studio (Projekt gehört Evis Konto).
 1. ~~Studio veröffentlichen~~ ✔ – neu deployen nach Schema-Änderungen: `cd studio && npm run deploy`
 2. ~~Startinhalte übertragen~~ ✔ – `npx sanity exec scripts/seed.ts --with-user-token` (überschreibt nichts Bestehendes)
 3. **Web3Forms:** auf https://web3forms.com mit evis.universum@gmx.ch einen Access Key erstellen → `NEXT_PUBLIC_WEB3FORMS_KEY`.
-4. **Cloudflare Pages:** Repo verbinden, Root directory `web`, Build command `npm run build`,
-   Output directory `out`, die drei `NEXT_PUBLIC_*` Variablen setzen.
-5. **Automatisch neu bauen:** in Cloudflare Pages einen *Deploy Hook* erstellen und dessen URL in Sanity
+4. **Cloudflare (Worker mit statischen Assets, Konfiguration in `web/wrangler.jsonc`):**
+   Settings → Build: Root directory `web`, Build command `npm run build`, Deploy command `npx wrangler deploy`.
+   Unter *Build variables* die drei `NEXT_PUBLIC_*` Variablen setzen (werden beim Build in die Seite eingebaut).
+5. **Automatisch neu bauen:** in Cloudflare einen *Deploy Hook* erstellen und dessen URL in Sanity
    (API → Webhooks) als Webhook eintragen. Nach jedem «Publish» ist die Seite in 1–2 Minuten aktuell.
 
 ## Vor dem Livegang

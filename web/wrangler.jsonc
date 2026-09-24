@@ -1,0 +1,12 @@
+// Cloudflare Worker, der nur die statische Seite aus `out/` ausliefert (kein Server-Code)
+{
+  "name": "evisuniversum",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./out",
+    // /shop → shop.html
+    "html_handling": "auto-trailing-slash",
+    // unbekannte Adressen → out/404.html
+    "not_found_handling": "404-page"
+  }
+}
