@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #f8f3ec;
+  --color-sand: #ede3d5;
+  --color-ink: #4a3a2f;
+  --color-muted: #7a6a5d;
+  --color-accent: #8b6546;
+  --color-accent-dark: #6f4f36;
+  --color-sage: #8c9a7e;
+  --font-sans: var(--font-body);
+  --font-serif: var(--font-heading);
+  --font-script: var(--font-script);
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-ink);
+}
+
+/* Anker-Links (z. B. /shop#personalisierung) nicht direkt an den Rand scrollen */
+[id] {
+  scroll-margin-top: 2rem;
+}

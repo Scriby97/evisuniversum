@@ -1,0 +1,47 @@
+import Link from "next/link";
+import { formatPrice, type Product } from "@/lib/sanity";
+import { SanityImage } from "./SanityImage";
+
+export function ProductCard({ product }: { product: Product }) {
+  return (
+    <article className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm">
+      <div className="relative aspect-square">
+        <SanityImage
+          image={product.images?.[0]}
+          alt={product.name}
+          sizes="(min-width: 1024px) 360px, (min-width: 640px) 50vw, 100vw"
+        />
+        {!product.available && (
+          <span className="absolute left-3 top-3 rounded-full bg-ink/80 px-3 py-1 text-xs text-white">
+            Ausverkauft
+          </span>
+        )}
+      </div>
+      <div className="flex flex-1 flex-col gap-2 p-5">
+        <div className="flex items-baseline justify-between gap-4">
+          <h3 className="font-serif text-xl font-medium">{product.name}</h3>
+          <span className="shrink-0 text-muted">{formatPrice(product.price)}</span>
+        </div>
+        {(product.personalizable || product.digital) && (
+          <div className="flex gap-2 text-xs">
+            {product.personalizable && (
+              <span className="rounded-full bg-sage/20 px-2 py-0.5 text-ink">personalisierbar</span>
+            )}
+            {product.digital && <span className="rounded-full bg-sand px-2 py-0.5 text-ink">digital</span>}
+          </div>
+        )}
+        {product.description && (
+          <p className="whitespace-pre-line text-sm text-muted">{product.description}</p>
+        )}
+        {product.available && (
+          <Link
+            href={`/bestellen?produkt=${product.slug}`}
+            className="mt-auto self-start rounded-full bg-accent px-5 py-2 text-sm text-white hover:bg-accent-dark"
+          >
+            Bestellen
+          </Link>
+        )}
+      </div>
+    </article>
+  );
+}
