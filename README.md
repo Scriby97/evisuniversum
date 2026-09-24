@@ -31,6 +31,8 @@ Studio: https://evisuniversum.sanity.studio (Projekt gehört Evis Konto).
 
 ## Vor dem Livegang
 
+- Solange «Website noch im Aufbau» (Studio → Website-Einstellungen → Im Aufbau) aktiv ist, sehen Besucher nur die «Bald online»-Seite (Vorschau mit Passwort). Das ist ein Sichtschutz, kein echter Zugriffsschutz – zum Livegang ausschalten.
+
 - Strasse in der Adresse ergänzen (Studio → Website-Einstellungen → Kontakt & Rechtliches)
 - AGB und Datenschutzerklärung (`web/src/app/datenschutz/page.tsx`) prüfen – das sind Vorlagen
 - Versandkosten, FAQ-Antworten, Logo, Bilder

@@ -15,6 +15,9 @@ const builder = projectId ? createImageUrlBuilder({ projectId, dataset }) : null
 export type SanityImage = SanityImageSource & { alt?: string };
 
 export type SiteSettings = {
+  comingSoon?: boolean;
+  comingSoonText?: string;
+  previewPassword?: string;
   siteName?: string;
   logo?: SanityImage;
   heroTitle?: string;

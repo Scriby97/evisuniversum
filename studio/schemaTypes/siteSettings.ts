@@ -13,6 +13,7 @@ export const siteSettings = defineType({
   title: 'Website-Einstellungen',
   type: 'document',
   groups: [
+    {name: 'launch', title: 'Im Aufbau'},
     {name: 'home', title: 'Startseite', default: true},
     {name: 'shop', title: 'Shop & Personalisierung'},
     {name: 'about', title: 'Über mich'},
@@ -21,6 +22,32 @@ export const siteSettings = defineType({
     {name: 'legal', title: 'Kontakt & Rechtliches'},
   ],
   fields: [
+    defineField({
+      name: 'comingSoon',
+      title: 'Website noch im Aufbau',
+      description:
+        'Eingeschaltet: Besucher sehen nur die «Bald online»-Seite. Ausschalten, sobald die Website fertig ist.',
+      type: 'boolean',
+      initialValue: true,
+      group: 'launch',
+    }),
+    defineField({
+      name: 'comingSoonText',
+      title: 'Text auf der «Bald online»-Seite',
+      type: 'text',
+      rows: 3,
+      group: 'launch',
+      hidden: ({document}) => document?.comingSoon === false,
+    }),
+    defineField({
+      name: 'previewPassword',
+      title: 'Passwort für die Vorschau',
+      description: 'Damit kommst du (und wer es kennt) an der «Bald online»-Seite vorbei. Gross-/Kleinschreibung egal.',
+      type: 'string',
+      group: 'launch',
+      hidden: ({document}) => document?.comingSoon === false,
+    }),
+
     defineField({name: 'siteName', title: 'Name der Website', type: 'string', group: 'home'}),
     defineField({name: 'logo', title: 'Logo', type: 'image', group: 'home'}),
     defineField({
