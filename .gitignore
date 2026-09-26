@@ -1,2 +1,4 @@
 node_modules
 .DS_Store
+# Originalbilder – die Website nutzt die Kopien in Sanity
+material/

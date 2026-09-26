@@ -138,15 +138,15 @@ export function OrderForm({ products }: { products: OrderProduct[] }) {
         )}
         {hasPersonalizable && (
           <label className="flex flex-col gap-1 text-sm">
-            Personalisierung (Motiv, Name oder Text)
+            Personalisierung (Symbol-Nummer, Name oder Text)
             <textarea
               name="personalization"
               rows={3}
-              placeholder="z. B. Socken «Thun» mit den Initialen A. M."
+              placeholder="z. B. Socken weiss mit F11 (Flamingo), Säckli mit Name «Alina»"
               className={inputClass}
             />
             <Link href="/shop#personalisierung" className="text-xs text-accent hover:text-accent-dark">
-              Welche Motive gibt es?
+              Welche Symbole gibt es?
             </Link>
           </label>
         )}

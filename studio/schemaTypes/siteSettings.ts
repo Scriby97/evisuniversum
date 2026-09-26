@@ -49,7 +49,13 @@ export const siteSettings = defineType({
     }),
 
     defineField({name: 'siteName', title: 'Name der Website', type: 'string', group: 'home'}),
-    defineField({name: 'logo', title: 'Logo', type: 'image', group: 'home'}),
+    defineField({
+      name: 'logo',
+      title: 'Logo-Symbol',
+      description: 'Nur das Symbol ohne Schrift (am besten PNG mit transparentem Hintergrund) – der Name steht daneben.',
+      type: 'image',
+      group: 'home',
+    }),
     defineField({
       name: 'heroTitle',
       title: 'Begrüssung',

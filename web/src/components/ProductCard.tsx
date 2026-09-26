@@ -1,16 +1,17 @@
 import Link from "next/link";
-import { formatPrice, type Product } from "@/lib/sanity";
-import { SanityImage } from "./SanityImage";
+import { formatPrice, imageUrl, type Product } from "@/lib/sanity";
+import { ProductGallery } from "./ProductGallery";
 
 export function ProductCard({ product }: { product: Product }) {
+  const images = (product.images ?? []).flatMap((image) => {
+    const src = imageUrl(image);
+    return src ? [{ src, alt: image.alt || product.name }] : [];
+  });
+
   return (
     <article className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm">
-      <div className="relative aspect-square">
-        <SanityImage
-          image={product.images?.[0]}
-          alt={product.name}
-          sizes="(min-width: 1024px) 360px, (min-width: 640px) 50vw, 100vw"
-        />
+      <div className="relative">
+        <ProductGallery images={images} sizes="(min-width: 1024px) 360px, (min-width: 640px) 50vw, 100vw" />
         {!product.available && (
           <span className="absolute left-3 top-3 rounded-full bg-ink/80 px-3 py-1 text-xs text-white">
             Ausverkauft
@@ -25,7 +26,7 @@ export function ProductCard({ product }: { product: Product }) {
         {(product.personalizable || product.digital) && (
           <div className="flex gap-2 text-xs">
             {product.personalizable && (
-              <span className="rounded-full bg-sage/20 px-2 py-0.5 text-ink">personalisierbar</span>
+              <span className="rounded-full bg-mint/60 px-2 py-0.5 text-ink">personalisierbar</span>
             )}
             {product.digital && <span className="rounded-full bg-sand px-2 py-0.5 text-ink">digital</span>}
           </div>

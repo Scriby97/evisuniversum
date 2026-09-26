@@ -107,8 +107,8 @@ export const placeholderCategories: Category[] = [
     slug: "socken",
     description: "Von Hand bestickt – auch mit deinem Wunschmotiv.",
     products: [
-      product({ _id: "socken-thun", name: "Socken «Thun»", price: 29, personalizable: true }),
-      product({ _id: "socken-herz", name: "Socken mit Herz", price: 25, personalizable: true }),
+      product({ _id: "socken-thun", name: "Socken «Schloss Thun»", price: 29 }),
+      product({ _id: "socken-weiss-wunschmotiv", name: "Socken weiss mit Wunschmotiv", price: 25, personalizable: true }),
     ],
   },
   {
@@ -116,7 +116,10 @@ export const placeholderCategories: Category[] = [
     title: "Bestickte Taschen",
     slug: "taschen",
     description: "Stofftaschen mit Stickerei für jeden Tag.",
-    products: [product({ _id: "tasche-panda", name: "Tasche «Panda»", price: 39, personalizable: true })],
+    products: [
+      product({ _id: "stoffsaeckli-mit-name", name: "Stoffsäckli mit Name", price: 19, personalizable: true }),
+      product({ _id: "tasche-panda", name: "Stofftasche «Panda»", price: 39 }),
+    ],
   },
   {
     _id: "c3",
@@ -124,8 +127,8 @@ export const placeholderCategories: Category[] = [
     slug: "diy-vorlagen",
     description: "Vorlagen und Anleitungen zum Herunterladen – für persönliche Geschenke zum Selbermachen.",
     products: [
-      product({ _id: "vorlage-reise", name: "Vorlage «Boarding Pass»", price: 9, digital: true }),
-      product({ _id: "vorlage-hochzeit", name: "Vorlage «Hochzeitsgeschenk»", price: 12, digital: true }),
+      product({ _id: "diy-gemeinsame-reise", name: "Für die gemeinsame Reise durchs Leben", price: 9, digital: true }),
+      product({ _id: "diy-ruhestand", name: "Ruhestand-Geschenk «Ab jetzt gehört die Zeit dir»", price: 9, digital: true }),
     ],
   },
 ];

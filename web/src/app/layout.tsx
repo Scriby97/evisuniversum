@@ -16,6 +16,9 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: { default: siteName, template: `%s | ${siteName}` },
     description: settings.heroSubtitle,
+    metadataBase: new URL("https://evisuniversum.ch"),
+    // Vorschaubild beim Teilen des Links (WhatsApp, Facebook, …)
+    openGraph: { images: [{ url: "/og.jpg", width: 689, height: 361 }], locale: "de_CH", siteName },
     // Solange die Seite im Aufbau ist, soll Google sie nicht aufnehmen
     robots: isComingSoon(settings) ? { index: false, follow: false } : undefined,
   };

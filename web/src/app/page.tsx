@@ -8,12 +8,8 @@ export default async function Home() {
 
   return (
     <>
-      <section className="relative isolate overflow-hidden">
-        <div className="absolute inset-0 -z-10">
-          <SanityImage image={settings.heroImage} alt="" sizes="100vw" priority />
-          <div className="absolute inset-0 bg-cream/70" />
-        </div>
-        <div className="mx-auto flex max-w-3xl flex-col items-center gap-5 px-4 py-24 text-center sm:py-32">
+      <section className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-12 md:grid-cols-2 md:py-20">
+        <div className="flex flex-col items-center gap-5 text-center md:items-start md:text-left">
           <h1 className="flex flex-col gap-3 font-script leading-none">
             {settings.heroTitle && <span className="text-4xl sm:text-5xl">{settings.heroTitle}</span>}
             <span className="text-7xl sm:text-8xl">{settings.siteName}</span>
@@ -30,6 +26,9 @@ export default async function Home() {
               Über mich
             </Link>
           </div>
+        </div>
+        <div className="relative aspect-[4/5] overflow-hidden rounded-3xl">
+          <SanityImage image={settings.heroImage} alt="" sizes="(min-width: 768px) 560px, 100vw" priority />
         </div>
       </section>
 

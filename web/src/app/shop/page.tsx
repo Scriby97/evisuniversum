@@ -20,7 +20,7 @@ export default async function ShopPage() {
             {c.title}
           </a>
         ))}
-        <a href="#personalisierung" className="rounded-full bg-sage/20 px-4 py-1.5 hover:bg-accent hover:text-white">
+        <a href="#personalisierung" className="rounded-full bg-mint/60 px-4 py-1.5 hover:bg-accent hover:text-white">
           Personalisierung
         </a>
       </nav>
