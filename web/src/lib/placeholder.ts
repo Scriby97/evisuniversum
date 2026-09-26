@@ -71,7 +71,7 @@ Schön, dass du in meinem kleinen Universum vorbeischaust. ♡`,
     { _key: "f5", question: "Wie erhalte ich digitale DIY-Vorlagen?", answer: "Antwort folgt." },
   ],
   ownerName: "Eva-Maria Doyon",
-  address: "Strasse Nr. (fehlt noch)\n3645 Gwatt (Thun)",
+  address: "Spiezstrasse 51A\n3645 Gwatt (Thun)",
   email: "evis.universum@gmx.ch",
   agbText: `## Geltungsbereich
 Diese AGB gelten für alle Bestellungen bei evi’s universum. (VORLAGE – vor dem Livegang prüfen und anpassen.)
