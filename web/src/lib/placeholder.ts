@@ -118,7 +118,7 @@ export const placeholderCategories: Category[] = [
     description: "Stofftaschen mit Stickerei für jeden Tag.",
     products: [
       product({ _id: "stoffsaeckli-mit-name", name: "Stoffsäckli mit Name", price: 19, personalizable: true }),
-      product({ _id: "tasche-panda", name: "Stofftasche «Panda»", price: 39 }),
+      product({ _id: "tasche-panda", name: "Stofftasche «Panda»", price: 39, personalizable: true }),
     ],
   },
   {
