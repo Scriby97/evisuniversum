@@ -34,6 +34,8 @@ export type SiteSettings = {
   aboutImage?: SanityImage;
   orderInfo?: string;
   shippingInfo?: string;
+  shippingCost?: number;
+  freeShippingFrom?: number;
   faqs?: { _key: string; question: string; answer: string }[];
   ownerName?: string;
   address?: string;
@@ -47,6 +49,7 @@ export type Product = {
   name: string;
   slug: string;
   price: number;
+  sizes?: string[];
   description?: string;
   images?: SanityImage[];
   personalizable: boolean;
@@ -85,7 +88,7 @@ export async function getCategories(): Promise<Category[]> {
       _id, title, "slug": slug.current, description,
       "products": *[_type == "product" && references(^._id) && defined(slug.current)]
         | order(sortOrder asc, name asc) {
-          _id, name, "slug": slug.current, price, description, images,
+          _id, name, "slug": slug.current, price, sizes, description, images,
           "personalizable": coalesce(personalizable, false),
           "digital": coalesce(digital, false),
           "available": coalesce(available, true)

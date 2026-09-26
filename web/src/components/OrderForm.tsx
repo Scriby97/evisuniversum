@@ -9,7 +9,15 @@ import { inputClass, sendForm, web3formsKey } from "@/lib/web3forms";
 export type OrderProduct = { slug: string; name: string; price: number; digital: boolean };
 type Status = "idle" | "sending" | "success" | "error";
 
-export function OrderForm({ products }: { products: OrderProduct[] }) {
+export function OrderForm({
+  products,
+  shippingCost,
+  freeShippingFrom,
+}: {
+  products: OrderProduct[];
+  shippingCost: number;
+  freeShippingFrom?: number;
+}) {
   const cart = useCart();
   const [status, setStatus] = useState<Status>("idle");
 
@@ -19,8 +27,11 @@ export function OrderForm({ products }: { products: OrderProduct[] }) {
     const product = bySlug.get(item.slug);
     return product ? [{ ...item, product }] : [];
   });
-  const total = lines.reduce((sum, l) => sum + l.product.price * l.quantity, 0);
+  const subtotal = lines.reduce((sum, l) => sum + l.product.price * l.quantity, 0);
   const needsShipping = lines.some((l) => !l.product.digital);
+  const freeShipping = freeShippingFrom !== undefined && subtotal >= freeShippingFrom;
+  const shipping = needsShipping && !freeShipping ? shippingCost : 0;
+  const total = subtotal + shipping;
   const dropped = cart.length - lines.length;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -29,7 +40,9 @@ export function OrderForm({ products }: { products: OrderProduct[] }) {
     const form = new FormData(event.currentTarget);
     const order = lines
       .map((l) => {
-        const details = [l.symbol && `Symbol ${l.symbol}`, l.text && `Text «${l.text}»`].filter(Boolean).join(", ");
+        const details = [l.size && `Grösse ${l.size}`, l.symbol && `Symbol ${l.symbol}`, l.text && `Text «${l.text}»`]
+          .filter(Boolean)
+          .join(", ");
         return `${l.quantity} × ${l.product.name} à ${formatPrice(l.product.price)}${l.product.digital ? " (digital)" : ""}${details ? `\n    → ${details}` : ""}`;
       })
       .join("\n");
@@ -42,7 +55,9 @@ export function OrderForm({ products }: { products: OrderProduct[] }) {
         email: form.get("email"),
         Lieferadresse: needsShipping ? form.get("address") : "– (nur digitale Produkte)",
         Bestellung: order,
-        "Total (ohne Versand)": formatPrice(total),
+        Zwischentotal: formatPrice(subtotal),
+        Versand: needsShipping ? formatPrice(shipping) : "– (nur digitale Produkte)",
+        Total: formatPrice(total),
         Nachricht: form.get("message") || "–",
       });
       clearCart();
@@ -57,7 +72,7 @@ export function OrderForm({ products }: { products: OrderProduct[] }) {
       <div className="rounded-2xl bg-white p-6 shadow-sm">
         <h2 className="mb-2 font-serif text-3xl">Vielen Dank für deine Bestellung! ♡</h2>
         <p className="text-muted">
-          Du erhältst in den nächsten Tagen eine Rechnung per E-Mail. Sobald die Zahlung eingegangen ist,
+          Du erhältst in den nächsten Tagen eine QR-Rechnung per E-Mail. Sobald die Zahlung eingegangen ist,
           mache ich mich an die Arbeit.
         </p>
       </div>
@@ -91,6 +106,7 @@ export function OrderForm({ products }: { products: OrderProduct[] }) {
                 <p>{l.product.name}</p>
                 <p className="text-sm text-muted">
                   {formatPrice(l.product.price)}
+                  {l.size && ` · Grösse ${l.size}`}
                   {l.symbol && ` · Symbol ${l.symbol}`}
                   {l.text && ` · «${l.text}»`}
                 </p>
@@ -129,10 +145,21 @@ export function OrderForm({ products }: { products: OrderProduct[] }) {
         {dropped > 0 && (
           <p className="text-sm text-muted">Nicht mehr verfügbare Artikel werden nicht mitbestellt.</p>
         )}
-        <p className="text-right">
-          Total {needsShipping && <span className="text-sm text-muted">(ohne Versand)</span>}:{" "}
-          <strong>{formatPrice(total)}</strong>
-        </p>
+        <dl className="ml-auto grid w-full max-w-xs grid-cols-[1fr_auto] gap-x-6 gap-y-1 text-sm">
+          <dt className="text-muted">Zwischentotal</dt>
+          <dd className="text-right">{formatPrice(subtotal)}</dd>
+          {needsShipping && (
+            <>
+              <dt className="text-muted">Versand</dt>
+              <dd className="text-right">{shipping === 0 ? "gratis" : formatPrice(shipping)}</dd>
+            </>
+          )}
+          <dt className="border-t border-sand pt-1 text-base">Total</dt>
+          <dd className="border-t border-sand pt-1 text-right text-base font-semibold">{formatPrice(total)}</dd>
+        </dl>
+        {needsShipping && freeShippingFrom !== undefined && !freeShipping && (
+          <p className="text-right text-xs text-muted">Gratisversand ab {formatPrice(freeShippingFrom)}</p>
+        )}
         <Link href="/shop" className="self-start text-sm text-accent hover:text-accent-dark">
           ← Weiter einkaufen
         </Link>
@@ -183,7 +210,7 @@ export function OrderForm({ products }: { products: OrderProduct[] }) {
         {status === "sending" ? "Wird gesendet …" : "Verbindlich bestellen"}
       </button>
       <p className="text-xs text-muted">
-        Du bezahlst erst nach Erhalt der Rechnung. Es gelten die{" "}
+        Du bezahlst bequem per QR-Rechnung, die du nach der Bestellung per E-Mail erhältst. Es gelten die{" "}
         <Link href="/agb" className="underline">
           AGB
         </Link>{" "}

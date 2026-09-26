@@ -35,7 +35,12 @@ export function ProductCard({ product, symbols }: { product: Product; symbols: s
           <p className="whitespace-pre-line text-sm text-muted">{product.description}</p>
         )}
         {product.available && (
-          <AddToCart slug={product.slug} personalizable={product.personalizable} symbols={symbols} />
+          <AddToCart
+            slug={product.slug}
+            personalizable={product.personalizable}
+            sizes={product.sizes ?? []}
+            symbols={symbols}
+          />
         )}
       </div>
     </article>

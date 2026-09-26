@@ -7,6 +7,7 @@ export type CartItem = {
   id: string;
   slug: string;
   quantity: number;
+  size?: string;
   symbol?: string;
   text?: string;
 };
@@ -57,7 +58,7 @@ export function useCart() {
 export function addToCart(item: Omit<CartItem, "id" | "quantity">) {
   const items = read();
   // Gleicher Artikel mit gleicher Personalisierung → Menge erhöhen statt neue Zeile
-  const same = items.find((i) => i.slug === item.slug && i.symbol === item.symbol && i.text === item.text);
+  const same = items.find((i) => i.slug === item.slug && i.size === item.size && i.symbol === item.symbol && i.text === item.text);
   write(
     same
       ? items.map((i) => (i === same ? { ...i, quantity: Math.min(99, i.quantity + 1) } : i))

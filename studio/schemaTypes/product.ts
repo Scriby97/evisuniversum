@@ -26,6 +26,14 @@ export const product = defineType({
       type: 'number',
       validation: (r) => r.required().min(0),
     }),
+    defineField({
+      name: 'sizes',
+      title: 'Grössen',
+      description: 'Wählbare Grössen, z. B. 39–42. Leer lassen, wenn es keine Grössen gibt.',
+      type: 'array',
+      of: [{type: 'string'}],
+      options: {layout: 'tags'},
+    }),
     defineField({name: 'description', title: 'Beschreibung', type: 'text', rows: 5}),
     defineField({
       name: 'images',

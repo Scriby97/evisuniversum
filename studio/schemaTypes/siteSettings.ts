@@ -132,6 +132,22 @@ export const siteSettings = defineType({
 
     defineField({name: 'orderInfo', title: 'So funktioniert die Bestellung', type: 'text', rows: 5, group: 'order'}),
     defineField({name: 'shippingInfo', title: 'Versandkosten & Lieferzeit', type: 'text', rows: 4, group: 'order'}),
+    defineField({
+      name: 'shippingCost',
+      title: 'Versandkosten (CHF)',
+      description: 'Wird im Warenkorb zum Total addiert, sobald etwas verschickt werden muss.',
+      type: 'number',
+      validation: (r) => r.min(0),
+      group: 'order',
+    }),
+    defineField({
+      name: 'freeShippingFrom',
+      title: 'Gratisversand ab (CHF)',
+      description: 'Optional: ab diesem Bestellwert entfallen die Versandkosten.',
+      type: 'number',
+      validation: (r) => r.min(0),
+      group: 'order',
+    }),
 
     defineField({
       name: 'faqs',

@@ -14,7 +14,11 @@ export default async function OrderPage() {
     <section className="mx-auto grid max-w-6xl gap-10 px-4 py-12 md:grid-cols-[3fr_2fr]">
       <div>
         <h1 className="mb-8 font-script text-6xl">Warenkorb</h1>
-        <OrderForm products={available} />
+        <OrderForm
+          products={available}
+          shippingCost={settings.shippingCost ?? 0}
+          freeShippingFrom={settings.freeShippingFrom}
+        />
       </div>
       <aside className="flex flex-col gap-6 self-start rounded-2xl bg-sand/60 p-6 text-sm">
         {settings.orderInfo && (
