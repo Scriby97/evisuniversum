@@ -1,51 +1,37 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import { clearCart, setQuantity, useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/sanity";
 import { inputClass, sendForm, web3formsKey } from "@/lib/web3forms";
 
-export type OrderProduct = {
-  slug: string;
-  name: string;
-  price: number;
-  digital: boolean;
-  personalizable: boolean;
-};
+export type OrderProduct = { slug: string; name: string; price: number; digital: boolean };
 type Status = "idle" | "sending" | "success" | "error";
 
 export function OrderForm({ products }: { products: OrderProduct[] }) {
-  const searchParams = useSearchParams();
-  // Kommt man über "Bestellen" bei einem Produkt, ist dieses schon ausgewählt
-  const [quantities, setQuantities] = useState<Record<string, number>>(() => {
-    const preselected = searchParams.get("produkt");
-    return preselected ? { [preselected]: 1 } : {};
-  });
+  const cart = useCart();
   const [status, setStatus] = useState<Status>("idle");
-  const [error, setError] = useState("");
 
-  const selected = products.filter((p) => (quantities[p.slug] ?? 0) > 0);
-  const total = selected.reduce((sum, p) => sum + p.price * quantities[p.slug], 0);
-  const needsShipping = selected.some((p) => !p.digital);
-  const hasPersonalizable = selected.some((p) => p.personalizable);
-
-  function setQuantity(slug: string, value: number) {
-    setQuantities((q) => ({ ...q, [slug]: Math.max(0, Math.min(99, value || 0)) }));
-  }
+  // Aktuelle Namen und Preise aus Sanity; ausverkaufte/gelöschte Produkte fallen weg
+  const bySlug = new Map(products.map((p) => [p.slug, p]));
+  const lines = cart.flatMap((item) => {
+    const product = bySlug.get(item.slug);
+    return product ? [{ ...item, product }] : [];
+  });
+  const total = lines.reduce((sum, l) => sum + l.product.price * l.quantity, 0);
+  const needsShipping = lines.some((l) => !l.product.digital);
+  const dropped = cart.length - lines.length;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (selected.length === 0) {
-      setError("Bitte wähle mindestens ein Produkt aus.");
-      return;
-    }
-    setError("");
     setStatus("sending");
-
     const form = new FormData(event.currentTarget);
-    const order = selected
-      .map((p) => `${quantities[p.slug]} × ${p.name} à ${formatPrice(p.price)}${p.digital ? " (digital)" : ""}`)
+    const order = lines
+      .map((l) => {
+        const details = [l.symbol && `Symbol ${l.symbol}`, l.text && `Text «${l.text}»`].filter(Boolean).join(", ");
+        return `${l.quantity} × ${l.product.name} à ${formatPrice(l.product.price)}${l.product.digital ? " (digital)" : ""}${details ? `\n    → ${details}` : ""}`;
+      })
       .join("\n");
 
     try {
@@ -57,9 +43,9 @@ export function OrderForm({ products }: { products: OrderProduct[] }) {
         Lieferadresse: needsShipping ? form.get("address") : "– (nur digitale Produkte)",
         Bestellung: order,
         "Total (ohne Versand)": formatPrice(total),
-        Personalisierung: form.get("personalization") || "–",
         Nachricht: form.get("message") || "–",
       });
+      clearCart();
       setStatus("success");
     } catch {
       setStatus("error");
@@ -78,8 +64,15 @@ export function OrderForm({ products }: { products: OrderProduct[] }) {
     );
   }
 
-  if (products.length === 0) {
-    return <p className="text-muted">Im Moment sind leider keine Produkte verfügbar.</p>;
+  if (lines.length === 0) {
+    return (
+      <div className="flex flex-col items-start gap-4">
+        <p className="text-muted">Dein Warenkorb ist noch leer.</p>
+        <Link href="/shop" className="rounded-full bg-accent px-6 py-3 text-white hover:bg-accent-dark">
+          Zum Shop
+        </Link>
+      </div>
+    );
   }
 
   return (
@@ -90,28 +83,60 @@ export function OrderForm({ products }: { products: OrderProduct[] }) {
         </p>
       )}
 
-      <fieldset className="flex flex-col gap-3">
-        <legend className="mb-3 font-serif text-2xl">Produkte</legend>
-        {products.map((p) => (
-          <label key={p.slug} className="flex items-center justify-between gap-4 rounded-lg bg-white px-4 py-3">
-            <span>
-              {p.name} <span className="text-sm text-muted">· {formatPrice(p.price)}</span>
-            </span>
-            <input
-              type="number"
-              min={0}
-              max={99}
-              value={quantities[p.slug] ?? 0}
-              onChange={(e) => setQuantity(p.slug, e.target.valueAsNumber)}
-              className="w-20 rounded-lg border border-sand px-2 py-1 text-right"
-              aria-label={`Anzahl ${p.name}`}
-            />
-          </label>
-        ))}
-        <p className="text-right text-sm">
-          Total {needsShipping && "ohne Versand"}: <strong>{formatPrice(total)}</strong>
+      <section className="flex flex-col gap-3">
+        <ul className="flex flex-col gap-3">
+          {lines.map((l) => (
+            <li key={l.id} className="flex items-center justify-between gap-4 rounded-lg bg-white px-4 py-3">
+              <div className="min-w-0">
+                <p>{l.product.name}</p>
+                <p className="text-sm text-muted">
+                  {formatPrice(l.product.price)}
+                  {l.symbol && ` · Symbol ${l.symbol}`}
+                  {l.text && ` · «${l.text}»`}
+                </p>
+              </div>
+              <div className="flex shrink-0 items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setQuantity(l.id, l.quantity - 1)}
+                  className="size-8 rounded-full border border-sand hover:border-accent"
+                  aria-label={`${l.product.name}: eins weniger`}
+                >
+                  −
+                </button>
+                <span className="w-7 text-center" aria-label="Anzahl">
+                  {l.quantity}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setQuantity(l.id, l.quantity + 1)}
+                  className="size-8 rounded-full border border-sand hover:border-accent"
+                  aria-label={`${l.product.name}: eins mehr`}
+                >
+                  +
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setQuantity(l.id, 0)}
+                  className="ml-2 text-sm text-muted hover:text-red-700"
+                >
+                  Entfernen
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+        {dropped > 0 && (
+          <p className="text-sm text-muted">Nicht mehr verfügbare Artikel werden nicht mitbestellt.</p>
+        )}
+        <p className="text-right">
+          Total {needsShipping && <span className="text-sm text-muted">(ohne Versand)</span>}:{" "}
+          <strong>{formatPrice(total)}</strong>
         </p>
-      </fieldset>
+        <Link href="/shop" className="self-start text-sm text-accent hover:text-accent-dark">
+          ← Weiter einkaufen
+        </Link>
+      </section>
 
       <fieldset className="flex flex-col gap-4">
         <legend className="mb-3 font-serif text-2xl">Deine Angaben</legend>
@@ -136,20 +161,6 @@ export function OrderForm({ products }: { products: OrderProduct[] }) {
             />
           </label>
         )}
-        {hasPersonalizable && (
-          <label className="flex flex-col gap-1 text-sm">
-            Personalisierung (Symbol-Nummer, Name oder Text)
-            <textarea
-              name="personalization"
-              rows={3}
-              placeholder="z. B. Socken weiss mit F11 (Flamingo), Säckli mit Name «Alina»"
-              className={inputClass}
-            />
-            <Link href="/shop#personalisierung" className="text-xs text-accent hover:text-accent-dark">
-              Welche Symbole gibt es?
-            </Link>
-          </label>
-        )}
         <label className="flex flex-col gap-1 text-sm">
           Nachricht (optional)
           <textarea name="message" rows={3} className={inputClass} />
@@ -158,7 +169,6 @@ export function OrderForm({ products }: { products: OrderProduct[] }) {
         <input type="checkbox" name="botcheck" className="hidden" tabIndex={-1} autoComplete="off" />
       </fieldset>
 
-      {error && <p className="text-sm text-red-700">{error}</p>}
       {status === "error" && (
         <p className="text-sm text-red-700">
           Die Bestellung konnte nicht gesendet werden. Bitte versuche es nochmals oder schreib mir eine E-Mail.

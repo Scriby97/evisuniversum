@@ -1,8 +1,8 @@
-import Link from "next/link";
 import { formatPrice, imageUrl, type Product } from "@/lib/sanity";
+import { AddToCart } from "./AddToCart";
 import { ProductGallery } from "./ProductGallery";
 
-export function ProductCard({ product }: { product: Product }) {
+export function ProductCard({ product, symbols }: { product: Product; symbols: string[] }) {
   const images = (product.images ?? []).flatMap((image) => {
     const src = imageUrl(image);
     return src ? [{ src, alt: image.alt || product.name }] : [];
@@ -35,12 +35,7 @@ export function ProductCard({ product }: { product: Product }) {
           <p className="whitespace-pre-line text-sm text-muted">{product.description}</p>
         )}
         {product.available && (
-          <Link
-            href={`/bestellen?produkt=${product.slug}`}
-            className="mt-auto self-start rounded-full bg-accent px-5 py-2 text-sm text-white hover:bg-accent-dark"
-          >
-            Bestellen
-          </Link>
+          <AddToCart slug={product.slug} personalizable={product.personalizable} symbols={symbols} />
         )}
       </div>
     </article>

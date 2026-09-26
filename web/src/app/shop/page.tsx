@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { ProductCard } from "@/components/ProductCard";
 import { SanityImage } from "@/components/SanityImage";
 import { getCategories, getSettings } from "@/lib/sanity";
@@ -9,6 +8,7 @@ export const metadata: Metadata = { title: "Shop" };
 export default async function ShopPage() {
   const [settings, allCategories] = await Promise.all([getSettings(), getCategories()]);
   const categories = allCategories.filter((c) => c.products.length > 0);
+  const symbols = (settings.motifs ?? []).map((m) => m.name);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
@@ -33,7 +33,7 @@ export default async function ShopPage() {
           {c.description && <p className="mt-2 text-muted">{c.description}</p>}
           <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {c.products.map((product) => (
-              <ProductCard key={product._id} product={product} />
+              <ProductCard key={product._id} product={product} symbols={symbols} />
             ))}
           </div>
         </section>
@@ -59,12 +59,7 @@ export default async function ShopPage() {
             </ul>
           </>
         )}
-        <Link
-          href="/bestellen"
-          className="mt-8 inline-block rounded-full bg-accent px-6 py-3 text-white hover:bg-accent-dark"
-        >
-          Jetzt bestellen
-        </Link>
+
       </section>
     </div>
   );

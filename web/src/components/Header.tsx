@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { imageUrl, type SanityImage } from "@/lib/sanity";
+import { CartButton } from "./CartButton";
 
 const links = [
   { href: "/", label: "Startseite" },
@@ -19,12 +20,13 @@ export function Header({ siteName, logo }: { siteName: string; logo?: SanityImag
           {logoSrc && <Image src={logoSrc} alt="" width={134} height={100} className="h-11 w-auto" priority />}
           <span className="font-script text-4xl">{siteName}</span>
         </Link>
-        <nav className="flex flex-wrap gap-x-6 gap-y-1 text-sm">
+        <nav className="flex flex-wrap items-center gap-x-6 gap-y-1 text-sm">
           {links.map((link) => (
             <Link key={link.href} href={link.href} className="text-muted hover:text-ink">
               {link.label}
             </Link>
           ))}
+          <CartButton />
         </nav>
       </div>
     </header>
