@@ -26,6 +26,7 @@ export type SiteSettings = {
   heroText?: string;
   highlights?: { _key: string; title: string; text?: string; image?: SanityImage; link?: string }[];
   values?: string[];
+  featuredProducts?: { _ref: string }[];
   personalizationTitle?: string;
   personalizationText?: string;
   motifs?: { _key: string; name: string; image?: SanityImage }[];

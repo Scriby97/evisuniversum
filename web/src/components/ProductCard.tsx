@@ -38,13 +38,13 @@ export function ProductCard({ product }: { product: Product }) {
         )}
       </div>
       <div className="flex flex-1 flex-col gap-2 p-5">
-        <div className="flex items-baseline justify-between gap-4">
-          <h3 className="font-serif text-xl font-medium">
+        <div className="flex flex-col gap-0.5">
+          <h3 className="font-serif text-xl font-medium leading-snug">
             <Link href={href} className="hover:text-accent">
               {product.name}
             </Link>
           </h3>
-          <span className="shrink-0 text-muted">{formatPrice(product.price)}</span>
+          <span className="text-muted">{formatPrice(product.price)}</span>
         </div>
         {(product.personalizable || product.digital || product.onRequest) && (
           <div className="flex flex-wrap gap-2 text-xs">

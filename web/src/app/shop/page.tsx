@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ExpandableGrid } from "@/components/ExpandableGrid";
 import { ProductCard } from "@/components/ProductCard";
 import { SanityImage } from "@/components/SanityImage";
 import { getCategories, getSettings } from "@/lib/sanity";
@@ -30,11 +31,11 @@ export default async function ShopPage() {
         <section key={c._id} id={c.slug} className="mb-16">
           <h2 className="font-serif text-4xl">{c.title}</h2>
           {c.description && <p className="mt-2 text-muted">{c.description}</p>}
-          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <ExpandableGrid limit={8} moreLabel={`Alle ${c.products.length} Produkte anzeigen`}>
             {c.products.map((product) => (
               <ProductCard key={product._id} product={product} />
             ))}
-          </div>
+          </ExpandableGrid>
         </section>
       ))}
 

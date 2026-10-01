@@ -92,6 +92,15 @@ export const siteSettings = defineType({
       ],
     }),
     defineField({
+      name: 'featuredProducts',
+      title: 'Lieblingsprodukte',
+      description: 'Erscheinen auf der Startseite (am schönsten sind 4). Reihenfolge per Ziehen ändern.',
+      type: 'array',
+      group: 'home',
+      of: [defineArrayMember({type: 'reference', to: [{type: 'product'}]})],
+      validation: (r) => r.max(8).unique(),
+    }),
+    defineField({
       name: 'values',
       title: 'Leiste unten auf der Startseite',
       description: 'Kurze Stichworte, z. B. «Mit Liebe gestaltet». Ideal sind 4.',
