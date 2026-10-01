@@ -10,9 +10,9 @@ export default async function Home() {
     <>
       <section className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-12 md:grid-cols-2 md:py-20">
         <div className="flex flex-col items-center gap-5 text-center md:items-start md:text-left">
-          <h1 className="flex flex-col gap-3 font-script leading-none">
-            {settings.heroTitle && <span className="text-4xl sm:text-5xl">{settings.heroTitle}</span>}
-            <span className="text-7xl sm:text-8xl">{settings.siteName}</span>
+          <h1 className="flex flex-col gap-1 font-serif leading-tight">
+            {settings.heroTitle && <span className="text-3xl italic text-muted sm:text-4xl">{settings.heroTitle}</span>}
+            <span className="text-6xl font-medium sm:text-7xl">{settings.siteName}</span>
           </h1>
           {settings.heroSubtitle && <p className="font-serif text-2xl text-ink sm:text-3xl">{settings.heroSubtitle}</p>}
           <div className="mt-4 flex flex-wrap justify-center gap-3">

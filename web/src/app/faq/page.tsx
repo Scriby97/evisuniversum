@@ -10,7 +10,7 @@ export default async function FaqPage() {
 
   return (
     <section className="mx-auto max-w-3xl px-4 py-12">
-      <h1 className="mb-10 font-script text-6xl">Häufige Fragen</h1>
+      <h1 className="mb-10 font-serif text-5xl font-medium">Häufige Fragen</h1>
       <div className="flex flex-col gap-3">
         {faqs.map((faq) => (
           <details key={faq._key} className="group rounded-2xl bg-white p-5 shadow-sm">

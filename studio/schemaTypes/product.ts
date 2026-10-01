@@ -27,6 +27,14 @@ export const product = defineType({
       validation: (r) => r.required().min(0),
     }),
     defineField({
+      name: 'colors',
+      title: 'Farben',
+      description: 'Wählbare Farben, z. B. Weiss, Schwarz. Leer lassen, wenn es nur eine Farbe gibt.',
+      type: 'array',
+      of: [{type: 'string'}],
+      options: {layout: 'tags'},
+    }),
+    defineField({
       name: 'sizes',
       title: 'Grössen',
       description: 'Wählbare Grössen, z. B. 39–42. Leer lassen, wenn es keine Grössen gibt.',
@@ -34,7 +42,39 @@ export const product = defineType({
       of: [{type: 'string'}],
       options: {layout: 'tags'},
     }),
-    defineField({name: 'description', title: 'Beschreibung', type: 'text', rows: 5}),
+    defineField({
+      name: 'extras',
+      title: 'Zusatzoptionen',
+      description: 'Ankreuzbare Extras mit Aufpreis, z. B. «Bestickung auf beiden Seiten» für CHF 5.',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          fields: [
+            defineField({name: 'name', title: 'Bezeichnung', type: 'string', validation: (r) => r.required()}),
+            defineField({name: 'price', title: 'Aufpreis (CHF)', type: 'number', validation: (r) => r.required().min(0)}),
+          ],
+          preview: {
+            select: {title: 'name', price: 'price'},
+            prepare: ({title, price}) => ({title, subtitle: `+ CHF ${price ?? 0}`}),
+          },
+        },
+      ],
+    }),
+    defineField({
+      name: 'description',
+      title: 'Kurzbeschreibung',
+      description: 'Ein bis zwei Sätze – erscheint im Shop unter dem Produkt.',
+      type: 'text',
+      rows: 3,
+    }),
+    defineField({
+      name: 'details',
+      title: 'Ausführliche Beschreibung',
+      description: 'Material, Pflegehinweise usw. – erscheint auf der Produktseite. Leere Zeile = neuer Absatz.',
+      type: 'text',
+      rows: 10,
+    }),
     defineField({
       name: 'images',
       title: 'Bilder',
@@ -51,7 +91,23 @@ export const product = defineType({
     defineField({
       name: 'personalizable',
       title: 'Personalisierbar',
-      description: 'Kundinnen können ein Motiv oder einen Text wählen.',
+      description: 'Kundinnen können eine Bemerkung oder einen Wunsch eingeben (z. B. Name).',
+      type: 'boolean',
+      initialValue: false,
+    }),
+    defineField({
+      name: 'withSymbols',
+      title: 'Symbolauswahl anbieten',
+      description: 'Ausschalten, wenn es nur das Feld «Bemerkung oder Wunsch» geben soll.',
+      type: 'boolean',
+      initialValue: true,
+      hidden: ({document}) => !document?.personalizable,
+    }),
+    defineField({
+      name: 'onRequest',
+      title: 'Auf Anfrage',
+      description:
+        'Statt «In den Warenkorb» steht «Auf Anfrage». Die Bestellung ist dann eine Anfrage – du prüfst, ob du das Produkt herstellen kannst.',
       type: 'boolean',
       initialValue: false,
     }),

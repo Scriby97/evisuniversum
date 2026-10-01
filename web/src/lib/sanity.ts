@@ -35,6 +35,7 @@ export type SiteSettings = {
   orderInfo?: string;
   shippingInfo?: string;
   shippingCost?: number;
+  giftWrapPrice?: number;
   freeShippingFrom?: number;
   faqs?: { _key: string; question: string; answer: string }[];
   ownerName?: string;
@@ -49,10 +50,15 @@ export type Product = {
   name: string;
   slug: string;
   price: number;
+  colors?: string[];
   sizes?: string[];
+  extras?: { _key: string; name: string; price: number }[];
   description?: string;
+  details?: string;
   images?: SanityImage[];
   personalizable: boolean;
+  withSymbols: boolean;
+  onRequest: boolean;
   digital: boolean;
   available: boolean;
 };
@@ -88,8 +94,10 @@ export async function getCategories(): Promise<Category[]> {
       _id, title, "slug": slug.current, description,
       "products": *[_type == "product" && references(^._id) && defined(slug.current)]
         | order(sortOrder asc, name asc) {
-          _id, name, "slug": slug.current, price, sizes, description, images,
+          _id, name, "slug": slug.current, price, colors, sizes, extras, description, details, images,
           "personalizable": coalesce(personalizable, false),
+          "withSymbols": coalesce(withSymbols, true),
+          "onRequest": coalesce(onRequest, false),
           "digital": coalesce(digital, false),
           "available": coalesce(available, true)
         }
@@ -118,6 +126,4 @@ export function imageUrl(image?: SanityImage): string | null {
   return builder.image(image).url();
 }
 
-export function formatPrice(price: number) {
-  return new Intl.NumberFormat("de-CH", { style: "currency", currency: "CHF" }).format(price);
-}
+export { formatPrice } from "./format";

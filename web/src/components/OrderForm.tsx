@@ -3,35 +3,53 @@
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { clearCart, setQuantity, useCart } from "@/lib/cart";
-import { formatPrice } from "@/lib/sanity";
+import { formatPrice } from "@/lib/format";
 import { inputClass, sendForm, web3formsKey } from "@/lib/web3forms";
 
-export type OrderProduct = { slug: string; name: string; price: number; digital: boolean };
+export type OrderProduct = {
+  slug: string;
+  name: string;
+  price: number;
+  digital: boolean;
+  onRequest: boolean;
+  extras?: { name: string; price: number }[];
+};
 type Status = "idle" | "sending" | "success" | "error";
 
 export function OrderForm({
   products,
   shippingCost,
   freeShippingFrom,
+  giftWrapPrice,
 }: {
   products: OrderProduct[];
   shippingCost: number;
   freeShippingFrom?: number;
+  giftWrapPrice?: number;
 }) {
   const cart = useCart();
   const [status, setStatus] = useState<Status>("idle");
+  const [giftWrap, setGiftWrap] = useState(false);
+  const [otherAddress, setOtherAddress] = useState(false);
 
   // Aktuelle Namen und Preise aus Sanity; ausverkaufte/gelöschte Produkte fallen weg
   const bySlug = new Map(products.map((p) => [p.slug, p]));
   const lines = cart.flatMap((item) => {
     const product = bySlug.get(item.slug);
-    return product ? [{ ...item, product }] : [];
+    if (!product) return [];
+    // Aufpreise der gewählten Zusatzoptionen nach aktuellem Stand in Sanity
+    const extras = (product.extras ?? []).filter((e) => item.extras?.includes(e.name));
+    const unitPrice = product.price + extras.reduce((sum, e) => sum + e.price, 0);
+    return [{ ...item, product, extras, unitPrice }];
   });
-  const subtotal = lines.reduce((sum, l) => sum + l.product.price * l.quantity, 0);
+  const subtotal = lines.reduce((sum, l) => sum + l.unitPrice * l.quantity, 0);
   const needsShipping = lines.some((l) => !l.product.digital);
   const freeShipping = freeShippingFrom !== undefined && subtotal >= freeShippingFrom;
   const shipping = needsShipping && !freeShipping ? shippingCost : 0;
-  const total = subtotal + shipping;
+  const canGiftWrap = needsShipping && giftWrapPrice !== undefined;
+  const wrapping = canGiftWrap && giftWrap ? giftWrapPrice : 0;
+  const total = subtotal + shipping + wrapping;
+  const hasRequests = lines.some((l) => l.product.onRequest);
   const dropped = cart.length - lines.length;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -40,23 +58,37 @@ export function OrderForm({
     const form = new FormData(event.currentTarget);
     const order = lines
       .map((l) => {
-        const details = [l.size && `Grösse ${l.size}`, l.symbol && `Symbol ${l.symbol}`, l.text && `Text «${l.text}»`]
+        const details = [
+          l.product.onRequest && "AUF ANFRAGE – Verfügbarkeit prüfen",
+          l.color && `Farbe ${l.color}`,
+          l.size && `Grösse ${l.size}`,
+          ...l.extras.map((e) => `${e.name} (+${formatPrice(e.price)})`),
+          l.symbol && `Symbol ${l.symbol}`,
+          l.text && `Bemerkung/Wunsch: «${l.text}»`,
+        ]
           .filter(Boolean)
-          .join(", ");
-        return `${l.quantity} × ${l.product.name} à ${formatPrice(l.product.price)}${l.product.digital ? " (digital)" : ""}${details ? `\n    → ${details}` : ""}`;
+          .map((d) => `\n    → ${d}`)
+          .join("");
+        return `${l.quantity} × ${l.product.name} à ${formatPrice(l.unitPrice)}${l.product.digital ? " (digital)" : ""}${details}`;
       })
       .join("\n");
 
     try {
       await sendForm({
-        subject: `Neue Bestellung von ${form.get("name")}`,
+        subject: `${hasRequests ? "Neue Bestellung/Anfrage" : "Neue Bestellung"} von ${form.get("name")}`,
         botcheck: form.get("botcheck"),
         Name: form.get("name"),
         email: form.get("email"),
-        Lieferadresse: needsShipping ? form.get("address") : "– (nur digitale Produkte)",
+        Adresse: form.get("address") || "–",
+        Versandadresse: !needsShipping
+          ? "– (nur digitale Produkte)"
+          : otherAddress
+            ? form.get("shippingAddress")
+            : "wie Adresse",
         Bestellung: order,
         Zwischentotal: formatPrice(subtotal),
         Versand: needsShipping ? formatPrice(shipping) : "– (nur digitale Produkte)",
+        Geschenkverpackung: wrapping ? `Ja (+${formatPrice(wrapping)})` : "Nein",
         Total: formatPrice(total),
         Nachricht: form.get("message") || "–",
       });
@@ -72,8 +104,9 @@ export function OrderForm({
       <div className="rounded-2xl bg-white p-6 shadow-sm">
         <h2 className="mb-2 font-serif text-3xl">Vielen Dank für deine Bestellung! ♡</h2>
         <p className="text-muted">
-          Du erhältst in den nächsten Tagen eine QR-Rechnung per E-Mail. Sobald die Zahlung eingegangen ist,
-          mache ich mich an die Arbeit.
+          {hasRequests
+            ? "Bei Produkten auf Anfrage prüfe ich zuerst, ob ich deinen Wunsch umsetzen kann, und melde mich bei dir. Danach erhältst du eine QR-Rechnung per E-Mail."
+            : "Du erhältst in den nächsten Tagen eine QR-Rechnung per E-Mail. Sobald die Zahlung eingegangen ist, mache ich mich an die Arbeit."}
         </p>
       </div>
     );
@@ -103,12 +136,23 @@ export function OrderForm({
           {lines.map((l) => (
             <li key={l.id} className="flex items-center justify-between gap-4 rounded-lg bg-white px-4 py-3">
               <div className="min-w-0">
-                <p>{l.product.name}</p>
+                <p>
+                  {l.product.name}
+                  {l.product.onRequest && (
+                    <span className="ml-2 rounded-full bg-mint/60 px-2 py-0.5 text-xs">auf Anfrage</span>
+                  )}
+                </p>
                 <p className="text-sm text-muted">
-                  {formatPrice(l.product.price)}
-                  {l.size && ` · Grösse ${l.size}`}
-                  {l.symbol && ` · Symbol ${l.symbol}`}
-                  {l.text && ` · «${l.text}»`}
+                  {[
+                    formatPrice(l.unitPrice),
+                    l.color,
+                    l.size && `Grösse ${l.size}`,
+                    ...l.extras.map((e) => e.name),
+                    l.symbol && `Symbol ${l.symbol}`,
+                    l.text && `«${l.text}»`,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
                 </p>
               </div>
               <div className="flex shrink-0 items-center gap-1">
@@ -154,6 +198,12 @@ export function OrderForm({
               <dd className="text-right">{shipping === 0 ? "gratis" : formatPrice(shipping)}</dd>
             </>
           )}
+          {wrapping > 0 && (
+            <>
+              <dt className="text-muted">Geschenkverpackung</dt>
+              <dd className="text-right">{formatPrice(wrapping)}</dd>
+            </>
+          )}
           <dt className="border-t border-sand pt-1 text-base">Total</dt>
           <dd className="border-t border-sand pt-1 text-right text-base font-semibold">{formatPrice(total)}</dd>
         </dl>
@@ -176,17 +226,51 @@ export function OrderForm({
           <input name="email" type="email" required autoComplete="email" className={inputClass} />
         </label>
         {needsShipping && (
-          <label className="flex flex-col gap-1 text-sm">
-            Lieferadresse
-            <textarea
-              name="address"
-              required
-              rows={3}
-              autoComplete="street-address"
-              placeholder={"Strasse Nr.\nPLZ Ort"}
-              className={inputClass}
-            />
-          </label>
+          <>
+            <label className="flex flex-col gap-1 text-sm">
+              Deine Adresse
+              <textarea
+                name="address"
+                required
+                rows={3}
+                autoComplete="street-address"
+                placeholder={"Strasse Nr.\nPLZ Ort"}
+                className={inputClass}
+              />
+            </label>
+            {canGiftWrap && (
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={giftWrap}
+                  onChange={(e) => setGiftWrap(e.target.checked)}
+                  className="size-4 accent-accent"
+                />
+                Als Geschenk verpacken <span className="text-muted">+ {formatPrice(giftWrapPrice)}</span>
+              </label>
+            )}
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={otherAddress}
+                onChange={(e) => setOtherAddress(e.target.checked)}
+                className="size-4 accent-accent"
+              />
+              An eine andere Adresse senden (z. B. direkt an die beschenkte Person)
+            </label>
+            {otherAddress && (
+              <label className="flex flex-col gap-1 text-sm">
+                Versandadresse
+                <textarea
+                  name="shippingAddress"
+                  required
+                  rows={3}
+                  placeholder={"Vorname Name\nStrasse Nr.\nPLZ Ort"}
+                  className={inputClass}
+                />
+              </label>
+            )}
+          </>
         )}
         <label className="flex flex-col gap-1 text-sm">
           Nachricht (optional)

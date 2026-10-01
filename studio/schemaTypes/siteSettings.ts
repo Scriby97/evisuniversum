@@ -141,6 +141,14 @@ export const siteSettings = defineType({
       group: 'order',
     }),
     defineField({
+      name: 'giftWrapPrice',
+      title: 'Geschenkverpackung (CHF)',
+      description: 'Preis für «Als Geschenk verpacken» im Warenkorb. Leer lassen, um die Option auszublenden.',
+      type: 'number',
+      validation: (r) => r.min(0),
+      group: 'order',
+    }),
+    defineField({
       name: 'freeShippingFrom',
       title: 'Gratisversand ab (CHF)',
       description: 'Optional: ab diesem Bestellwert entfallen die Versandkosten.',

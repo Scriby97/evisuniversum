@@ -95,6 +95,8 @@ Alle Produkte sind von Hand gemacht – kleine Abweichungen sind Teil ihres Char
 const product = (p: Partial<Product> & Pick<Product, "_id" | "name" | "price">): Product => ({
   slug: p._id,
   personalizable: false,
+  withSymbols: true,
+  onRequest: false,
   digital: false,
   available: true,
   ...p,
@@ -108,7 +110,15 @@ export const placeholderCategories: Category[] = [
     description: "Von Hand bestickt – auch mit deinem Wunschmotiv.",
     products: [
       product({ _id: "socken-thun", name: "Socken «Schloss Thun»", price: 29 }),
-      product({ _id: "socken-weiss-wunschmotiv", name: "Socken weiss mit Wunschmotiv", price: 25, personalizable: true }),
+      product({
+        _id: "socken-wunschmotiv",
+        name: "Socken mit Wunschmotiv",
+        price: 25,
+        colors: ["Weiss", "Schwarz"],
+        sizes: ["35–38", "39–42", "43–46"],
+        extras: [{ _key: "beidseitig", name: "Bestickung auf beiden Seiten", price: 5 }],
+        personalizable: true,
+      }),
     ],
   },
   {

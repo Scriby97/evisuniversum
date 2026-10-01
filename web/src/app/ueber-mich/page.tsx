@@ -13,7 +13,7 @@ export default async function AboutPage() {
         <SanityImage image={settings.aboutImage} alt="" sizes="(min-width: 768px) 440px, 100vw" />
       </div>
       <div className="flex flex-col gap-5">
-        <h1 className="font-script text-6xl">{settings.aboutTitle ?? "Über mich"}</h1>
+        <h1 className="font-serif text-5xl font-medium">{settings.aboutTitle ?? "Über mich"}</h1>
         {settings.aboutText && (
           <p className="whitespace-pre-line text-lg leading-relaxed text-muted">{settings.aboutText}</p>
         )}

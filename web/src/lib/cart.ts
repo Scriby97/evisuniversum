@@ -7,10 +7,25 @@ export type CartItem = {
   id: string;
   slug: string;
   quantity: number;
+  color?: string;
   size?: string;
+  extras?: string[];
   symbol?: string;
+  /** «Bemerkung oder Wunsch» */
   text?: string;
 };
+
+// Gleicher Artikel mit gleicher Auswahl → eine Zeile mit höherer Menge
+function sameChoice(a: Omit<CartItem, "id" | "quantity">, b: Omit<CartItem, "id" | "quantity">) {
+  return (
+    a.slug === b.slug &&
+    a.color === b.color &&
+    a.size === b.size &&
+    a.symbol === b.symbol &&
+    a.text === b.text &&
+    (a.extras ?? []).join("|") === (b.extras ?? []).join("|")
+  );
+}
 
 const storageKey = "evisuniversum-cart";
 const changeEvent = "evisuniversum-cart-change";
@@ -57,8 +72,7 @@ export function useCart() {
 
 export function addToCart(item: Omit<CartItem, "id" | "quantity">) {
   const items = read();
-  // Gleicher Artikel mit gleicher Personalisierung → Menge erhöhen statt neue Zeile
-  const same = items.find((i) => i.slug === item.slug && i.size === item.size && i.symbol === item.symbol && i.text === item.text);
+  const same = items.find((i) => sameChoice(i, item));
   write(
     same
       ? items.map((i) => (i === same ? { ...i, quantity: Math.min(99, i.quantity + 1) } : i))

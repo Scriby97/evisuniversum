@@ -8,16 +8,17 @@ export default async function OrderPage() {
   const [settings, products] = await Promise.all([getSettings(), getProducts()]);
   const available = products
     .filter((p) => p.available)
-    .map(({ slug, name, price, digital }) => ({ slug, name, price, digital }));
+    .map(({ slug, name, price, digital, onRequest, extras }) => ({ slug, name, price, digital, onRequest, extras }));
 
   return (
     <section className="mx-auto grid max-w-6xl gap-10 px-4 py-12 md:grid-cols-[3fr_2fr]">
       <div>
-        <h1 className="mb-8 font-script text-6xl">Warenkorb</h1>
+        <h1 className="mb-8 font-serif text-5xl font-medium">Warenkorb</h1>
         <OrderForm
           products={available}
           shippingCost={settings.shippingCost ?? 0}
           freeShippingFrom={settings.freeShippingFrom}
+          giftWrapPrice={settings.giftWrapPrice}
         />
       </div>
       <aside className="flex flex-col gap-6 self-start rounded-2xl bg-sand/60 p-6 text-sm">

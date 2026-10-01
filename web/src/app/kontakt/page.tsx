@@ -10,7 +10,7 @@ export default async function ContactPage() {
   return (
     <section className="mx-auto grid max-w-5xl gap-10 px-4 py-12 md:grid-cols-[3fr_2fr]">
       <div>
-        <h1 className="mb-4 font-script text-6xl">Kontakt</h1>
+        <h1 className="mb-4 font-serif text-5xl font-medium">Kontakt</h1>
         <p className="mb-8 text-muted">
           Du hast eine Frage, einen besonderen Wunsch oder möchtest etwas für eine Gruppe bestellen? Schreib mir!
         </p>

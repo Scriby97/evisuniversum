@@ -8,11 +8,10 @@ export const metadata: Metadata = { title: "Shop" };
 export default async function ShopPage() {
   const [settings, allCategories] = await Promise.all([getSettings(), getCategories()]);
   const categories = allCategories.filter((c) => c.products.length > 0);
-  const symbols = (settings.motifs ?? []).map((m) => m.name);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
-      <h1 className="mb-6 font-script text-6xl">Shop</h1>
+      <h1 className="mb-6 font-serif text-5xl font-medium">Shop</h1>
 
       <nav className="mb-12 flex flex-wrap gap-2 text-sm">
         {categories.map((c) => (
@@ -33,7 +32,7 @@ export default async function ShopPage() {
           {c.description && <p className="mt-2 text-muted">{c.description}</p>}
           <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {c.products.map((product) => (
-              <ProductCard key={product._id} product={product} symbols={symbols} />
+              <ProductCard key={product._id} product={product} />
             ))}
           </div>
         </section>

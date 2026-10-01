@@ -16,7 +16,7 @@ export default async function EventsPage() {
 
   return (
     <section className="mx-auto max-w-3xl px-4 py-12">
-      <h1 className="mb-4 font-script text-6xl">Märkte & Events</h1>
+      <h1 className="mb-4 font-serif text-5xl font-medium">Märkte & Events</h1>
       <p className="mb-10 text-muted">Hier findest du mich vor Ort – ich freue mich auf deinen Besuch!</p>
 
       {events.length === 0 ? (
