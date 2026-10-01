@@ -13,7 +13,7 @@ export function Footer({ settings }: { settings: SiteSettings }) {
     <footer className="mt-20 border-t border-sand bg-sand/40">
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 text-sm text-muted sm:flex-row sm:items-end sm:justify-between">
         <div className="flex flex-col gap-1">
-          <span className="font-script text-3xl text-ink">Schön, dass du da bist ♡</span>
+          <span className="font-serif text-2xl italic text-ink">Schön, dass du da bist ♡</span>
           {settings.email && (
             <a href={`mailto:${settings.email}`} className="hover:text-ink">
               {settings.email}

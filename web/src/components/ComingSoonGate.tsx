@@ -59,7 +59,7 @@ export function ComingSoonGate({
       </div>
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-cream px-4">
         <div className="flex max-w-md flex-col items-center gap-6 text-center">
-          <h1 className="font-script text-6xl sm:text-7xl">{siteName}</h1>
+          <h1 className="font-serif text-6xl font-medium sm:text-7xl">{siteName}</h1>
           <p className="whitespace-pre-line font-serif text-2xl text-muted">{text}</p>
           <form onSubmit={handleSubmit} className="flex w-full flex-col gap-2">
             <label htmlFor="preview-password" className="text-sm text-muted">

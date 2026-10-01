@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Inter, Sacramento } from "next/font/google";
+import { Cormorant_Garamond, Inter } from "next/font/google";
 import { ComingSoonGate } from "@/components/ComingSoonGate";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
@@ -8,7 +8,6 @@ import "./globals.css";
 
 const heading = Cormorant_Garamond({ variable: "--font-heading", subsets: ["latin"], weight: ["400", "500", "600"] });
 const body = Inter({ variable: "--font-body", subsets: ["latin"] });
-const script = Sacramento({ variable: "--font-script", subsets: ["latin"], weight: "400" });
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings();
@@ -41,7 +40,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="de-CH"
-      className={`${heading.variable} ${body.variable} ${script.variable} h-full antialiased`}
+      className={`${heading.variable} ${body.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">
         {isComingSoon(settings) ? (
