@@ -133,12 +133,25 @@ export const siteSettings = defineType({
     defineField({name: 'orderInfo', title: 'So funktioniert die Bestellung', type: 'text', rows: 5, group: 'order'}),
     defineField({name: 'shippingInfo', title: 'Versandkosten & Lieferzeit', type: 'text', rows: 4, group: 'order'}),
     defineField({
-      name: 'shippingCost',
-      title: 'Versandkosten (CHF)',
-      description: 'Wird im Warenkorb zum Total addiert, sobald etwas verschickt werden muss.',
-      type: 'number',
-      validation: (r) => r.min(0),
+      name: 'shippingOptions',
+      title: 'Versandarten',
+      description:
+        'Im Warenkorb wählbar, sobald etwas verschickt werden muss. Die erste ist vorausgewählt (und wird bei «Gratisversand ab» gratis).',
+      type: 'array',
       group: 'order',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          fields: [
+            defineField({name: 'name', title: 'Bezeichnung', type: 'string', validation: (r) => r.required()}),
+            defineField({name: 'price', title: 'Preis (CHF)', type: 'number', validation: (r) => r.required().min(0)}),
+          ],
+          preview: {
+            select: {title: 'name', price: 'price'},
+            prepare: ({title, price}) => ({title, subtitle: `CHF ${price ?? 0}`}),
+          },
+        }),
+      ],
     }),
     defineField({
       name: 'giftWrapPrice',

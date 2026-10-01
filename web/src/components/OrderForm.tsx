@@ -18,12 +18,12 @@ type Status = "idle" | "sending" | "success" | "error";
 
 export function OrderForm({
   products,
-  shippingCost,
+  shippingOptions,
   freeShippingFrom,
   giftWrapPrice,
 }: {
   products: OrderProduct[];
-  shippingCost: number;
+  shippingOptions: { name: string; price: number }[];
   freeShippingFrom?: number;
   giftWrapPrice?: number;
 }) {
@@ -31,6 +31,7 @@ export function OrderForm({
   const [status, setStatus] = useState<Status>("idle");
   const [giftWrap, setGiftWrap] = useState(false);
   const [otherAddress, setOtherAddress] = useState(false);
+  const [shippingIndex, setShippingIndex] = useState(0);
 
   // Aktuelle Namen und Preise aus Sanity; ausverkaufte/gelöschte Produkte fallen weg
   const bySlug = new Map(products.map((p) => [p.slug, p]));
@@ -45,7 +46,9 @@ export function OrderForm({
   const subtotal = lines.reduce((sum, l) => sum + l.unitPrice * l.quantity, 0);
   const needsShipping = lines.some((l) => !l.product.digital);
   const freeShipping = freeShippingFrom !== undefined && subtotal >= freeShippingFrom;
-  const shipping = needsShipping && !freeShipping ? shippingCost : 0;
+  const shippingOption = shippingOptions[shippingIndex] ?? shippingOptions[0];
+  // «Gratisversand ab» gilt für die erste (Standard-)Versandart
+  const shipping = !needsShipping || (freeShipping && shippingIndex === 0) ? 0 : shippingOption.price;
   const canGiftWrap = needsShipping && giftWrapPrice !== undefined;
   const wrapping = canGiftWrap && giftWrap ? giftWrapPrice : 0;
   const total = subtotal + shipping + wrapping;
@@ -87,7 +90,7 @@ export function OrderForm({
             : "wie Adresse",
         Bestellung: order,
         Zwischentotal: formatPrice(subtotal),
-        Versand: needsShipping ? formatPrice(shipping) : "– (nur digitale Produkte)",
+        Versand: needsShipping ? `${shippingOption.name}: ${formatPrice(shipping)}` : "– (nur digitale Produkte)",
         Geschenkverpackung: wrapping ? `Ja (+${formatPrice(wrapping)})` : "Nein",
         Total: formatPrice(total),
         Nachricht: form.get("message") || "–",
@@ -189,12 +192,34 @@ export function OrderForm({
         {dropped > 0 && (
           <p className="text-sm text-muted">Nicht mehr verfügbare Artikel werden nicht mitbestellt.</p>
         )}
+        {needsShipping && shippingOptions.length > 1 && (
+          <fieldset className="ml-auto flex w-full max-w-xs flex-col gap-1 text-sm">
+            <legend className="mb-1">Versandart</legend>
+            {shippingOptions.map((option, i) => (
+              <label key={option.name} className="flex items-center justify-between gap-3">
+                <span className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="shippingOption"
+                    checked={shippingIndex === i}
+                    onChange={() => setShippingIndex(i)}
+                    className="size-4 accent-accent"
+                  />
+                  {option.name}
+                </span>
+                <span className="text-muted">
+                  {freeShipping && i === 0 ? "gratis" : formatPrice(option.price)}
+                </span>
+              </label>
+            ))}
+          </fieldset>
+        )}
         <dl className="ml-auto grid w-full max-w-xs grid-cols-[1fr_auto] gap-x-6 gap-y-1 text-sm">
           <dt className="text-muted">Zwischentotal</dt>
           <dd className="text-right">{formatPrice(subtotal)}</dd>
           {needsShipping && (
             <>
-              <dt className="text-muted">Versand</dt>
+              <dt className="text-muted">{shippingOptions.length > 1 ? shippingOption.name : "Versand"}</dt>
               <dd className="text-right">{shipping === 0 ? "gratis" : formatPrice(shipping)}</dd>
             </>
           )}

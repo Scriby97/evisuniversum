@@ -34,6 +34,8 @@ export type SiteSettings = {
   aboutImage?: SanityImage;
   orderInfo?: string;
   shippingInfo?: string;
+  shippingOptions?: { _key: string; name: string; price: number }[];
+  /** alt: einzelner Versandpreis vor den Versandarten */
   shippingCost?: number;
   giftWrapPrice?: number;
   freeShippingFrom?: number;

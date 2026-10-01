@@ -16,7 +16,11 @@ export default async function OrderPage() {
         <h1 className="mb-8 font-serif text-5xl font-medium">Warenkorb</h1>
         <OrderForm
           products={available}
-          shippingCost={settings.shippingCost ?? 0}
+          shippingOptions={
+            settings.shippingOptions?.length
+              ? settings.shippingOptions.map(({ name, price }) => ({ name, price }))
+              : [{ name: "Versand", price: settings.shippingCost ?? 0 }]
+          }
           freeShippingFrom={settings.freeShippingFrom}
           giftWrapPrice={settings.giftWrapPrice}
         />
