@@ -1,4 +1,5 @@
 import { createClient } from "@sanity/client";
+import type { PortableTextBlock } from "@portabletext/react";
 import { createImageUrlBuilder, type SanityImageSource } from "@sanity/image-url";
 import { placeholderCategories, placeholderEvents, placeholderSettings } from "./placeholder";
 
@@ -14,6 +15,9 @@ const builder = projectId ? createImageUrlBuilder({ projectId, dataset }) : null
 
 export type SanityImage = SanityImageSource & { alt?: string };
 
+/** Text aus dem Studio-Editor (Blöcke) – oder älterer reiner Text */
+export type RichTextValue = string | PortableTextBlock[];
+
 export type SiteSettings = {
   comingSoon?: boolean;
   comingSoonText?: string;
@@ -28,27 +32,27 @@ export type SiteSettings = {
   values?: string[];
   featuredProducts?: { _ref: string }[];
   personalizationTitle?: string;
-  personalizationText?: string;
+  personalizationText?: RichTextValue;
   notePlaceholder?: string;
   namePlaceholder?: string;
   motifs?: { _key: string; name: string; image?: SanityImage }[];
   aboutTitle?: string;
-  aboutText?: string;
+  aboutText?: RichTextValue;
   aboutImage?: SanityImage;
-  orderInfo?: string;
-  shippingInfo?: string;
+  orderInfo?: RichTextValue;
+  shippingInfo?: RichTextValue;
   shippingOptions?: { _key: string; name: string; price: number }[];
   /** alt: einzelner Versandpreis vor den Versandarten */
   shippingCost?: number;
   giftWrapPrice?: number;
   twintQr?: SanityImage;
   freeShippingFrom?: number;
-  faqs?: { _key: string; question: string; answer: string }[];
+  faqs?: { _key: string; question: string; answer: RichTextValue }[];
   ownerName?: string;
   address?: string;
   email?: string;
   instagram?: string;
-  agbText?: string;
+  agbText?: RichTextValue;
 };
 
 export type Product = {
@@ -61,7 +65,7 @@ export type Product = {
   extras?: { _key: string; name: string; price: number }[];
   customFields?: CustomField[];
   description?: string;
-  details?: string;
+  details?: RichTextValue;
   images?: SanityImage[];
   personalizable: boolean;
   withSymbols: boolean;

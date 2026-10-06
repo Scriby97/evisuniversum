@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { RichText } from "@/components/RichText";
 import Link from "next/link";
 import { getSettings } from "@/lib/sanity";
 
@@ -18,7 +19,7 @@ export default async function FaqPage() {
               {faq.question}
               <span className="text-accent transition group-open:rotate-45">+</span>
             </summary>
-            <p className="mt-3 whitespace-pre-line text-muted">{faq.answer}</p>
+            <RichText value={faq.answer} className="mt-3 text-muted" />
           </details>
         ))}
       </div>

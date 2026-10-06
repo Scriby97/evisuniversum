@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { RichText } from "@/components/RichText";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ProductOptions } from "@/components/AddToCart";
@@ -82,7 +83,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       {product.details && (
         <section className="mt-12 max-w-3xl">
           <h2 className="mb-3 font-serif text-3xl font-medium">Details</h2>
-          <p className="whitespace-pre-line leading-relaxed text-muted">{product.details}</p>
+          <RichText value={product.details} className="leading-relaxed text-muted" />
         </section>
       )}
     </div>

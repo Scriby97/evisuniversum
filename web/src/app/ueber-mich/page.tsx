@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { RichText } from "@/components/RichText";
 import { SanityImage } from "@/components/SanityImage";
 import { getSettings } from "@/lib/sanity";
 
@@ -14,9 +15,7 @@ export default async function AboutPage() {
       </div>
       <div className="flex flex-col gap-5">
         <h1 className="font-serif text-5xl font-medium">{settings.aboutTitle ?? "Über mich"}</h1>
-        {settings.aboutText && (
-          <p className="whitespace-pre-line text-lg leading-relaxed text-muted">{settings.aboutText}</p>
-        )}
+        <RichText value={settings.aboutText} className="text-lg leading-relaxed text-muted" />
       </div>
     </section>
   );

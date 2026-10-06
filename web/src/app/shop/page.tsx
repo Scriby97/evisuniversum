@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { RichText } from "@/components/RichText";
 import { ExpandableGrid } from "@/components/ExpandableGrid";
 import { ProductCard } from "@/components/ProductCard";
 import { SanityImage } from "@/components/SanityImage";
@@ -41,9 +42,7 @@ export default async function ShopPage() {
 
       <section id="personalisierung" className="rounded-3xl bg-sand/60 p-8 sm:p-12">
         <h2 className="font-serif text-4xl">{settings.personalizationTitle ?? "Personalisierung"}</h2>
-        {settings.personalizationText && (
-          <p className="mt-4 max-w-3xl whitespace-pre-line text-muted">{settings.personalizationText}</p>
-        )}
+        <RichText value={settings.personalizationText} className="mt-4 max-w-3xl text-muted" />
         {settings.motifs && settings.motifs.length > 0 && (
           <>
             <h3 className="mt-8 font-serif text-2xl">Motive & Symbole</h3>

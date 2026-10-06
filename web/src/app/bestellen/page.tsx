@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { RichText } from "@/components/RichText";
 import { OrderForm } from "@/components/OrderForm";
 import { getProducts, getSettings, imageUrl } from "@/lib/sanity";
 
@@ -30,13 +31,13 @@ export default async function OrderPage() {
         {settings.orderInfo && (
           <div>
             <h2 className="mb-2 font-serif text-xl">So funktioniert&apos;s</h2>
-            <p className="whitespace-pre-line text-muted">{settings.orderInfo}</p>
+            <RichText value={settings.orderInfo} className="text-muted" />
           </div>
         )}
         {settings.shippingInfo && (
           <div>
             <h2 className="mb-2 font-serif text-xl">Versand</h2>
-            <p className="whitespace-pre-line text-muted">{settings.shippingInfo}</p>
+            <RichText value={settings.shippingInfo} className="text-muted" />
           </div>
         )}
       </aside>
