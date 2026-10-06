@@ -119,6 +119,13 @@ export const siteSettings = defineType({
       group: 'shop',
     }),
     defineField({
+      name: 'notePlaceholder',
+      title: 'Beispieltext im Feld «Bemerkung oder Wunsch»',
+      description: 'Erscheint grau im leeren Feld auf der Produktseite, z. B. «z. B. Blauer Flamingo».',
+      type: 'string',
+      group: 'shop',
+    }),
+    defineField({
       name: 'motifs',
       title: 'Motive & Symbole',
       type: 'array',

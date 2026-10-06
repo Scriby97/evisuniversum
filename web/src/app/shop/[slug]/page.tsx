@@ -66,6 +66,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                 onRequest: product.onRequest,
               }}
               symbols={symbols}
+              notePlaceholder={settings.notePlaceholder || "z. B. Blauer Flamingo"}
             />
           ) : (
             <p className="rounded-lg bg-sand p-3 text-sm">Dieses Produkt ist im Moment leider ausverkauft.</p>

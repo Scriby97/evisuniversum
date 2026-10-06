@@ -50,7 +50,15 @@ export function QuickAdd({ product }: { product: CartProduct }) {
 }
 
 // Vollständige Auswahl auf der Produktseite
-export function ProductOptions({ product, symbols }: { product: CartProduct; symbols: string[] }) {
+export function ProductOptions({
+  product,
+  symbols,
+  notePlaceholder,
+}: {
+  product: CartProduct;
+  symbols: string[];
+  notePlaceholder: string;
+}) {
   const [added, setAdded] = useState(false);
   const showSymbols = product.personalizable && product.withSymbols && symbols.length > 0;
 
@@ -131,7 +139,7 @@ export function ProductOptions({ product, symbols }: { product: CartProduct; sym
       {product.personalizable && (
         <label className="flex flex-col gap-1 text-sm">
           Bemerkung oder Wunsch (optional)
-          <textarea name="text" rows={3} maxLength={300} className={inputClass} placeholder="z. B. Blauer Flamingo" />
+          <textarea name="text" rows={3} maxLength={300} className={inputClass} placeholder={notePlaceholder} />
           <span className="text-xs text-muted">Bei Rückfragen melde ich mich direkt bei dir.</span>
         </label>
       )}

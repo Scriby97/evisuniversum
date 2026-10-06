@@ -29,6 +29,7 @@ export type SiteSettings = {
   featuredProducts?: { _ref: string }[];
   personalizationTitle?: string;
   personalizationText?: string;
+  notePlaceholder?: string;
   motifs?: { _key: string; name: string; image?: SanityImage }[];
   aboutTitle?: string;
   aboutText?: string;
