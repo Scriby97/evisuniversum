@@ -96,6 +96,8 @@ const product = (p: Partial<Product> & Pick<Product, "_id" | "name" | "price">):
   slug: p._id,
   personalizable: false,
   withSymbols: true,
+  withNote: true,
+  withName: false,
   onRequest: false,
   digital: false,
   available: true,

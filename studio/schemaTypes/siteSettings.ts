@@ -126,6 +126,13 @@ export const siteSettings = defineType({
       group: 'shop',
     }),
     defineField({
+      name: 'namePlaceholder',
+      title: 'Beispieltext im Feld «Namenwunsch»',
+      description: 'Erscheint grau im leeren Feld auf der Produktseite, z. B. «z. B. Alina».',
+      type: 'string',
+      group: 'shop',
+    }),
+    defineField({
       name: 'motifs',
       title: 'Motive & Symbole',
       type: 'array',

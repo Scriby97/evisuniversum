@@ -44,7 +44,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           <div>
             <h1 className="font-serif text-4xl font-medium sm:text-5xl">{product.name}</h1>
             <p className="mt-2 text-xl text-muted">{formatPrice(product.price)}</p>
-            {product.available && product.stock !== undefined && (
+            {product.available && typeof product.stock === "number" && (
               <p className="mt-1 text-sm text-accent">
                 {product.stock > 0
                   ? `Noch ${product.stock} an Lager`
@@ -63,10 +63,13 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                 customFields: product.customFields,
                 personalizable: product.personalizable,
                 withSymbols: product.withSymbols,
+                withNote: product.withNote,
+                withName: product.withName,
                 onRequest: product.onRequest,
               }}
               symbols={symbols}
               notePlaceholder={settings.notePlaceholder || "z. B. Blauer Flamingo"}
+              namePlaceholder={settings.namePlaceholder || "z. B. Alina"}
             />
           ) : (
             <p className="rounded-lg bg-sand p-3 text-sm">Dieses Produkt ist im Moment leider ausverkauft.</p>

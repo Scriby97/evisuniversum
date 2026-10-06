@@ -9,7 +9,16 @@ import { inputClass } from "@/lib/web3forms";
 
 export type CartProduct = Pick<
   Product,
-  "slug" | "colors" | "sizes" | "extras" | "customFields" | "personalizable" | "withSymbols" | "onRequest"
+  | "slug"
+  | "colors"
+  | "sizes"
+  | "extras"
+  | "customFields"
+  | "personalizable"
+  | "withSymbols"
+  | "withNote"
+  | "withName"
+  | "onRequest"
 >;
 
 export function needsChoice(p: CartProduct) {
@@ -54,10 +63,12 @@ export function ProductOptions({
   product,
   symbols,
   notePlaceholder,
+  namePlaceholder,
 }: {
   product: CartProduct;
   symbols: string[];
   notePlaceholder: string;
+  namePlaceholder: string;
 }) {
   const [added, setAdded] = useState(false);
   const showSymbols = product.personalizable && product.withSymbols && symbols.length > 0;
@@ -78,6 +89,7 @@ export function ProductOptions({
       extras: extras.length ? extras : undefined,
       custom: custom.length ? custom : undefined,
       symbol: value("symbol"),
+      name: value("name"),
       text: value("text"),
     });
     setAdded(true);
@@ -136,7 +148,13 @@ export function ProductOptions({
           </Link>
         </label>
       )}
-      {product.personalizable && (
+      {product.personalizable && product.withName && (
+        <label className="flex flex-col gap-1 text-sm">
+          Namenwunsch (optional)
+          <input name="name" maxLength={60} className={inputClass} placeholder={namePlaceholder} />
+        </label>
+      )}
+      {product.personalizable && product.withNote && (
         <label className="flex flex-col gap-1 text-sm">
           Bemerkung oder Wunsch (optional)
           <textarea name="text" rows={3} maxLength={300} className={inputClass} placeholder={notePlaceholder} />

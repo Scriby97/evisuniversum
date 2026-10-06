@@ -32,6 +32,8 @@ export function ProductCard({ product }: { product: Product }) {
                 customFields: product.customFields,
                 personalizable: product.personalizable,
                 withSymbols: product.withSymbols,
+                withNote: product.withNote,
+                withName: product.withName,
                 onRequest: product.onRequest,
               }}
             />

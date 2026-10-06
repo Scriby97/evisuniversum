@@ -30,6 +30,7 @@ export type SiteSettings = {
   personalizationTitle?: string;
   personalizationText?: string;
   notePlaceholder?: string;
+  namePlaceholder?: string;
   motifs?: { _key: string; name: string; image?: SanityImage }[];
   aboutTitle?: string;
   aboutText?: string;
@@ -64,9 +65,11 @@ export type Product = {
   images?: SanityImage[];
   personalizable: boolean;
   withSymbols: boolean;
+  withNote: boolean;
+  withName: boolean;
   onRequest: boolean;
-  /** Anzahl an Lager; undefined = Bestand wird nicht gezählt */
-  stock?: number;
+  /** Anzahl an Lager; null = Bestand wird nicht gezählt (Sanity liefert leere Felder als null) */
+  stock?: number | null;
   digital: boolean;
   available: boolean;
 };
@@ -113,6 +116,8 @@ export async function getCategories(): Promise<Category[]> {
           _id, name, "slug": slug.current, price, colors, sizes, extras, customFields, description, details, images,
           "personalizable": coalesce(personalizable, false),
           "withSymbols": coalesce(withSymbols, true),
+          "withNote": coalesce(withNote, true),
+          "withName": coalesce(withName, false),
           // Bestand 0 → automatisch «Auf Anfrage»
           "onRequest": coalesce(onRequest, false) || (defined(stock) && stock <= 0),
           stock,

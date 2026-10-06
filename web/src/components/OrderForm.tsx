@@ -14,7 +14,7 @@ export type OrderProduct = {
   digital: boolean;
   onRequest: boolean;
   extras?: { name: string; price: number }[];
-  stock?: number;
+  stock?: number | null;
 };
 type Status = "idle" | "sending" | "success" | "error";
 type Payment = "invoice" | "twint";
@@ -60,7 +60,7 @@ export function OrderForm({
     // Mehr bestellt als an Lager (über alle Zeilen desselben Produkts) → diese Zeile auf Anfrage
     const before = counted.get(item.slug) ?? 0;
     counted.set(item.slug, before + item.quantity);
-    const overStock = product.stock !== undefined && before + item.quantity > product.stock;
+    const overStock = typeof product.stock === "number" && before + item.quantity > product.stock;
     return [{ ...item, product, extras, unitPrice, overStock, onRequest: product.onRequest || overStock }];
   });
   const subtotal = lines.reduce((sum, l) => sum + l.unitPrice * l.quantity, 0);
@@ -92,6 +92,7 @@ export function OrderForm({
           ...(l.custom ?? []).map((c) => `${c.label}: ${c.value}`),
           ...l.extras.map((e) => `${e.name} (+${formatPrice(e.price)})`),
           l.symbol && `Symbol ${l.symbol}`,
+          l.name && `Namenwunsch: «${l.name}»`,
           l.text && `Bemerkung/Wunsch: «${l.text}»`,
         ]
           .filter(Boolean)
@@ -127,7 +128,7 @@ export function OrderForm({
       });
       setPlaced({ orderNo, total, payment: paymentMethod, hasRequests });
       // Lagerbestand abziehen (Cloudflare-Worker); scheitert das, ist die Bestellung trotzdem verschickt
-      const tracked = lines.filter((l) => l.product.stock !== undefined);
+      const tracked = lines.filter((l) => typeof l.product.stock === "number");
       if (tracked.length) {
         fetch("/api/stock", {
           method: "POST",
@@ -241,6 +242,7 @@ export function OrderForm({
                     ...(l.custom ?? []).map((c) => `${c.label}: ${c.value}`),
                     ...l.extras.map((e) => e.name),
                     l.symbol && `Symbol ${l.symbol}`,
+                    l.name && `Name «${l.name}»`,
                     l.text && `«${l.text}»`,
                   ]
                     .filter(Boolean)

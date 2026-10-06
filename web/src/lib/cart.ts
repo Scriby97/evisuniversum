@@ -13,6 +13,8 @@ export type CartItem = {
   /** Eigene Auswahlfelder: Bezeichnung → Wert */
   custom?: { label: string; value: string }[];
   symbol?: string;
+  /** «Namenwunsch» */
+  name?: string;
   /** «Bemerkung oder Wunsch» */
   text?: string;
 };
@@ -25,6 +27,7 @@ function sameChoice(a: Omit<CartItem, "id" | "quantity">, b: Omit<CartItem, "id"
     a.size === b.size &&
     a.symbol === b.symbol &&
     a.text === b.text &&
+    a.name === b.name &&
     (a.extras ?? []).join("|") === (b.extras ?? []).join("|") &&
     JSON.stringify(a.custom ?? []) === JSON.stringify(b.custom ?? [])
   );
