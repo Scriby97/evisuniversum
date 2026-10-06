@@ -114,8 +114,7 @@ export const siteSettings = defineType({
       name: 'personalizationText',
       title: 'Erklärung Personalisierung',
       description: 'Wie funktioniert eine personalisierte Bestellung?',
-      type: 'text',
-      rows: 6,
+      type: 'richText',
       group: 'shop',
     }),
     defineField({
@@ -150,11 +149,11 @@ export const siteSettings = defineType({
     }),
 
     defineField({name: 'aboutTitle', title: 'Titel', type: 'string', group: 'about'}),
-    defineField({name: 'aboutText', title: 'Text', type: 'text', rows: 14, group: 'about'}),
+    defineField({name: 'aboutText', title: 'Text', type: 'richText', group: 'about'}),
     defineField({name: 'aboutImage', title: 'Bild', type: 'image', options: {hotspot: true}, group: 'about'}),
 
-    defineField({name: 'orderInfo', title: 'So funktioniert die Bestellung', type: 'text', rows: 5, group: 'order'}),
-    defineField({name: 'shippingInfo', title: 'Versandkosten & Lieferzeit', type: 'text', rows: 4, group: 'order'}),
+    defineField({name: 'orderInfo', title: 'So funktioniert die Bestellung', type: 'richText', group: 'order'}),
+    defineField({name: 'shippingInfo', title: 'Versandkosten & Lieferzeit', type: 'richText', group: 'order'}),
     defineField({
       name: 'shippingOptions',
       title: 'Versandarten',
@@ -211,9 +210,9 @@ export const siteSettings = defineType({
           type: 'object',
           fields: [
             defineField({name: 'question', title: 'Frage', type: 'string', validation: (r) => r.required()}),
-            defineField({name: 'answer', title: 'Antwort', type: 'text', rows: 4, validation: (r) => r.required()}),
+            defineField({name: 'answer', title: 'Antwort', type: 'richText', validation: (r) => r.required()}),
           ],
-          preview: {select: {title: 'question', subtitle: 'answer'}},
+          preview: {select: {title: 'question'}},
         }),
       ],
     }),
@@ -225,9 +224,8 @@ export const siteSettings = defineType({
     defineField({
       name: 'agbText',
       title: 'AGB',
-      description: 'Absätze mit einer Leerzeile trennen. Zeilen, die mit «## » beginnen, werden zu Zwischentiteln.',
-      type: 'text',
-      rows: 20,
+      description: 'Zwischentitel mit der Schriftgrösse «Gross» oder «Sehr gross» formatieren.',
+      type: 'richText',
       group: 'legal',
     }),
   ],

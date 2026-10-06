@@ -138,9 +138,8 @@ export const product = defineType({
     defineField({
       name: 'details',
       title: 'Ausführliche Beschreibung',
-      description: 'Material, Pflegehinweise usw. – erscheint auf der Produktseite. Leere Zeile = neuer Absatz.',
-      type: 'text',
-      rows: 10,
+      description: 'Material, Pflegehinweise usw. – erscheint auf der Produktseite.',
+      type: 'richText',
     }),
     defineField({
       name: 'images',
