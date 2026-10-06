@@ -24,7 +24,7 @@ export function MobileMenu({ links }: { links: { href: string; label: string }[]
         </svg>
       </button>
       {open && (
-        <nav id="mobile-menu" className="absolute inset-x-0 top-full z-40 border-b border-sand bg-cream shadow-sm">
+        <nav id="mobile-menu" aria-label="Menü" className="absolute inset-x-0 top-full z-40 border-b border-sand bg-cream shadow-sm">
           <ul className="mx-auto flex max-w-6xl flex-col px-4 py-2">
             {links.map((link) => (
               <li key={link.href}>

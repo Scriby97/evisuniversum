@@ -1,4 +1,5 @@
 import {defineField, defineType} from 'sanity'
+import {altText} from './altText'
 
 export const product = defineType({
   name: 'product',
@@ -150,7 +151,7 @@ export const product = defineType({
         {
           type: 'image',
           options: {hotspot: true},
-          fields: [defineField({name: 'alt', title: 'Bildbeschreibung', type: 'string'})],
+          fields: [altText],
         },
       ],
     }),

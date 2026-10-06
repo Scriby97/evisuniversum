@@ -1,4 +1,5 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
+import {altText} from './altText'
 
 const pageLinks = [
   {title: 'Shop', value: '/shop'},
@@ -64,7 +65,14 @@ export const siteSettings = defineType({
       group: 'home',
     }),
     defineField({name: 'heroSubtitle', title: 'Untertitel', type: 'string', group: 'home'}),
-    defineField({name: 'heroImage', title: 'Titelbild', type: 'image', options: {hotspot: true}, group: 'home'}),
+    defineField({
+      name: 'heroImage',
+      title: 'Titelbild',
+      type: 'image',
+      options: {hotspot: true},
+      fields: [altText],
+      group: 'home',
+    }),
     defineField({name: 'heroText', title: 'Kurze Vorstellung', type: 'text', rows: 4, group: 'home'}),
     defineField({
       name: 'highlights',
@@ -78,7 +86,7 @@ export const siteSettings = defineType({
           fields: [
             defineField({name: 'title', title: 'Titel', type: 'string', validation: (r) => r.required()}),
             defineField({name: 'text', title: 'Text', type: 'text', rows: 3}),
-            defineField({name: 'image', title: 'Bild', type: 'image', options: {hotspot: true}}),
+            defineField({name: 'image', title: 'Bild', type: 'image', options: {hotspot: true}, fields: [altText]}),
             defineField({
               name: 'link',
               title: 'Verlinkt auf',
@@ -150,7 +158,14 @@ export const siteSettings = defineType({
 
     defineField({name: 'aboutTitle', title: 'Titel', type: 'string', group: 'about'}),
     defineField({name: 'aboutText', title: 'Text', type: 'richText', group: 'about'}),
-    defineField({name: 'aboutImage', title: 'Bild', type: 'image', options: {hotspot: true}, group: 'about'}),
+    defineField({
+      name: 'aboutImage',
+      title: 'Bild',
+      type: 'image',
+      options: {hotspot: true},
+      fields: [altText],
+      group: 'about',
+    }),
 
     defineField({name: 'orderInfo', title: 'So funktioniert die Bestellung', type: 'richText', group: 'order'}),
     defineField({name: 'shippingInfo', title: 'Versandkosten & Lieferzeit', type: 'richText', group: 'order'}),

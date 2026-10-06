@@ -25,7 +25,7 @@ export function Footer({ settings }: { settings: SiteSettings }) {
             </a>
           )}
         </div>
-        <nav className="flex flex-wrap gap-x-6 gap-y-1">
+        <nav aria-label="Rechtliches und FAQ" className="flex flex-wrap gap-x-6 gap-y-1">
           {legalLinks.map((link) => (
             <Link key={link.href} href={link.href} className="hover:text-ink">
               {link.label}

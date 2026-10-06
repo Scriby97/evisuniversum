@@ -7,18 +7,21 @@ export function SanityImage({
   alt,
   sizes,
   priority,
+  decorative,
 }: {
   image?: SanityImageType;
   alt: string;
   sizes: string;
   priority?: boolean;
+  /** Rein schmückend (z. B. Name steht daneben): Screenreader überspringen das Bild */
+  decorative?: boolean;
 }) {
   const src = imageUrl(image);
   if (!src) return <div className="absolute inset-0 bg-sand" aria-hidden />;
   return (
     <Image
       src={src}
-      alt={image?.alt || alt}
+      alt={decorative ? "" : image?.alt || alt}
       fill
       sizes={sizes}
       priority={priority}

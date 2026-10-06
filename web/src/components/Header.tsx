@@ -21,7 +21,7 @@ export function Header({ siteName, logo }: { siteName: string; logo?: SanityImag
           {logoSrc && <Image src={logoSrc} alt="" width={134} height={100} className="h-11 w-auto" priority />}
           <span className="truncate font-serif text-3xl font-medium">{siteName}</span>
         </Link>
-        <nav className="hidden items-center gap-x-6 text-sm lg:flex">
+        <nav aria-label="Hauptmenü" className="hidden items-center gap-x-6 text-sm lg:flex">
           {links.map((link) => (
             <Link key={link.href} href={link.href} className="text-muted hover:text-ink">
               {link.label}

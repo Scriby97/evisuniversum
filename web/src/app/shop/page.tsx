@@ -15,7 +15,7 @@ export default async function ShopPage() {
     <div className="mx-auto max-w-6xl px-4 py-12">
       <h1 className="mb-6 font-serif text-5xl font-medium">Shop</h1>
 
-      <nav className="mb-12 flex flex-wrap gap-2 text-sm">
+      <nav aria-label="Kategorien" className="mb-12 flex flex-wrap gap-2 text-sm">
         {categories.map((c) => (
           <a key={c._id} href={`#${c.slug}`} className="rounded-full bg-sand px-4 py-1.5 hover:bg-accent hover:text-white">
             {c.title}
@@ -50,7 +50,8 @@ export default async function ShopPage() {
               {settings.motifs.map((m) => (
                 <li key={m._key} className="flex flex-col items-center gap-2 text-center text-sm">
                   <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-white">
-                    <SanityImage image={m.image} alt={m.name} sizes="160px" />
+                    {/* Name steht darunter – Bild für Screenreader nicht doppelt vorlesen */}
+                    <SanityImage image={m.image} alt="" decorative sizes="160px" />
                   </div>
                   {m.name}
                 </li>
