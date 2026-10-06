@@ -9,11 +9,13 @@ import { inputClass } from "@/lib/web3forms";
 
 export type CartProduct = Pick<
   Product,
-  "slug" | "colors" | "sizes" | "extras" | "personalizable" | "withSymbols" | "onRequest"
+  "slug" | "colors" | "sizes" | "extras" | "customFields" | "personalizable" | "withSymbols" | "onRequest"
 >;
 
 export function needsChoice(p: CartProduct) {
-  return Boolean(p.colors?.length || p.sizes?.length || p.extras?.length || p.personalizable);
+  return Boolean(
+    p.colors?.length || p.sizes?.length || p.extras?.length || p.customFields?.length || p.personalizable,
+  );
 }
 
 const buttonLabel = (p: CartProduct) => (p.onRequest ? "Auf Anfrage" : "In den Warenkorb");
@@ -57,11 +59,16 @@ export function ProductOptions({ product, symbols }: { product: CartProduct; sym
     const form = new FormData(event.currentTarget);
     const value = (name: string) => String(form.get(name) ?? "").trim() || undefined;
     const extras = form.getAll("extras").map(String);
+    const custom = (product.customFields ?? []).flatMap((f) => {
+      const v = value(`custom-${f._key}`);
+      return v ? [{ label: f.label, value: v }] : [];
+    });
     addToCart({
       slug: product.slug,
       color: value("color"),
       size: value("size"),
       extras: extras.length ? extras : undefined,
+      custom: custom.length ? custom : undefined,
       symbol: value("symbol"),
       text: value("text"),
     });
@@ -72,6 +79,28 @@ export function ProductOptions({ product, symbols }: { product: CartProduct; sym
     <form id="auswahl" onSubmit={handleSubmit} onChange={() => setAdded(false)} className="flex flex-col gap-4">
       {product.colors?.length ? <Choice name="color" label="Farbe" options={product.colors} /> : null}
       {product.sizes?.length ? <Choice name="size" label="Grösse" options={product.sizes} /> : null}
+      {product.customFields?.map((field) =>
+        field.kind === "text" ? (
+          <label key={field._key} className="flex flex-col gap-1 text-sm">
+            {field.label}
+            {field.required === false && " (optional)"}
+            <input
+              name={`custom-${field._key}`}
+              required={field.required !== false}
+              maxLength={100}
+              className={inputClass}
+            />
+          </label>
+        ) : field.options?.length ? (
+          <Choice
+            key={field._key}
+            name={`custom-${field._key}`}
+            label={field.required === false ? `${field.label} (optional)` : field.label}
+            options={field.options}
+            required={field.required !== false}
+          />
+        ) : null,
+      )}
       {product.extras?.length ? (
         <fieldset className="flex flex-col gap-2">
           <legend className="mb-1 text-sm">Zusatzoptionen</legend>
@@ -130,13 +159,23 @@ export function ProductOptions({ product, symbols }: { product: CartProduct; sym
   );
 }
 
-function Choice({ name, label, options }: { name: string; label: string; options: string[] }) {
+function Choice({
+  name,
+  label,
+  options,
+  required = true,
+}: {
+  name: string;
+  label: string;
+  options: string[];
+  required?: boolean;
+}) {
   return (
     <label className="flex flex-col gap-1 text-sm">
       {label}
-      <select name={name} required className={inputClass} defaultValue="">
-        <option value="" disabled>
-          Bitte wählen
+      <select name={name} required={required} className={inputClass} defaultValue="">
+        <option value="" disabled={required}>
+          {required ? "Bitte wählen" : "Keine Auswahl"}
         </option>
         {options.map((o) => (
           <option key={o} value={o}>

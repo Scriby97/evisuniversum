@@ -53,6 +53,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                 colors: product.colors,
                 sizes: product.sizes,
                 extras: product.extras,
+                customFields: product.customFields,
                 personalizable: product.personalizable,
                 withSymbols: product.withSymbols,
                 onRequest: product.onRequest,

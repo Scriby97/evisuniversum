@@ -43,6 +43,73 @@ export const product = defineType({
       options: {layout: 'tags'},
     }),
     defineField({
+      name: 'customFields',
+      title: 'Eigene Auswahlfelder',
+      description:
+        'Weitere Felder für die Bestellung, z. B. «Schnitt» (Damen/Herren) bei T-Shirts oder «Initialen» bei Hüten. So viele wie nötig.',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          fields: [
+            defineField({
+              name: 'label',
+              title: 'Bezeichnung',
+              description: 'So heisst das Feld beim Produkt, z. B. «Schnitt».',
+              type: 'string',
+              validation: (r) => r.required(),
+            }),
+            defineField({
+              name: 'kind',
+              title: 'Art',
+              type: 'string',
+              options: {
+                list: [
+                  {title: 'Auswahlliste', value: 'select'},
+                  {title: 'Textfeld (freie Eingabe)', value: 'text'},
+                ],
+                layout: 'radio',
+              },
+              initialValue: 'select',
+              validation: (r) => r.required(),
+            }),
+            defineField({
+              name: 'options',
+              title: 'Auswahlmöglichkeiten',
+              description: 'Jede Möglichkeit eintippen und Enter drücken, z. B. Damen, Herren, Kinder.',
+              type: 'array',
+              of: [{type: 'string'}],
+              options: {layout: 'tags'},
+              hidden: ({parent}) => parent?.kind === 'text',
+              validation: (r) =>
+                r.custom((options, ctx) =>
+                  (ctx.parent as {kind?: string})?.kind !== 'text' && !(options as string[] | undefined)?.length
+                    ? 'Mindestens eine Auswahlmöglichkeit eintragen'
+                    : true,
+                ),
+            }),
+            defineField({
+              name: 'required',
+              title: 'Pflichtfeld',
+              description: 'Kundinnen müssen das Feld ausfüllen, bevor das Produkt in den Warenkorb kommt.',
+              type: 'boolean',
+              initialValue: true,
+            }),
+          ],
+          preview: {
+            select: {title: 'label', kind: 'kind', options: 'options', required: 'required'},
+            prepare: ({title, kind, options, required}) => ({
+              title,
+              subtitle: [
+                kind === 'text' ? 'Textfeld' : (options ?? []).join(' / '),
+                required === false ? 'optional' : 'Pflicht',
+              ].join(' · '),
+            }),
+          },
+        },
+      ],
+    }),
+    defineField({
       name: 'extras',
       title: 'Zusatzoptionen',
       description: 'Ankreuzbare Extras mit Aufpreis, z. B. «Bestickung auf beiden Seiten» für CHF 5.',

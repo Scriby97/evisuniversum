@@ -29,6 +29,7 @@ export function ProductCard({ product }: { product: Product }) {
                 colors: product.colors,
                 sizes: product.sizes,
                 extras: product.extras,
+                customFields: product.customFields,
                 personalizable: product.personalizable,
                 withSymbols: product.withSymbols,
                 onRequest: product.onRequest,

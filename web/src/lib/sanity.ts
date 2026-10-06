@@ -56,6 +56,7 @@ export type Product = {
   colors?: string[];
   sizes?: string[];
   extras?: { _key: string; name: string; price: number }[];
+  customFields?: CustomField[];
   description?: string;
   details?: string;
   images?: SanityImage[];
@@ -64,6 +65,14 @@ export type Product = {
   onRequest: boolean;
   digital: boolean;
   available: boolean;
+};
+
+export type CustomField = {
+  _key: string;
+  label: string;
+  kind: "select" | "text";
+  options?: string[];
+  required?: boolean;
 };
 
 export type Category = {
@@ -97,7 +106,7 @@ export async function getCategories(): Promise<Category[]> {
       _id, title, "slug": slug.current, description,
       "products": *[_type == "product" && references(^._id) && defined(slug.current)]
         | order(sortOrder asc, name asc) {
-          _id, name, "slug": slug.current, price, colors, sizes, extras, description, details, images,
+          _id, name, "slug": slug.current, price, colors, sizes, extras, customFields, description, details, images,
           "personalizable": coalesce(personalizable, false),
           "withSymbols": coalesce(withSymbols, true),
           "onRequest": coalesce(onRequest, false),
