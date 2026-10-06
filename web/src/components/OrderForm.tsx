@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { clearCart, setQuantity, useCart } from "@/lib/cart";
@@ -15,23 +16,36 @@ export type OrderProduct = {
   extras?: { name: string; price: number }[];
 };
 type Status = "idle" | "sending" | "success" | "error";
+type Payment = "invoice" | "twint";
+type Placed = { orderNo: string; total: number; payment: Payment; hasRequests: boolean };
+
+// Kurze, gut lesbare Nummer, damit Evi Zahlungen (TWINT, QR-Rechnung) zuordnen kann
+function newOrderNumber() {
+  const d = new Date();
+  const ymd = `${d.getFullYear() % 100}`.padStart(2, "0") + `${d.getMonth() + 1}`.padStart(2, "0") + `${d.getDate()}`.padStart(2, "0");
+  return `EU-${ymd}-${Math.floor(1000 + Math.random() * 9000)}`;
+}
 
 export function OrderForm({
   products,
   shippingOptions,
   freeShippingFrom,
   giftWrapPrice,
+  twintQrUrl,
 }: {
   products: OrderProduct[];
   shippingOptions: { name: string; price: number }[];
   freeShippingFrom?: number;
   giftWrapPrice?: number;
+  twintQrUrl?: string;
 }) {
   const cart = useCart();
   const [status, setStatus] = useState<Status>("idle");
   const [giftWrap, setGiftWrap] = useState(false);
   const [otherAddress, setOtherAddress] = useState(false);
   const [shippingIndex, setShippingIndex] = useState(0);
+  const [payment, setPayment] = useState<Payment>("invoice");
+  const [placed, setPlaced] = useState<Placed | null>(null);
 
   // Aktuelle Namen und Preise aus Sanity; ausverkaufte/gelöschte Produkte fallen weg
   const bySlug = new Map(products.map((p) => [p.slug, p]));
@@ -54,11 +68,15 @@ export function OrderForm({
   const total = subtotal + shipping + wrapping;
   const hasRequests = lines.some((l) => l.product.onRequest);
   const dropped = cart.length - lines.length;
+  // TWINT nur mit hinterlegtem QR-Code und ohne Produkte auf Anfrage (dort steht der Preis noch nicht fest)
+  const canTwint = Boolean(twintQrUrl) && !hasRequests;
+  const paymentMethod: Payment = canTwint ? payment : "invoice";
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setStatus("sending");
     const form = new FormData(event.currentTarget);
+    const orderNo = newOrderNumber();
     const order = lines
       .map((l) => {
         const details = [
@@ -79,8 +97,13 @@ export function OrderForm({
 
     try {
       await sendForm({
-        subject: `${hasRequests ? "Neue Bestellung/Anfrage" : "Neue Bestellung"} von ${form.get("name")}`,
+        subject: `${hasRequests ? "Neue Bestellung/Anfrage" : "Neue Bestellung"} ${orderNo} von ${form.get("name")}`,
         botcheck: form.get("botcheck"),
+        Bestellnummer: orderNo,
+        Zahlungsart:
+          paymentMethod === "twint"
+            ? "TWINT – Kundin bezahlt direkt nach der Bestellung per QR-Code (Zahlungseingang prüfen)"
+            : "QR-Rechnung per E-Mail",
         Name: form.get("name"),
         email: form.get("email"),
         Adresse: form.get("address") || "–",
@@ -96,6 +119,7 @@ export function OrderForm({
         Total: formatPrice(total),
         Nachricht: form.get("message") || "–",
       });
+      setPlaced({ orderNo, total, payment: paymentMethod, hasRequests });
       clearCart();
       setStatus("success");
     } catch {
@@ -103,12 +127,54 @@ export function OrderForm({
     }
   }
 
-  if (status === "success") {
+  if (status === "success" && placed) {
+    if (placed.payment === "twint" && twintQrUrl) {
+      return (
+        <div className="flex flex-col gap-5 rounded-2xl bg-white p-6 shadow-sm">
+          <div>
+            <h2 className="mb-2 font-serif text-3xl">Vielen Dank für deine Bestellung! ♡</h2>
+            <p className="text-muted">
+              Bestellnummer <strong className="text-ink">{placed.orderNo}</strong> – jetzt nur noch mit TWINT bezahlen:
+            </p>
+          </div>
+          <div className="grid items-center gap-6 sm:grid-cols-[auto_1fr]">
+            <div className="relative mx-auto aspect-[1026/1591] w-56">
+              <Image
+                src={twintQrUrl}
+                alt="TWINT-QR-Code von evi’s universum"
+                fill
+                sizes="224px"
+                loading="eager"
+                className="object-contain"
+              />
+            </div>
+            <ol className="flex list-decimal flex-col gap-2 pl-5 text-muted">
+              <li>TWINT-App öffnen und den QR-Code scannen.</li>
+              <li>
+                Betrag eingeben: <strong className="text-lg text-ink">{formatPrice(placed.total)}</strong>
+              </li>
+              <li>
+                Falls TWINT eine Mitteilung erlaubt: Bestellnummer <strong className="text-ink">{placed.orderNo}</strong>{" "}
+                angeben.
+              </li>
+              <li>Zahlung bestätigen – fertig! Sobald sie eingegangen ist, mache ich mich an die Arbeit.</li>
+            </ol>
+          </div>
+          <p className="text-sm text-muted">
+            Bestellst du auf dem Handy? Dann scanne den Code von einem zweiten Gerät aus. Klappt es nicht, schreib mir
+            einfach – dann schicke ich dir eine QR-Rechnung.
+          </p>
+        </div>
+      );
+    }
     return (
       <div className="rounded-2xl bg-white p-6 shadow-sm">
         <h2 className="mb-2 font-serif text-3xl">Vielen Dank für deine Bestellung! ♡</h2>
+        <p className="mb-2 text-muted">
+          Bestellnummer <strong className="text-ink">{placed.orderNo}</strong>
+        </p>
         <p className="text-muted">
-          {hasRequests
+          {placed.hasRequests
             ? "Bei Produkten auf Anfrage prüfe ich zuerst, ob ich deinen Wunsch umsetzen kann, und melde mich bei dir. Danach erhältst du eine QR-Rechnung per E-Mail."
             : "Du erhältst in den nächsten Tagen eine QR-Rechnung per E-Mail. Sobald die Zahlung eingegangen ist, mache ich mich an die Arbeit."}
         </p>
@@ -307,6 +373,39 @@ export function OrderForm({
         <input type="checkbox" name="botcheck" className="hidden" tabIndex={-1} autoComplete="off" />
       </fieldset>
 
+      {twintQrUrl && (
+        <fieldset className="flex flex-col gap-2 text-sm">
+          <legend className="mb-3 font-serif text-2xl">Bezahlung</legend>
+          <label className="flex items-center gap-2">
+            <input
+              type="radio"
+              name="payment"
+              checked={paymentMethod === "invoice"}
+              onChange={() => setPayment("invoice")}
+              className="size-4 accent-accent"
+            />
+            QR-Rechnung per E-Mail
+          </label>
+          <label className={`flex items-center gap-2 ${canTwint ? "" : "text-muted"}`}>
+            <input
+              type="radio"
+              name="payment"
+              checked={paymentMethod === "twint"}
+              onChange={() => setPayment("twint")}
+              disabled={!canTwint}
+              className="size-4 accent-accent"
+            />
+            TWINT – direkt nach der Bestellung bezahlen
+          </label>
+          {!canTwint && (
+            <p className="text-xs text-muted">
+              Bei Produkten auf Anfrage ist TWINT nicht möglich – du erhältst eine QR-Rechnung, sobald ich deinen
+              Wunsch geprüft habe.
+            </p>
+          )}
+        </fieldset>
+      )}
+
       {status === "error" && (
         <p className="text-sm text-red-700">
           Die Bestellung konnte nicht gesendet werden. Bitte versuche es nochmals oder schreib mir eine E-Mail.
@@ -321,7 +420,9 @@ export function OrderForm({
         {status === "sending" ? "Wird gesendet …" : "Verbindlich bestellen"}
       </button>
       <p className="text-xs text-muted">
-        Du bezahlst bequem per QR-Rechnung, die du nach der Bestellung per E-Mail erhältst. Es gelten die{" "}
+        {paymentMethod === "twint"
+          ? "Nach dem Absenden zeige ich dir den TWINT-QR-Code und den Betrag."
+          : "Du bezahlst bequem per QR-Rechnung, die du nach der Bestellung per E-Mail erhältst."} Es gelten die{" "}
         <Link href="/agb" className="underline">
           AGB
         </Link>{" "}

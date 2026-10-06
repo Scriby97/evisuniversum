@@ -163,6 +163,14 @@ export const siteSettings = defineType({
       ],
     }),
     defineField({
+      name: 'twintQr',
+      title: 'TWINT-QR-Code',
+      description:
+        'Dein Firmen-QR-Code. Ist er hinterlegt, können Kundinnen im Warenkorb «TWINT» wählen (nicht bei Produkten auf Anfrage). Leer lassen = nur QR-Rechnung.',
+      type: 'image',
+      group: 'order',
+    }),
+    defineField({
       name: 'giftWrapPrice',
       title: 'Geschenkverpackung (CHF)',
       description: 'Preis für «Als Geschenk verpacken» im Warenkorb. Leer lassen, um die Option auszublenden.',

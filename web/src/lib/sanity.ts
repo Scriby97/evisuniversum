@@ -39,6 +39,7 @@ export type SiteSettings = {
   /** alt: einzelner Versandpreis vor den Versandarten */
   shippingCost?: number;
   giftWrapPrice?: number;
+  twintQr?: SanityImage;
   freeShippingFrom?: number;
   faqs?: { _key: string; question: string; answer: string }[];
   ownerName?: string;

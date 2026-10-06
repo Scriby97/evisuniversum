@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { OrderForm } from "@/components/OrderForm";
-import { getProducts, getSettings } from "@/lib/sanity";
+import { getProducts, getSettings, imageUrl } from "@/lib/sanity";
 
 export const metadata: Metadata = { title: "Warenkorb" };
 
@@ -23,6 +23,7 @@ export default async function OrderPage() {
           }
           freeShippingFrom={settings.freeShippingFrom}
           giftWrapPrice={settings.giftWrapPrice}
+          twintQrUrl={imageUrl(settings.twintQr) ?? undefined}
         />
       </div>
       <aside className="flex flex-col gap-6 self-start rounded-2xl bg-sand/60 p-6 text-sm">
