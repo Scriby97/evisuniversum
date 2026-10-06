@@ -14,6 +14,7 @@ export type OrderProduct = {
   digital: boolean;
   onRequest: boolean;
   extras?: { name: string; price: number }[];
+  stock?: number;
 };
 type Status = "idle" | "sending" | "success" | "error";
 type Payment = "invoice" | "twint";
@@ -49,13 +50,18 @@ export function OrderForm({
 
   // Aktuelle Namen und Preise aus Sanity; ausverkaufte/gelöschte Produkte fallen weg
   const bySlug = new Map(products.map((p) => [p.slug, p]));
+  const counted = new Map<string, number>();
   const lines = cart.flatMap((item) => {
     const product = bySlug.get(item.slug);
     if (!product) return [];
     // Aufpreise der gewählten Zusatzoptionen nach aktuellem Stand in Sanity
     const extras = (product.extras ?? []).filter((e) => item.extras?.includes(e.name));
     const unitPrice = product.price + extras.reduce((sum, e) => sum + e.price, 0);
-    return [{ ...item, product, extras, unitPrice }];
+    // Mehr bestellt als an Lager (über alle Zeilen desselben Produkts) → diese Zeile auf Anfrage
+    const before = counted.get(item.slug) ?? 0;
+    counted.set(item.slug, before + item.quantity);
+    const overStock = product.stock !== undefined && before + item.quantity > product.stock;
+    return [{ ...item, product, extras, unitPrice, overStock, onRequest: product.onRequest || overStock }];
   });
   const subtotal = lines.reduce((sum, l) => sum + l.unitPrice * l.quantity, 0);
   const needsShipping = lines.some((l) => !l.product.digital);
@@ -66,7 +72,7 @@ export function OrderForm({
   const canGiftWrap = needsShipping && giftWrapPrice !== undefined;
   const wrapping = canGiftWrap && giftWrap ? giftWrapPrice : 0;
   const total = subtotal + shipping + wrapping;
-  const hasRequests = lines.some((l) => l.product.onRequest);
+  const hasRequests = lines.some((l) => l.onRequest);
   const dropped = cart.length - lines.length;
   // TWINT nur mit hinterlegtem QR-Code und ohne Produkte auf Anfrage (dort steht der Preis noch nicht fest)
   const canTwint = Boolean(twintQrUrl) && !hasRequests;
@@ -80,7 +86,7 @@ export function OrderForm({
     const order = lines
       .map((l) => {
         const details = [
-          l.product.onRequest && "AUF ANFRAGE – Verfügbarkeit prüfen",
+          l.onRequest && (l.overStock ? "AUF ANFRAGE – mehr bestellt als an Lager" : "AUF ANFRAGE – Verfügbarkeit prüfen"),
           l.color && `Farbe ${l.color}`,
           l.size && `Grösse ${l.size}`,
           ...(l.custom ?? []).map((c) => `${c.label}: ${c.value}`),
@@ -120,6 +126,16 @@ export function OrderForm({
         Nachricht: form.get("message") || "–",
       });
       setPlaced({ orderNo, total, payment: paymentMethod, hasRequests });
+      // Lagerbestand abziehen (Cloudflare-Worker); scheitert das, ist die Bestellung trotzdem verschickt
+      const tracked = lines.filter((l) => l.product.stock !== undefined);
+      if (tracked.length) {
+        fetch("/api/stock", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ items: tracked.map((l) => ({ slug: l.slug, quantity: l.quantity })) }),
+          keepalive: true,
+        }).catch(() => {});
+      }
       clearCart();
       setStatus("success");
     } catch {
@@ -208,10 +224,15 @@ export function OrderForm({
               <div className="min-w-0">
                 <p>
                   {l.product.name}
-                  {l.product.onRequest && (
+                  {l.onRequest && (
                     <span className="ml-2 rounded-full bg-mint/60 px-2 py-0.5 text-xs">auf Anfrage</span>
                   )}
                 </p>
+                {l.overStock && !l.product.onRequest && (
+                  <p className="text-xs text-accent">
+                    Nur noch {l.product.stock} an Lager – den Rest fertige ich auf Anfrage an.
+                  </p>
+                )}
                 <p className="text-sm text-muted">
                   {[
                     formatPrice(l.unitPrice),

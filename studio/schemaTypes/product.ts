@@ -193,6 +193,14 @@ export const product = defineType({
       initialValue: true,
     }),
     defineField({
+      name: 'stock',
+      title: 'Anzahl an Lager',
+      description:
+        'Wird bei jeder Bestellung automatisch abgezogen. Bei 0 erscheint das Produkt als «Auf Anfrage». Leer lassen, wenn der Bestand nicht gezählt werden soll.',
+      type: 'number',
+      validation: (r) => r.min(0).integer(),
+    }),
+    defineField({
       name: 'sortOrder',
       title: 'Reihenfolge',
       description: 'Kleinere Zahl = weiter vorne.',

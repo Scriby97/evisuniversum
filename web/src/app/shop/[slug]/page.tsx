@@ -44,6 +44,13 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           <div>
             <h1 className="font-serif text-4xl font-medium sm:text-5xl">{product.name}</h1>
             <p className="mt-2 text-xl text-muted">{formatPrice(product.price)}</p>
+            {product.available && product.stock !== undefined && (
+              <p className="mt-1 text-sm text-accent">
+                {product.stock > 0
+                  ? `Noch ${product.stock} an Lager`
+                  : "Zurzeit nicht an Lager – gerne auf Anfrage"}
+              </p>
+            )}
           </div>
           {product.description && <p className="whitespace-pre-line text-lg text-muted">{product.description}</p>}
           {product.available ? (

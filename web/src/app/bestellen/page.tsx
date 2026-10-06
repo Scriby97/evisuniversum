@@ -8,7 +8,7 @@ export default async function OrderPage() {
   const [settings, products] = await Promise.all([getSettings(), getProducts()]);
   const available = products
     .filter((p) => p.available)
-    .map(({ slug, name, price, digital, onRequest, extras }) => ({ slug, name, price, digital, onRequest, extras }));
+    .map(({ slug, name, price, digital, onRequest, extras, stock }) => ({ slug, name, price, digital, onRequest, extras, stock }));
 
   return (
     <section className="mx-auto grid max-w-6xl gap-10 px-4 py-12 md:grid-cols-[3fr_2fr]">

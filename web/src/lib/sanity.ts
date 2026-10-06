@@ -64,6 +64,8 @@ export type Product = {
   personalizable: boolean;
   withSymbols: boolean;
   onRequest: boolean;
+  /** Anzahl an Lager; undefined = Bestand wird nicht gezählt */
+  stock?: number;
   digital: boolean;
   available: boolean;
 };
@@ -110,7 +112,9 @@ export async function getCategories(): Promise<Category[]> {
           _id, name, "slug": slug.current, price, colors, sizes, extras, customFields, description, details, images,
           "personalizable": coalesce(personalizable, false),
           "withSymbols": coalesce(withSymbols, true),
-          "onRequest": coalesce(onRequest, false),
+          // Bestand 0 → automatisch «Auf Anfrage»
+          "onRequest": coalesce(onRequest, false) || (defined(stock) && stock <= 0),
+          stock,
           "digital": coalesce(digital, false),
           "available": coalesce(available, true)
         }

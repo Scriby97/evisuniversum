@@ -1,9 +1,13 @@
-// Cloudflare Worker, der nur die statische Seite aus `out/` ausliefert (kein Server-Code)
+// Cloudflare Worker: liefert die statische Seite aus `out/` aus; worker/index.ts beantwortet
+// zusätzlich /api/stock (Lagerbestand nach Bestellungen abziehen).
+// Secret SANITY_WRITE_TOKEN im Cloudflare-Dashboard setzen (Settings → Variables and Secrets).
 {
   "name": "evisuniversum",
+  "main": "worker/index.ts",
   "compatibility_date": "2026-09-01",
   "assets": {
     "directory": "./out",
+    "binding": "ASSETS",
     // /shop → shop.html
     "html_handling": "auto-trailing-slash",
     // unbekannte Adressen → out/404.html
