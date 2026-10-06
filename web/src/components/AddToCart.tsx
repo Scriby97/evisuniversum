@@ -131,7 +131,7 @@ export function ProductOptions({ product, symbols }: { product: CartProduct; sym
       {product.personalizable && (
         <label className="flex flex-col gap-1 text-sm">
           Bemerkung oder Wunsch (optional)
-          <textarea name="text" rows={3} maxLength={300} className={inputClass} placeholder="z. B. Name «Alina»" />
+          <textarea name="text" rows={3} maxLength={300} className={inputClass} placeholder="z. B. Blauer Flamingo" />
           <span className="text-xs text-muted">Bei Rückfragen melde ich mich direkt bei dir.</span>
         </label>
       )}
