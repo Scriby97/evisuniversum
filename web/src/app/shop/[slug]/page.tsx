@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { RichText } from "@/components/RichText";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ProductOptions } from "@/components/AddToCart";
+import { MailIcon, ProductOptions } from "@/components/AddToCart";
 import { ProductGallery } from "@/components/ProductGallery";
 import { formatPrice, getProducts, getSettings, imageUrl } from "@/lib/sanity";
 
@@ -54,7 +54,21 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             )}
           </div>
           {product.description && <p className="whitespace-pre-line text-lg text-muted">{product.description}</p>}
-          {product.available ? (
+          {product.onRequest ? (
+            <div className="flex flex-col items-start gap-3 rounded-2xl bg-mint/40 p-5">
+              <p className="text-sm">
+                Dieses Produkt fertige ich auf Anfrage an. Schreib mir deinen Wunsch – ich prüfe, ob ich ihn umsetzen
+                kann, und melde mich bei dir.
+              </p>
+              <Link
+                href={`/anfrage/${product.slug}`}
+                className="flex items-center gap-1.5 rounded-full bg-accent px-6 py-3 text-white hover:bg-accent-dark"
+              >
+                <MailIcon />
+                Anfrage stellen
+              </Link>
+            </div>
+          ) : product.available ? (
             <ProductOptions
               product={{
                 slug: product.slug,

@@ -16,12 +16,13 @@ export function ProductCard({ product }: { product: Product }) {
             sizes="(min-width: 1024px) 360px, (min-width: 640px) 50vw, 100vw"
           />
         </Link>
-        {!product.available && (
+        {/* «Auf Anfrage» hat Vorrang vor «Ausverkauft» */}
+        {!product.available && !product.onRequest && (
           <span className="absolute left-3 top-3 rounded-full bg-ink/80 px-3 py-1 text-xs text-white">
             Ausverkauft
           </span>
         )}
-        {product.available && (
+        {(product.available || product.onRequest) && (
           <div className="absolute bottom-3 right-3">
             <QuickAdd
               product={{
