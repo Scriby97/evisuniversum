@@ -15,8 +15,10 @@ Bilder und Inhalte der Website werden über Sanity (Sanity AS, Norwegen) geladen
 
 Die Schriften sind direkt auf dieser Website gespeichert; es besteht keine Verbindung zu Google oder anderen Schrift-Anbietern.
 
-## Keine Cookies, kein Tracking
-Diese Website setzt keine Cookies und verwendet keine Analyse- oder Werbedienste.
+## Keine Cookies, keine Werbung
+Diese Website setzt keine Cookies und verwendet keine Werbedienste.
+
+Um zu sehen, wie viele Leute die Website besuchen und welche Seiten beliebt sind, nutze ich Cloudflare Web Analytics. Dieser Dienst setzt keine Cookies, erstellt keine Profile und erkennt einzelne Besucherinnen und Besucher nicht wieder. Ich sehe nur zusammengefasste Zahlen, zum Beispiel aufgerufene Seiten, von welcher Website die Besuche kommen, Länder sowie Browser- und Gerätetypen.
 
 Damit dein Warenkorb erhalten bleibt, wird er im Speicher deines Browsers abgelegt (Local Storage). Diese Daten bleiben auf deinem Gerät und werden nicht an mich übertragen, bis du eine Bestellung abschickst. Du kannst sie jederzeit über die Einstellungen deines Browsers löschen.
 

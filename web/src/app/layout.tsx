@@ -6,6 +6,9 @@ import { Header } from "@/components/Header";
 import { getSettings, type SiteSettings } from "@/lib/sanity";
 import "./globals.css";
 
+// Token aus Cloudflare → Web Analytics (öffentlich, steht ohnehin im HTML). Leer = keine Statistik.
+const analyticsToken = "aa3d4aa2bcd34abba86f4921c9576e12";
+
 const heading = Cormorant_Garamond({ variable: "--font-heading", subsets: ["latin"], weight: ["400", "500", "600"] });
 const body = Inter({ variable: "--font-body", subsets: ["latin"] });
 
@@ -53,6 +56,14 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           </ComingSoonGate>
         ) : (
           page
+        )}
+        {analyticsToken && (
+          // Cloudflare Web Analytics: ohne Cookies, zählt Seitenaufrufe (auch beim Wechsel zwischen Seiten)
+          <script
+            defer
+            src="https://static.cloudflareinsights.com/beacon.min.js"
+            data-cf-beacon={JSON.stringify({ token: analyticsToken })}
+          />
         )}
       </body>
     </html>
