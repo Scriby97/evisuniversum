@@ -156,9 +156,9 @@ export function imageUrl(image?: SanityImage): string | null {
 
 export { formatPrice } from "./format";
 
-// Vorschaubild beim Teilen (WhatsApp, Facebook, …): 1200×630, Ausschnitt nach dem Hotspot im Studio
+// Vorschaubild beim Teilen (WhatsApp, Facebook, …): 1200×630, ganzes Foto auf Creme-Hintergrund – so wird das Motiv nie abgeschnitten
 export const ogImageSize = { width: 1200, height: 630 };
 export function ogImageUrl(image?: SanityImage): string | null {
   if (!builder || !image) return null;
-  return builder.image(image).width(ogImageSize.width).height(ogImageSize.height).fit("crop").format("jpg").quality(80).url();
+  return builder.image(image).ignoreImageParams().width(ogImageSize.width).height(ogImageSize.height).fit("fill").bg("f8f3ec").format("jpg").quality(80).url();
 }
