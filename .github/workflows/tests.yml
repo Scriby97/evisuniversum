@@ -23,7 +23,8 @@ jobs:
           cache: npm
           cache-dependency-path: web/package-lock.json
       - run: npm ci
-      - run: npx tsc --noEmit
+      # Next erzeugt Routen-Typen (LayoutProps, next-env.d.ts) sonst erst beim Build
+      - run: npx next typegen && npx tsc --noEmit
       - run: npm run lint
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
