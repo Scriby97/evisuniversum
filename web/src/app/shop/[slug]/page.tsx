@@ -4,7 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MailIcon, ProductOptions } from "@/components/AddToCart";
 import { ProductGallery } from "@/components/ProductGallery";
-import { formatPrice, getProducts, getSettings, imageUrl } from "@/lib/sanity";
+import { formatPrice, getProducts, getSettings, imageUrl, ogImageSize, ogImageUrl } from "@/lib/sanity";
 
 // Statischer Export: nur die beim Build bekannten Produkte gibt es als Seite
 export const dynamicParams = false;
@@ -18,8 +18,23 @@ async function findProduct(slug: string) {
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const product = await findProduct((await params).slug);
-  return product ? { title: product.name, description: product.description } : {};
+  const [product, settings] = await Promise.all([findProduct((await params).slug), getSettings()]);
+  if (!product) return {};
+  const image = product.images?.[0];
+  const ogImage = ogImageUrl(image);
+  return {
+    title: product.name,
+    description: product.description,
+    // Ersetzt das allgemeine Vorschaubild aus dem Layout durch das erste Produktfoto
+    openGraph: ogImage
+      ? {
+          url: `/shop/${product.slug}`,
+          siteName: settings.siteName ?? "evi’s universum",
+          locale: "de_CH",
+          images: [{ url: ogImage, ...ogImageSize, alt: image?.alt || product.name }],
+        }
+      : undefined,
+  };
 }
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
