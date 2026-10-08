@@ -6,6 +6,7 @@ import { useState, type FormEvent } from "react";
 import { clearCart, setQuantity, useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/format";
 import { inputClass, sendForm, web3formsKey } from "@/lib/web3forms";
+import { ConfirmationCopy } from "./ConfirmationCopy";
 
 export type OrderProduct = {
   slug: string;
@@ -18,7 +19,14 @@ export type OrderProduct = {
 };
 type Status = "idle" | "sending" | "success" | "error";
 type Payment = "invoice" | "twint";
-type Placed = { orderNo: string; total: number; payment: Payment; hasRequests: boolean };
+type Placed = {
+  orderNo: string;
+  total: number;
+  payment: Payment;
+  hasRequests: boolean;
+  email: string;
+  summary: string;
+};
 
 // Kurze, gut lesbare Nummer, damit Evi Zahlungen (TWINT, QR-Rechnung) zuordnen kann
 function newOrderNumber() {
@@ -101,6 +109,39 @@ export function OrderForm({
         return `${l.quantity} × ${l.product.name} à ${formatPrice(l.unitPrice)}${l.product.digital ? " (digital)" : ""}${details}`;
       })
       .join("\n");
+    const address = String(form.get("address") ?? "").trim();
+    const shippingAddress = otherAddress ? String(form.get("shippingAddress") ?? "").trim() : "";
+    const message = String(form.get("message") ?? "").trim();
+    const nextSteps =
+      paymentMethod === "twint"
+        ? `Bezahlung per TWINT: ${formatPrice(total)} an evi’s universum, wenn möglich mit der Bestellnummer als Mitteilung.`
+        : hasRequests
+          ? "Bei Produkten auf Anfrage prüfe ich zuerst, ob ich deinen Wunsch umsetzen kann, und melde mich bei dir. Danach erhältst du eine QR-Rechnung per E-Mail."
+          : "Du erhältst in den nächsten Tagen eine QR-Rechnung per E-Mail. Sobald die Zahlung eingegangen ist, mache ich mich an die Arbeit.";
+    // Kopie für die Kundin (Anzeige, Mail an sich selbst, Ausdruck)
+    const summary = [
+      `Bestellnummer: ${orderNo}`,
+      `Datum: ${new Date().toLocaleDateString("de-CH")}`,
+      "",
+      order,
+      "",
+      `Zwischentotal: ${formatPrice(subtotal)}`,
+      needsShipping &&
+        `${shippingOptions.length > 1 ? `Versand (${shippingOption.name})` : "Versand"}: ${shipping === 0 ? "gratis" : formatPrice(shipping)}`,
+      wrapping > 0 && `Geschenkverpackung: ${formatPrice(wrapping)}`,
+      `Total: ${formatPrice(total)}${hasRequests ? " (Produkte auf Anfrage noch nicht definitiv)" : ""}`,
+      "",
+      `Zahlung: ${paymentMethod === "twint" ? "TWINT" : "QR-Rechnung per E-Mail"}`,
+      `Name: ${form.get("name")}`,
+      `E-Mail: ${form.get("email")}`,
+      address ? `Adresse:\n${address}` : null,
+      shippingAddress ? `Versandadresse:\n${shippingAddress}` : null,
+      message ? `Nachricht: ${message}` : null,
+      "",
+      nextSteps,
+    ]
+      .filter((line) => line !== false && line !== null)
+      .join("\n");
 
     try {
       await sendForm({
@@ -126,7 +167,7 @@ export function OrderForm({
         Total: formatPrice(total),
         Nachricht: form.get("message") || "–",
       });
-      setPlaced({ orderNo, total, payment: paymentMethod, hasRequests });
+      setPlaced({ orderNo, total, payment: paymentMethod, hasRequests, email: String(form.get("email")), summary });
       // Lagerbestand abziehen (Cloudflare-Worker); scheitert das, ist die Bestellung trotzdem verschickt
       const tracked = lines.filter((l) => typeof l.product.stock === "number");
       if (tracked.length) {
@@ -181,20 +222,24 @@ export function OrderForm({
             Bestellst du auf dem Handy? Dann scanne den Code von einem zweiten Gerät aus. Klappt es nicht, schreib mir
             einfach – dann schicke ich dir eine QR-Rechnung.
           </p>
+          <OrderCopy placed={placed} />
         </div>
       );
     }
     return (
-      <div className="rounded-2xl bg-white p-6 shadow-sm">
-        <h2 className="mb-2 font-serif text-3xl">Vielen Dank für deine Bestellung! ♡</h2>
-        <p className="mb-2 text-muted">
-          Bestellnummer <strong className="text-ink">{placed.orderNo}</strong>
-        </p>
+      <div className="flex flex-col gap-5 rounded-2xl bg-white p-6 shadow-sm">
+        <div>
+          <h2 className="mb-2 font-serif text-3xl">Vielen Dank für deine Bestellung! ♡</h2>
+          <p className="text-muted">
+            Bestellnummer <strong className="text-ink">{placed.orderNo}</strong>
+          </p>
+        </div>
         <p className="text-muted">
           {placed.hasRequests
             ? "Bei Produkten auf Anfrage prüfe ich zuerst, ob ich deinen Wunsch umsetzen kann, und melde mich bei dir. Danach erhältst du eine QR-Rechnung per E-Mail."
             : "Du erhältst in den nächsten Tagen eine QR-Rechnung per E-Mail. Sobald die Zahlung eingegangen ist, mache ich mich an die Arbeit."}
         </p>
+        <OrderCopy placed={placed} />
       </div>
     );
   }
@@ -456,5 +501,18 @@ export function OrderForm({
         .
       </p>
     </form>
+  );
+}
+
+function OrderCopy({ placed }: { placed: Placed }) {
+  return (
+    <div className="flex flex-col gap-2">
+      <h3 className="font-serif text-2xl">Deine Bestellung</h3>
+      <ConfirmationCopy
+        email={placed.email}
+        subject={`Meine Bestellung ${placed.orderNo} bei evi’s universum`}
+        summary={placed.summary}
+      />
+    </div>
   );
 }

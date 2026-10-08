@@ -12,7 +12,7 @@ export default async function OrderPage() {
     .map(({ slug, name, price, digital, onRequest, extras, stock }) => ({ slug, name, price, digital, onRequest, extras, stock }));
 
   return (
-    <section className="mx-auto grid max-w-6xl gap-10 px-4 py-12 md:grid-cols-[3fr_2fr]">
+    <section className="mx-auto grid max-w-6xl gap-10 px-4 py-12 md:grid-cols-[3fr_2fr] print:block">
       <div>
         <h1 className="mb-8 font-serif text-5xl font-medium">Warenkorb</h1>
         <OrderForm
@@ -27,7 +27,7 @@ export default async function OrderPage() {
           twintQrUrl={imageUrl(settings.twintQr) ?? undefined}
         />
       </div>
-      <aside className="flex flex-col gap-6 self-start rounded-2xl bg-sand/60 p-6 text-sm">
+      <aside className="flex flex-col gap-6 self-start rounded-2xl bg-sand/60 p-6 text-sm print:hidden">
         {settings.orderInfo && (
           <div>
             <h2 className="mb-2 font-serif text-xl">So funktioniert&apos;s</h2>

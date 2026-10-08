@@ -15,7 +15,7 @@ const links = [
 export function Header({ siteName, logo }: { siteName: string; logo?: SanityImage }) {
   const logoSrc = imageUrl(logo);
   return (
-    <header className="relative border-b border-sand">
+    <header className="relative border-b border-sand print:hidden">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-x-8 px-4 py-4">
         <Link href="/" className="flex min-w-0 items-center gap-3">
           {logoSrc && <Image src={logoSrc} alt="" width={134} height={100} className="h-11 w-auto" priority />}

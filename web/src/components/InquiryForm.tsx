@@ -5,6 +5,7 @@ import { useState, type FormEvent } from "react";
 import { formatPrice } from "@/lib/format";
 import { inputClass, sendForm, web3formsKey } from "@/lib/web3forms";
 import { OptionFields, readChoices, type CartProduct } from "./AddToCart";
+import { ConfirmationCopy } from "./ConfirmationCopy";
 
 type Status = "idle" | "sending" | "success" | "error";
 
@@ -31,7 +32,7 @@ export function InquiryForm({
   namePlaceholder: string;
 }) {
   const [status, setStatus] = useState<Status>("idle");
-  const [inquiryNo, setInquiryNo] = useState("");
+  const [sent, setSent] = useState<{ number: string; email: string; summary: string } | null>(null);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -47,6 +48,26 @@ export function InquiryForm({
       c.symbol && `Symbol: ${c.symbol}`,
       c.name && `Namenwunsch: «${c.name}»`,
     ].filter(Boolean);
+    const message = String(form.get("message") ?? "").trim();
+    const phone = String(form.get("phone") ?? "").trim();
+    // Kopie für die Kundin (Anzeige, Mail an sich selbst, Ausdruck)
+    const summary = [
+      `Anfragenummer: ${number}`,
+      `Datum: ${new Date().toLocaleDateString("de-CH")}`,
+      "",
+      `Produkt: ${productName} (${formatPrice(price)})`,
+      `Menge: ${form.get("quantity")}`,
+      ...choices,
+      message ? `Bemerkung / Wunsch: ${message}` : null,
+      "",
+      `Name: ${form.get("name")}`,
+      `E-Mail: ${form.get("email")}`,
+      phone ? `Telefon: ${phone}` : null,
+      "",
+      "Ich schaue mir deinen Wunsch an und melde mich so bald wie möglich per E-Mail bei dir. Die Anfrage ist unverbindlich.",
+    ]
+      .filter((line) => line !== null)
+      .join("\n");
 
     try {
       await sendForm({
@@ -62,24 +83,31 @@ export function InquiryForm({
         email: form.get("email"),
         Telefon: form.get("phone") || "–",
       });
-      setInquiryNo(number);
+      setSent({ number, email: String(form.get("email")), summary });
       setStatus("success");
     } catch {
       setStatus("error");
     }
   }
 
-  if (status === "success") {
+  if (status === "success" && sent) {
     return (
-      <div className="rounded-2xl bg-white p-6 shadow-sm">
-        <h2 className="mb-2 font-serif text-3xl">Danke für deine Anfrage! ♡</h2>
-        <p className="mb-2 text-muted">
-          Anfragenummer <strong className="text-ink">{inquiryNo}</strong>
-        </p>
-        <p className="text-muted">
-          Ich schaue mir deinen Wunsch an und melde mich so bald wie möglich per E-Mail bei dir.
-        </p>
-        <Link href="/shop" className="mt-4 inline-block text-sm text-accent hover:text-accent-dark">
+      <div className="flex flex-col gap-5 rounded-2xl bg-white p-6 shadow-sm">
+        <div>
+          <h2 className="mb-2 font-serif text-3xl">Danke für deine Anfrage! ♡</h2>
+          <p className="mb-2 text-muted">
+            Anfragenummer <strong className="text-ink">{sent.number}</strong>
+          </p>
+          <p className="text-muted">
+            Ich schaue mir deinen Wunsch an und melde mich so bald wie möglich per E-Mail bei dir.
+          </p>
+        </div>
+        <ConfirmationCopy
+          email={sent.email}
+          subject={`Meine Anfrage ${sent.number} bei evi’s universum`}
+          summary={sent.summary}
+        />
+        <Link href="/shop" className="self-start text-sm text-accent hover:text-accent-dark print:hidden">
           ← Zurück zum Shop
         </Link>
       </div>
