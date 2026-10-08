@@ -7,7 +7,8 @@ import { getSettings, type SiteSettings } from "@/lib/sanity";
 import "./globals.css";
 
 // Token aus Cloudflare → Web Analytics (öffentlich, steht ohnehin im HTML). Leer = keine Statistik.
-const analyticsToken = "aa3d4aa2bcd34abba86f4921c9576e12";
+// In den automatischen Tests (E2E=1) aus, damit Testbesuche nicht in Evis Statistik landen.
+const analyticsToken = process.env.E2E === "1" ? "" : "aa3d4aa2bcd34abba86f4921c9576e12";
 
 const heading = Cormorant_Garamond({ variable: "--font-heading", subsets: ["latin"], weight: ["400", "500", "600"] });
 const body = Inter({ variable: "--font-body", subsets: ["latin"] });

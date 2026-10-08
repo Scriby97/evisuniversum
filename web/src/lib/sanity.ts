@@ -1,9 +1,12 @@
 import { createClient } from "@sanity/client";
 import type { PortableTextBlock } from "@portabletext/react";
 import { createImageUrlBuilder, type SanityImageSource } from "@sanity/image-url";
+import { e2eCategories, e2eEvents, e2eSettings } from "./e2e-fixtures";
 import { placeholderCategories, placeholderEvents, placeholderSettings } from "./placeholder";
 
-const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
+// E2E=1: feste Testdaten für die automatischen Tests (npm run test:e2e), unabhängig von Evis Inhalten
+const e2e = process.env.E2E === "1";
+const projectId = e2e ? undefined : process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
 const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || "production";
 
 // Ohne Project-ID (lokal, bevor Sanity eingerichtet ist) werden Platzhalter angezeigt
@@ -11,7 +14,8 @@ const client = projectId
   ? createClient({ projectId, dataset, apiVersion: "2026-09-01", useCdn: false })
   : null;
 
-const builder = projectId ? createImageUrlBuilder({ projectId, dataset }) : null;
+// In den Tests zeigen Bild-URLs auf ein Fantasie-Projekt; die Tests beantworten diese Anfragen selbst
+const builder = projectId || e2e ? createImageUrlBuilder({ projectId: projectId ?? "e2etest", dataset }) : null;
 
 export type SanityImage = SanityImageSource & { alt?: string };
 
@@ -107,11 +111,13 @@ export type Event = {
 };
 
 export async function getSettings(): Promise<SiteSettings> {
+  if (e2e) return e2eSettings;
   if (!client) return placeholderSettings;
   return (await client.fetch<SiteSettings | null>(`*[_id == "siteSettings"][0]`)) ?? {};
 }
 
 export async function getCategories(): Promise<Category[]> {
+  if (e2e) return e2eCategories;
   if (!client) return placeholderCategories;
   return client.fetch<Category[]>(
     `*[_type == "category" && defined(slug.current)] | order(sortOrder asc, title asc) {
@@ -140,6 +146,7 @@ export async function getProducts(): Promise<Product[]> {
 // Vergangene Events fallen beim nächsten Build (= nächste Änderung im Studio) weg
 export async function getUpcomingEvents(): Promise<Event[]> {
   const today = new Date().toISOString().slice(0, 10);
+  if (e2e) return e2eEvents;
   if (!client) return placeholderEvents;
   return client.fetch<Event[]>(
     `*[_type == "event" && coalesce(endDate, date) >= $today] | order(date asc) {

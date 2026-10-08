@@ -1,0 +1,37 @@
+# Bei jedem Push: Typen, Lint und die automatischen Tests (Warenkorb, Bestellung, Anfrage, Barrierefreiheit).
+# Läuft mit festen Testdaten, nicht mit Evis Inhalten aus Sanity. Das Deployment bei Cloudflare ist davon unabhängig.
+name: Tests
+
+on:
+  push:
+    paths: ["web/**", ".github/workflows/tests.yml"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm run lint
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: |
+            web/playwright-report/
+            web/test-results/
+          retention-days: 14

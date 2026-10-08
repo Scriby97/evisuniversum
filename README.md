@@ -14,6 +14,23 @@ cd studio && npm install && npm run dev   # http://localhost:3333
 
 Ohne `.env.local` zeigt die Website Platzhalter-Inhalte.
 
+## Tests
+
+```bash
+cd web && npm run test:e2e          # baut mit Testdaten und klickt alles durch (~2 Min.)
+npm run test:e2e:report             # Bericht mit Screenshots/Trace nach einem Fehler
+```
+
+Playwright klickt Shop, Warenkorb, Bestellung (QR-Rechnung und TWINT), Anfrage und Barrierefreiheit durch,
+in Desktop- und Handy-Ansicht. Die Seite wird dafür mit festen Testdaten gebaut
+(`web/src/lib/e2e-fixtures.ts`, aktiviert mit `E2E=1`), nicht mit Evis Inhalten. Web3Forms, `/api/stock` und
+alle externen Anfragen werden abgefangen; es geht keine Mail raus und nichts landet in der Besucherstatistik.
+Lokal wird das installierte Edge verwendet. Danach enthält `web/out` den Testbuild – für die echte Seite
+baut Cloudflare ohnehin selbst.
+
+Auf GitHub laufen die Tests bei jedem Push automatisch (`.github/workflows/tests.yml`, Tab «Actions»).
+Neue Fälle (z. B. ein Fehler, der durchgerutscht ist) als Produkt in den Testdaten und als Test in `web/e2e/` ergänzen.
+
 ## Einrichtung (einmalig)
 
 Sanity-Projekt: `wg30antz`, Dataset `production` (Project ID steht in `studio/sanity.config.ts` und `web/.env.local`).

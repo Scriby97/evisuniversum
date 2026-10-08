@@ -44,3 +44,8 @@ next-env.d.ts
 # lokale Worker-Secrets
 .dev.vars
 .wrangler/
+
+# Playwright-Tests
+/test-results/
+/playwright-report/
+/blob-report/
