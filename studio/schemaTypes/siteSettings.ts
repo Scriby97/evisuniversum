@@ -243,6 +243,14 @@ export const siteSettings = defineType({
       type: 'richText',
       group: 'legal',
     }),
+    defineField({
+      name: 'privacyText',
+      title: 'Datenschutzerklärung',
+      description:
+        'Der Abschnitt «Verantwortliche Stelle» wird automatisch aus Name, Adresse und E-Mail oben erzeugt. Bitte aktuell halten, wenn neue Dienste dazukommen (z. B. Newsletter, Statistik).',
+      type: 'richText',
+      group: 'legal',
+    }),
   ],
   preview: {prepare: () => ({title: 'Website-Einstellungen'})},
 })

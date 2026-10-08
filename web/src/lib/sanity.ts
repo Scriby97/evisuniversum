@@ -53,6 +53,7 @@ export type SiteSettings = {
   email?: string;
   instagram?: string;
   agbText?: RichTextValue;
+  privacyText?: RichTextValue;
 };
 
 export type Product = {
