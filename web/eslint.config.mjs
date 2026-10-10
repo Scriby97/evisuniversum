@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Von `npm run typegen` (studio/) erzeugt
+    "src/sanity.types.ts",
+    "playwright-report/**",
+    "test-results/**",
   ]),
 ]);
 

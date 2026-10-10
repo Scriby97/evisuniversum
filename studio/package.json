@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "sanity dev",
     "build": "sanity build",
-    "deploy": "sanity deploy"
+    "deploy": "sanity deploy",
+    "typegen": "sanity schema extract --enforce-required-fields --path schema.json --force && sanity typegen generate"
   },
   "dependencies": {
     "react": "^19.3.0",

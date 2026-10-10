@@ -5,7 +5,7 @@ export function formatPrice(price: number) {
 
 const dateFormat = new Intl.DateTimeFormat("de-CH", { weekday: "short", day: "numeric", month: "long", year: "numeric" });
 
-export function formatEventDate({ date, endDate }: { date: string; endDate?: string }) {
+export function formatEventDate({ date, endDate }: { date: string; endDate?: string | null }) {
   const start = dateFormat.format(new Date(date));
   return endDate && endDate !== date ? `${start} – ${dateFormat.format(new Date(endDate))}` : start;
 }

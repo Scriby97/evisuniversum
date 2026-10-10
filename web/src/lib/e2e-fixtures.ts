@@ -28,12 +28,19 @@ export const e2eSettings: SiteSettings = {
 const product = (p: Partial<Product> & Pick<Product, "_id" | "name" | "price">): Product => {
   const full: Product = {
     slug: p._id,
+    colors: null,
+    sizes: null,
+    extras: null,
+    customFields: null,
+    description: null,
+    details: null,
+    images: null,
+    stock: null,
     personalizable: false,
     withSymbols: true,
     withNote: true,
     withName: false,
     onRequest: false,
-    stock: null,
     digital: false,
     available: true,
     ...p,
@@ -78,9 +85,10 @@ export const e2eCategories: Category[] = [
     _id: "c1",
     title: "Testprodukte",
     slug: "test",
+    description: null,
     products: [e2eProducts.socken, e2eProducts.tasche, e2eProducts.saeckli, e2eProducts.leer, e2eProducts.weg],
   },
-  { _id: "c2", title: "Testvorlagen", slug: "vorlagen", products: [e2eProducts.vorlage] },
+  { _id: "c2", title: "Testvorlagen", slug: "vorlagen", description: null, products: [e2eProducts.vorlage] },
 ];
 
 export const e2eEvents: Event[] = [];

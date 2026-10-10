@@ -14,6 +14,17 @@ cd studio && npm install && npm run dev   # http://localhost:3333
 
 Ohne `.env.local` zeigt die Website Platzhalter-Inhalte.
 
+## Neues Feld in Sanity
+
+Die TypeScript-Typen der Website werden aus dem Studio-Schema und den GROQ-Abfragen erzeugt (Sanity TypeGen).
+
+1. Feld im Schema ergänzen (`studio/schemaTypes/…`)
+2. Feld in der Abfrage in `web/src/lib/sanity.ts` aufnehmen (Abfragen mit `defineQuery` markiert)
+3. `cd studio && npm run typegen` – schreibt `studio/schema.json` und `web/src/sanity.types.ts` neu
+4. TypeScript zeigt jetzt, wo das Feld fehlt oder `null` sein kann; danach Studio deployen (`npm run deploy`)
+
+`web/src/sanity.types.ts` nie von Hand ändern. GitHub prüft bei jedem Push, ob die erzeugten Typen aktuell sind.
+
 ## Tests
 
 ```bash

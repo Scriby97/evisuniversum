@@ -4,11 +4,30 @@ name: Tests
 
 on:
   push:
-    paths: ["web/**", ".github/workflows/tests.yml"]
+    paths: ["web/**", "studio/**", ".github/workflows/tests.yml"]
   pull_request:
   workflow_dispatch:
 
 jobs:
+  # Schema oder Abfragen geändert, aber `npm run typegen` (studio/) vergessen? Dann schlägt dieser Job fehl.
+  typegen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: studio
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: studio/package-lock.json
+      - run: npm ci
+      - run: npm run typegen
+      - name: Erzeugte Typen sind aktuell
+        run: git diff --exit-code -- schema.json ../web/src/sanity.types.ts
+
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 20

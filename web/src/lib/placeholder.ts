@@ -94,6 +94,14 @@ Alle Produkte sind von Hand gemacht – kleine Abweichungen sind Teil ihres Char
 
 const product = (p: Partial<Product> & Pick<Product, "_id" | "name" | "price">): Product => ({
   slug: p._id,
+  colors: null,
+  sizes: null,
+  extras: null,
+  customFields: null,
+  description: null,
+  details: null,
+  images: null,
+  stock: null,
   personalizable: false,
   withSymbols: true,
   withNote: true,
@@ -150,8 +158,10 @@ export const placeholderEvents: Event[] = [
     _id: "e1",
     title: "Beispiel: Weihnachtsmarkt Thun",
     date: "2026-12-05",
+    endDate: null,
     time: "10–18 Uhr",
     location: "Thun",
     description: "Platzhalter – Events werden im Studio unter «Märkte & Events» erfasst.",
+    link: null,
   },
 ];
