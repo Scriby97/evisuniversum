@@ -34,6 +34,13 @@ export type RichText = Array<{
   _key: string;
 }>;
 
+export type SanityImageAssetReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+};
+
 export type Event = {
   _id: string;
   _type: "event";
@@ -45,8 +52,32 @@ export type Event = {
   endDate?: string;
   time?: string;
   location?: string;
+  image?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  };
   description?: string;
   link?: string;
+};
+
+export type SanityImageCrop = {
+  _type: "sanity.imageCrop";
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+};
+
+export type SanityImageHotspot = {
+  _type: "sanity.imageHotspot";
+  x: number;
+  y: number;
+  height: number;
+  width: number;
 };
 
 export type CategoryReference = {
@@ -54,13 +85,6 @@ export type CategoryReference = {
   _type: "reference";
   _weak?: boolean;
   [internalGroqTypeReferenceTo]?: "category";
-};
-
-export type SanityImageAssetReference = {
-  _ref: string;
-  _type: "reference";
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
 };
 
 export type Product = {
@@ -107,22 +131,6 @@ export type Product = {
   available?: boolean;
   stock?: number;
   sortOrder?: number;
-};
-
-export type SanityImageCrop = {
-  _type: "sanity.imageCrop";
-  top: number;
-  bottom: number;
-  left: number;
-  right: number;
-};
-
-export type SanityImageHotspot = {
-  _type: "sanity.imageHotspot";
-  x: number;
-  y: number;
-  height: number;
-  width: number;
 };
 
 export type Category = {
@@ -356,12 +364,12 @@ export type Geopoint = {
 
 export type AllSanitySchemaTypes =
   | RichText
-  | Event
-  | CategoryReference
   | SanityImageAssetReference
-  | Product
+  | Event
   | SanityImageCrop
   | SanityImageHotspot
+  | CategoryReference
+  | Product
   | Category
   | Slug
   | ProductReference
@@ -536,7 +544,7 @@ export type CATEGORIES_QUERY_RESULT = Array<{
 
 // Source: ../web/src/lib/sanity.ts
 // Variable: EVENTS_QUERY
-// Query: *[_type == "event" && coalesce(endDate, date) >= $today] | order(date asc) {  _id, title, date, endDate, time, location, description, link}
+// Query: *[_type == "event" && coalesce(endDate, date) >= $today] | order(date asc) {  _id, title, date, endDate, time, location, description, link, image}
 export type EVENTS_QUERY_RESULT = Array<{
   _id: string;
   title: string;
@@ -546,6 +554,14 @@ export type EVENTS_QUERY_RESULT = Array<{
   location: string | null;
   description: string | null;
   link: string | null;
+  image: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+  } | null;
 }>;
 
 // Query TypeMap
@@ -553,7 +569,7 @@ declare global {
   interface SanityQueries {
     '*[_type == "siteSettings" && _id == "siteSettings"][0]': SETTINGS_QUERY_RESULT;
     '*[_type == "category" && defined(slug.current)] | order(sortOrder asc, title asc) {\n  _id, title, "slug": slug.current, description,\n  "products": *[_type == "product" && references(^._id) && defined(slug.current)]\n    | order(sortOrder asc, name asc) {\n      _id, name, "slug": slug.current, price, colors, sizes, extras, customFields, description, details, images,\n      "personalizable": coalesce(personalizable, false),\n      "withSymbols": coalesce(withSymbols, true),\n      "withNote": coalesce(withNote, true),\n      "withName": coalesce(withName, false),\n      // Bestand 0 \u2192 automatisch \xABAuf Anfrage\xBB\n      "onRequest": coalesce(onRequest, false) || (defined(stock) && stock <= 0),\n      stock,\n      "digital": coalesce(digital, false),\n      "available": coalesce(available, true)\n    }\n}': CATEGORIES_QUERY_RESULT;
-    '*[_type == "event" && coalesce(endDate, date) >= $today] | order(date asc) {\n  _id, title, date, endDate, time, location, description, link\n}': EVENTS_QUERY_RESULT;
+    '*[_type == "event" && coalesce(endDate, date) >= $today] | order(date asc) {\n  _id, title, date, endDate, time, location, description, link, image\n}': EVENTS_QUERY_RESULT;
   }
 }
 // Lets @sanity/client releases that predate the global registry read it too

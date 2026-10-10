@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 import { addTasche, mockServices } from "./helpers";
 
 // Barrierefreiheit (WCAG 2.1 AA) der wichtigsten Seiten
-const pages = ["/", "/shop", "/shop/test-socken", "/anfrage/test-saeckli", "/kontakt", "/datenschutz"];
+const pages = ["/", "/shop", "/maerkte-events", "/shop/test-socken", "/anfrage/test-saeckli", "/kontakt", "/datenschutz"];
 
 for (const path of pages) {
   test(`Barrierefreiheit ${path}`, async ({ page }) => {

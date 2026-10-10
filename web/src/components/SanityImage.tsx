@@ -8,15 +8,18 @@ export function SanityImage({
   sizes,
   priority,
   decorative,
+  crop,
 }: {
-  image?: SanityImageType;
+  image?: SanityImageType | null;
   alt: string;
   sizes: string;
   priority?: boolean;
   /** Rein schmückend (z. B. Name steht daneben): Screenreader überspringen das Bild */
   decorative?: boolean;
+  /** Auf dem Server zuschneiden (respektiert den Bildausschnitt aus dem Studio), z. B. { width: 1600, height: 900 } */
+  crop?: { width: number; height: number };
 }) {
-  const src = imageUrl(image);
+  const src = imageUrl(image, crop);
   if (!src) return <div className="absolute inset-0 bg-sand" aria-hidden />;
   return (
     <Image

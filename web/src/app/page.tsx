@@ -83,6 +83,17 @@ export default async function Home() {
         <section className="mx-auto mt-20 grid max-w-6xl gap-6 px-4 md:grid-cols-2">
           {nextEvent && (
             <Link href="/maerkte-events" className="group flex flex-col gap-2 rounded-2xl bg-mint/40 p-8">
+              {nextEvent.image?.asset && (
+                <div className="relative mb-3 aspect-[16/9] overflow-hidden rounded-xl">
+                  <SanityImage
+                    image={nextEvent.image}
+                    alt={nextEvent.title}
+                    decorative
+                    crop={{ width: 1600, height: 900 }}
+                    sizes="(min-width: 768px) 540px, 100vw"
+                  />
+                </div>
+              )}
               <p className="text-sm uppercase tracking-wide text-accent">Nächster Markt</p>
               <h2 className="font-serif text-3xl font-medium group-hover:text-accent">{nextEvent.title}</h2>
               <p className="text-muted">

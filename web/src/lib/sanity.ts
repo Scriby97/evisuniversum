@@ -45,7 +45,7 @@ const CATEGORIES_QUERY = defineQuery(`*[_type == "category" && defined(slug.curr
 }`);
 
 const EVENTS_QUERY = defineQuery(`*[_type == "event" && coalesce(endDate, date) >= $today] | order(date asc) {
-  _id, title, date, endDate, time, location, description, link
+  _id, title, date, endDate, time, location, description, link, image
 }`);
 
 type SettingsDocument = Omit<NonNullable<SETTINGS_QUERY_RESULT>, "_id" | "_type" | "_createdAt" | "_updatedAt" | "_rev">;
@@ -88,9 +88,11 @@ export async function getUpcomingEvents(): Promise<Event[]> {
   return client.fetch(EVENTS_QUERY, { today });
 }
 
-export function imageUrl(image?: SanityImage): string | null {
+/** Bild-URL; mit `crop` schneidet Sanity auf dieses Seitenverhältnis zu – nach dem Bildausschnitt (Hotspot) im Studio */
+export function imageUrl(image?: SanityImage | null, crop?: { width: number; height: number }): string | null {
   if (!builder || !image) return null;
-  return builder.image(image).url();
+  const img = builder.image(image);
+  return (crop ? img.width(crop.width).height(crop.height).fit("crop") : img).url();
 }
 
 export { formatPrice } from "./format";

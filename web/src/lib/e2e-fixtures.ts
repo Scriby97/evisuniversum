@@ -91,4 +91,20 @@ export const e2eCategories: Category[] = [
   { _id: "c2", title: "Testvorlagen", slug: "vorlagen", description: null, products: [e2eProducts.vorlage] },
 ];
 
-export const e2eEvents: Event[] = [];
+export const e2eEvents: Event[] = [
+  {
+    _id: "e1",
+    title: "Testmarkt",
+    date: "2099-12-05",
+    endDate: null,
+    time: "14–20 Uhr",
+    location: "Spiez",
+    description: "Komm **unbedingt** vorbei!",
+    link: null,
+    image: {
+      _type: "image",
+      asset: { _type: "reference", _ref: "image-e2emarkt-1600x900-jpg" },
+      alt: "Weihnachtsmarkt am Abend",
+    },
+  },
+];

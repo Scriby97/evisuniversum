@@ -163,5 +163,6 @@ export const placeholderEvents: Event[] = [
     location: "Thun",
     description: "Platzhalter – Events werden im Studio unter «Märkte & Events» erfasst.",
     link: null,
+    image: null,
   },
 ];
