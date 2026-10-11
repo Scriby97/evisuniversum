@@ -101,7 +101,9 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                 withNote: product.withNote,
                 withName: product.withName,
                 onRequest: product.onRequest,
+                secondSymbolPrice: product.secondSymbolPrice,
               }}
+              price={product.price}
               symbolGroups={symbolGroups}
               notePlaceholder={settings.notePlaceholder || "z. B. Blauer Flamingo"}
               namePlaceholder={settings.namePlaceholder || "z. B. Alina"}

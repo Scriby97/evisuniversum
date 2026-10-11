@@ -46,6 +46,11 @@ const CATEGORIES_QUERY = defineQuery(`*[_type == "category" && defined(slug.curr
       "priceMode": select(onRequest == true => coalesce(priceMode, "fixed"), "fixed"),
       // Motiv-Sammlungen, aus denen gewählt werden kann (leer = alle)
       "motifGroupIds": coalesce(motifGroups[]._ref, []),
+      // Aufpreis für ein zweites Symbol; null = kein zweites Symbol
+      "secondSymbolPrice": select(
+        coalesce(personalizable, false) && coalesce(withSymbols, true) && coalesce(secondSymbol, true) => coalesce(secondSymbolPrice, 5),
+        null
+      ),
       "personalizable": coalesce(personalizable, false),
       "withSymbols": coalesce(withSymbols, true),
       "withNote": coalesce(withNote, true),

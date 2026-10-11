@@ -64,6 +64,7 @@ export default async function InquiryPage({ params }: { params: Promise<{ slug: 
             withNote: product.withNote,
             withName: product.withName,
             onRequest: product.onRequest,
+            secondSymbolPrice: product.secondSymbolPrice,
           }}
           productName={product.name}
           priceText={formatProductPrice(product)}

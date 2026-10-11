@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
+import { formatPrice } from "@/lib/format";
 import { inputClass, sendForm, web3formsKey } from "@/lib/web3forms";
 import { OptionFields, readChoices, type CartProduct, type SymbolGroup } from "./AddToCart";
 import { ConfirmationCopy } from "./ConfirmationCopy";
@@ -46,6 +47,7 @@ export function InquiryForm({
       ...(c.custom ?? []).map((x) => `${x.label}: ${x.value}`),
       ...(c.extras ?? []).map((e) => `Zusatz: ${e}`),
       c.symbol && `Symbol: ${c.symbol}`,
+      c.symbol2 && product.secondSymbolPrice != null && `2. Symbol: ${c.symbol2} (+${formatPrice(product.secondSymbolPrice)})`,
       c.name && `Namenwunsch: «${c.name}»`,
     ].filter(Boolean);
     const message = String(form.get("message") ?? "").trim();

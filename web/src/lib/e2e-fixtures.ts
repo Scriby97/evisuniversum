@@ -36,6 +36,7 @@ const product = (p: Partial<Product> & Pick<Product, "_id" | "name" | "price">):
     stock: null,
     priceMode: "fixed",
     motifGroupIds: [],
+    secondSymbolPrice: null,
     personalizable: false,
     withSymbols: true,
     withNote: true,
@@ -60,6 +61,7 @@ export const e2eProducts = {
     extras: [{ _key: "x1", name: "Beidseitig", price: 5 }],
     personalizable: true,
     withName: true,
+    secondSymbolPrice: 5,
   }),
   /** Ohne Auswahl, 2 an Lager → direkt in den Warenkorb, Bestand wird abgezogen */
   tasche: product({ _id: "test-tasche", name: "Testtasche", price: 39, stock: 2 }),
@@ -72,6 +74,7 @@ export const e2eProducts = {
     onRequest: true,
     // Nur die Taschen-Motive
     motifGroupIds: ["g2"],
+    secondSymbolPrice: 5,
     personalizable: true,
     withName: true,
   }),

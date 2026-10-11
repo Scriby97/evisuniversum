@@ -916,6 +916,20 @@
         },
         "optional": true
       },
+      "secondSymbol": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "boolean"
+        },
+        "optional": true
+      },
+      "secondSymbolPrice": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "number"
+        },
+        "optional": true
+      },
       "withNote": {
         "type": "objectAttribute",
         "value": {

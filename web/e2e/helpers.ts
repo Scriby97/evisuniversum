@@ -39,7 +39,7 @@ export async function addSocken(page: Page, { name }: { name?: string } = {}) {
   await form.getByLabel("Farbe").selectOption("Weiss");
   await form.getByLabel("Grösse").selectOption("39–42");
   await form.getByLabel(/Beidseitig/).check();
-  await form.getByLabel("Symbol").selectOption("Panda");
+  await form.getByLabel("Symbol", { exact: true }).selectOption("Panda");
   if (name) await form.getByLabel(/Namenwunsch/).fill(name);
   await form.getByLabel(/Bemerkung oder Wunsch/).fill("Bitte in Rosa");
   await form.getByRole("button", { name: "In den Warenkorb" }).click();

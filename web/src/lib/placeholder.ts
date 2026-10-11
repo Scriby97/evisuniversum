@@ -96,6 +96,7 @@ const product = (p: Partial<Product> & Pick<Product, "_id" | "name" | "price">):
   stock: null,
   priceMode: "fixed",
   motifGroupIds: [],
+  secondSymbolPrice: null,
   personalizable: false,
   withSymbols: true,
   withNote: true,

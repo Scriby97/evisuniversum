@@ -16,6 +16,8 @@ export type OrderProduct = {
   onRequest: boolean;
   extras?: { name: string; price: number }[];
   stock?: number | null;
+  /** Aufpreis zweites Symbol; null = nicht angeboten */
+  secondSymbolPrice?: number | null;
 };
 type Status = "idle" | "sending" | "success" | "error";
 type Payment = "invoice" | "twint";
@@ -79,12 +81,14 @@ export function OrderForm({
     if (!product) return [];
     // Aufpreise der gewählten Zusatzoptionen nach aktuellem Stand in Sanity
     const extras = (product.extras ?? []).filter((e) => item.extras?.includes(e.name));
-    const unitPrice = product.price + extras.reduce((sum, e) => sum + e.price, 0);
+    // Zweites Symbol nach aktuellem Aufpreis (fällt weg, wenn das Produkt es nicht mehr anbietet)
+    const secondSymbol = item.symbol2 && product.secondSymbolPrice != null ? product.secondSymbolPrice : null;
+    const unitPrice = product.price + extras.reduce((sum, e) => sum + e.price, 0) + (secondSymbol ?? 0);
     // Mehr bestellt als an Lager (über alle Zeilen desselben Produkts) → diese Zeile auf Anfrage
     const before = counted.get(item.slug) ?? 0;
     counted.set(item.slug, before + item.quantity);
     const overStock = typeof product.stock === "number" && before + item.quantity > product.stock;
-    return [{ ...item, product, extras, unitPrice, overStock, onRequest: product.onRequest || overStock }];
+    return [{ ...item, product, extras, secondSymbol, unitPrice, overStock, onRequest: product.onRequest || overStock }];
   });
   const subtotal = lines.reduce((sum, l) => sum + l.unitPrice * l.quantity, 0);
   const needsShipping = lines.some((l) => !l.product.digital);
@@ -119,6 +123,7 @@ export function OrderForm({
           ...(l.custom ?? []).map((c) => `${c.label}: ${c.value}`),
           ...l.extras.map((e) => `${e.name} (+${formatPrice(e.price)})`),
           l.symbol && `Symbol ${l.symbol}`,
+          l.secondSymbol !== null && `2. Symbol ${l.symbol2} (+${formatPrice(l.secondSymbol)})`,
           l.name && `Namenwunsch: «${l.name}»`,
           l.text && `Bemerkung/Wunsch: «${l.text}»`,
         ]
@@ -307,6 +312,8 @@ export function OrderForm({
                     ...(l.custom ?? []).map((c) => `${c.label}: ${c.value}`),
                     ...l.extras.map((e) => e.name),
                     l.symbol && `Symbol ${l.symbol}`,
+                    l.secondSymbol !== null && `2. Symbol ${l.symbol2}`,
+          l.secondSymbol !== null && `2. Symbol ${l.symbol2} (+${formatPrice(l.secondSymbol)})`,
                     l.name && `Name «${l.name}»`,
                     l.text && `«${l.text}»`,
                   ]

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
+import { useId, useState, type FormEvent } from "react";
 import { addToCart, type CartItem } from "@/lib/cart";
 import { formatPrice } from "@/lib/format";
 import type { Product } from "@/lib/sanity";
@@ -19,7 +19,15 @@ export type CartProduct = Pick<
   | "withNote"
   | "withName"
   | "onRequest"
+  | "secondSymbolPrice"
 >;
+
+/** Stückpreis mit Zusatzoptionen und zweitem Symbol (gleiche Rechnung wie im Warenkorb) */
+export function choicePrice(base: number, product: CartProduct, choice: Pick<ChoiceValues, "extras" | "symbol2">) {
+  const extras = (product.extras ?? []).filter((e) => choice.extras?.includes(e.name));
+  const second = choice.symbol2 && product.secondSymbolPrice != null ? product.secondSymbolPrice : 0;
+  return base + extras.reduce((sum, e) => sum + e.price, 0) + second;
+}
 
 export function needsChoice(p: CartProduct) {
   return Boolean(
@@ -82,6 +90,7 @@ export function readChoices(form: FormData, product: CartProduct): ChoiceValues 
     extras: extras.length ? extras : undefined,
     custom: custom.length ? custom : undefined,
     symbol: value("symbol"),
+    symbol2: product.secondSymbolPrice != null ? value("symbol2") : undefined,
     name: value("nameWish"),
     text: value("text"),
   };
@@ -104,6 +113,7 @@ export function OptionFields({
 }) {
   const showSymbols = product.personalizable && product.withSymbols && symbolGroups.some((g) => g.names.length > 0);
   const isRequired = (required?: boolean) => !allOptional && required !== false;
+  const id = useId();
 
   return (
     <>
@@ -145,31 +155,32 @@ export function OptionFields({
           ))}
         </fieldset>
       ) : null}
+      {/* Beschriftung, Feld und Link getrennt: der Link gehört nicht zum Feldnamen (Screenreader) */}
       {showSymbols && (
-        <label className="flex flex-col gap-1 text-sm">
-          Symbol
-          <select name="symbol" className={inputClass} defaultValue="">
-            <option value="">Kein Symbol</option>
-            {symbolGroups.length === 1
-              ? symbolGroups[0].names.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))
-              : symbolGroups.map((g) => (
-                  <optgroup key={g.title} label={g.title}>
-                    {g.names.map((s) => (
-                      <option key={s} value={s}>
-                        {s}
-                      </option>
-                    ))}
-                  </optgroup>
-                ))}
-          </select>
+        <div className="flex flex-col gap-1 text-sm">
+          <label htmlFor={`${id}-symbol`}>Symbol</label>
+          <SymbolSelect id={`${id}-symbol`} name="symbol" emptyLabel="Kein Symbol" groups={symbolGroups} />
           <Link href="/shop#personalisierung" className="text-xs text-accent hover:text-accent-dark">
             Alle Symbole ansehen
           </Link>
-        </label>
+        </div>
+      )}
+      {showSymbols && product.secondSymbolPrice != null && (
+        <div className="flex flex-col gap-1 text-sm">
+          <label htmlFor={`${id}-symbol2`}>
+            Zweites Symbol (optional) <span className="text-muted">+ {formatPrice(product.secondSymbolPrice)}</span>
+          </label>
+          <SymbolSelect
+            id={`${id}-symbol2`}
+            name="symbol2"
+            emptyLabel="Kein zweites Symbol"
+            groups={symbolGroups}
+            describedBy={`${id}-symbol2-hint`}
+          />
+          <span id={`${id}-symbol2-hint`} className="text-xs text-muted">
+            Gleiches oder anderes Motiv – ganz wie du möchtest.
+          </span>
+        </div>
       )}
       {product.personalizable && product.withName && (
         <label className="flex flex-col gap-1 text-sm">
@@ -192,16 +203,20 @@ export function OptionFields({
 // Vollständige Auswahl auf der Produktseite (Warenkorb)
 export function ProductOptions({
   product,
+  price,
   symbolGroups,
   notePlaceholder,
   namePlaceholder,
 }: {
   product: CartProduct;
+  /** Grundpreis, für den Preis mit Auswahl */
+  price: number;
   symbolGroups: SymbolGroup[];
   notePlaceholder: string;
   namePlaceholder: string;
 }) {
   const [added, setAdded] = useState(false);
+  const [total, setTotal] = useState(price);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -209,14 +224,25 @@ export function ProductOptions({
     setAdded(true);
   }
 
+  function handleChange(event: FormEvent<HTMLFormElement>) {
+    setAdded(false);
+    setTotal(choicePrice(price, product, readChoices(new FormData(event.currentTarget), product)));
+  }
+
   return (
-    <form id="auswahl" onSubmit={handleSubmit} onChange={() => setAdded(false)} className="flex flex-col gap-4">
+    <form id="auswahl" onSubmit={handleSubmit} onChange={handleChange} className="flex flex-col gap-4">
       <OptionFields
         product={product}
         symbolGroups={symbolGroups}
         notePlaceholder={notePlaceholder}
         namePlaceholder={namePlaceholder}
       />
+      {/* Aufpreise sofort sichtbar machen */}
+      {total !== price && (
+        <p className="text-sm" aria-live="polite">
+          Preis mit deiner Auswahl: <strong className="text-base">{formatPrice(total)}</strong>
+        </p>
+      )}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <button type="submit" className="flex items-center gap-1.5 rounded-full bg-accent px-6 py-3 text-white hover:bg-accent-dark">
           <BagIcon />
@@ -232,6 +258,38 @@ export function ProductOptions({
         )}
       </div>
     </form>
+  );
+}
+
+function SymbolSelect({
+  id,
+  name,
+  emptyLabel,
+  groups,
+  describedBy,
+}: {
+  id: string;
+  name: string;
+  emptyLabel: string;
+  groups: SymbolGroup[];
+  describedBy?: string;
+}) {
+  const option = (s: string) => (
+    <option key={s} value={s}>
+      {s}
+    </option>
+  );
+  return (
+    <select id={id} name={name} className={inputClass} defaultValue="" aria-describedby={describedBy}>
+      <option value="">{emptyLabel}</option>
+      {groups.length === 1
+        ? groups[0].names.map(option)
+        : groups.map((g) => (
+            <optgroup key={g.title} label={g.title}>
+              {g.names.map(option)}
+            </optgroup>
+          ))}
+    </select>
   );
 }
 

@@ -7,6 +7,8 @@ test("Anfrage: Namenwunsch und Name der Kundin bleiben getrennt", async ({ page 
   await page.locator("article", { hasText: "Testsäckli" }).getByRole("link", { name: "Auf Anfrage" }).click();
   await expect(page).toHaveURL(/\/anfrage\/test-saeckli/);
 
+  await page.getByLabel("Symbol", { exact: true }).selectOption("Blume");
+  await page.getByLabel(/Zweites Symbol/).selectOption("Blume");
   await page.getByLabel(/Namenwunsch/).fill("Mia");
   await page.getByLabel("Menge").fill("2");
   await page.getByLabel("Bemerkung oder Wunsch").fill("Zwei Stück bitte");
@@ -21,6 +23,7 @@ test("Anfrage: Namenwunsch und Name der Kundin bleiben getrennt", async ({ page 
   expect(mail.Name).toBe("Test Kundin");
   expect(mail.Produkt).toBe("Testsäckli (ab CHF 19.00)");
   expect(mail.Auswahl).toContain("Namenwunsch: «Mia»");
+  expect(mail.Auswahl).toContain("2. Symbol: Blume (+CHF 5.00)");
   expect(mail.Menge).toBe("2");
   expect(mail["Bemerkung / Wunsch"]).toBe("Zwei Stück bitte");
   expect(mail.Telefon).toBe("–");

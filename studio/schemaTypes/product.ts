@@ -186,6 +186,24 @@ export const product = defineType({
       hidden: ({document}) => !document?.personalizable || document?.withSymbols === false,
     }),
     defineField({
+      name: 'secondSymbol',
+      title: 'Zweites Symbol anbieten',
+      description: 'Kundinnen können ein zweites Symbol wählen (gleich oder anders) – gegen Aufpreis.',
+      type: 'boolean',
+      initialValue: true,
+      hidden: ({document}) => !document?.personalizable || document?.withSymbols === false,
+    }),
+    defineField({
+      name: 'secondSymbolPrice',
+      title: 'Aufpreis zweites Symbol (CHF)',
+      description: 'Leer = CHF 5.00.',
+      type: 'number',
+      initialValue: 5,
+      validation: (r) => r.min(0),
+      hidden: ({document}) =>
+        !document?.personalizable || document?.withSymbols === false || document?.secondSymbol === false,
+    }),
+    defineField({
       name: 'withNote',
       title: 'Feld «Bemerkung oder Wunsch»',
       description: 'Freies Textfeld für Wünsche und Bemerkungen.',

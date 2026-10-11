@@ -37,6 +37,7 @@ export function ProductCard({ product }: { product: Product }) {
                 withNote: product.withNote,
                 withName: product.withName,
                 onRequest: product.onRequest,
+                secondSymbolPrice: product.secondSymbolPrice,
               }}
             />
           </div>

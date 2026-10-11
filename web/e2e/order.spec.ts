@@ -64,3 +64,31 @@ test("Fehler beim Senden: Meldung, Warenkorb bleibt", async ({ page }) => {
   await expect(cartCount(page)).toHaveAccessibleName("Warenkorb (1)");
   expect(stock).toHaveLength(0);
 });
+
+test("Zweites Symbol: Livepreis, Warenkorb und Bestellmail mit Aufpreis", async ({ page }) => {
+  const { forms } = await mockServices(page);
+  await page.goto("/shop/test-socken");
+  const form = page.locator("form#auswahl");
+  await form.getByLabel("Farbe").selectOption("Weiss");
+  await form.getByLabel("Grösse").selectOption("35–38");
+  await form.getByLabel("Symbol", { exact: true }).selectOption("Panda");
+  await expect(page.getByText("Preis mit deiner Auswahl")).toHaveCount(0);
+
+  // Gleiches Motiv nochmals als zweites Symbol → + CHF 5.00
+  await form.getByLabel(/Zweites Symbol/).selectOption("Panda");
+  await expect(page.getByText("Preis mit deiner Auswahl")).toContainText("CHF 30.00");
+  await form.getByLabel(/Beidseitig/).check();
+  await expect(page.getByText("Preis mit deiner Auswahl")).toContainText("CHF 35.00");
+  await form.getByRole("button", { name: "In den Warenkorb" }).click();
+
+  await page.goto("/bestellen");
+  const line = page.getByRole("listitem").filter({ hasText: "Testsocken" });
+  await expect(line).toContainText("CHF 35.00");
+  await expect(line).toContainText("2. Symbol Panda");
+
+  await fillCustomer(page);
+  await page.getByRole("button", { name: "Verbindlich bestellen" }).click();
+  await expect(page.getByRole("heading", { name: /Vielen Dank/ })).toBeVisible();
+  expect(forms[0].Bestellung).toContain("1 × Testsocken à CHF 35.00");
+  expect(forms[0].Bestellung).toContain("2. Symbol Panda (+CHF 5.00)");
+});

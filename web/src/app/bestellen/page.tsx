@@ -9,7 +9,7 @@ export default async function OrderPage() {
   const [settings, products] = await Promise.all([getSettings(), getProducts()]);
   const available = products
     .filter((p) => p.available)
-    .map(({ slug, name, price, digital, onRequest, extras, stock }) => ({
+    .map(({ slug, name, price, digital, onRequest, extras, stock, secondSymbolPrice }) => ({
       slug,
       name,
       price,
@@ -17,6 +17,7 @@ export default async function OrderPage() {
       onRequest: Boolean(onRequest),
       extras: extras ?? undefined,
       stock,
+      secondSymbolPrice,
     }));
 
   return (

@@ -16,7 +16,7 @@ test("Shop zeigt ein Raster pro Motiv-Sammlung mit eigenem Titel", async ({ page
 
 test("Ohne gewählte Sammlung stehen alle Motive zur Auswahl, gruppiert", async ({ page }) => {
   await page.goto("/shop/test-socken");
-  const select = page.locator("form#auswahl").getByLabel("Symbol");
+  const select = page.locator("form#auswahl").getByLabel("Symbol", { exact: true });
   await expect(select.locator("optgroup")).toHaveCount(2);
   await expect(select.locator('optgroup[label="Kleine Motive"] option')).toHaveText(["Herz", "Panda"]);
   await expect(select.locator('optgroup[label="Taschen-Motive"] option')).toHaveText(["Blume"]);
@@ -24,7 +24,7 @@ test("Ohne gewählte Sammlung stehen alle Motive zur Auswahl, gruppiert", async 
 
 test("Mit gewählter Sammlung nur deren Motive", async ({ page }) => {
   await page.goto("/anfrage/test-saeckli");
-  const select = page.getByLabel("Symbol");
+  const select = page.getByLabel("Symbol", { exact: true });
   await expect(select.locator("optgroup")).toHaveCount(0);
   await expect(select.locator("option")).toHaveText(["Kein Symbol", "Blume"]);
 });
