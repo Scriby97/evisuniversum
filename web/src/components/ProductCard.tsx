@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { formatPrice, type Product } from "@/lib/sanity";
+import { formatProductPrice } from "@/lib/format";
+import type { Product } from "@/lib/sanity";
 import { QuickAdd } from "./AddToCart";
 import { SanityImage } from "./SanityImage";
 
@@ -48,7 +49,7 @@ export function ProductCard({ product }: { product: Product }) {
               {product.name}
             </Link>
           </h3>
-          <span className="text-muted">{formatPrice(product.price)}</span>
+          <span className="text-muted">{formatProductPrice(product)}</span>
         </div>
         {(product.personalizable || product.digital || product.onRequest) && (
           <div className="flex flex-wrap gap-2 text-xs">

@@ -36,6 +36,7 @@ const product = (p: Partial<Product> & Pick<Product, "_id" | "name" | "price">):
     details: null,
     images: null,
     stock: null,
+    priceMode: "fixed",
     personalizable: false,
     withSymbols: true,
     withNote: true,
@@ -63,16 +64,19 @@ export const e2eProducts = {
   }),
   /** Ohne Auswahl, 2 an Lager → direkt in den Warenkorb, Bestand wird abgezogen */
   tasche: product({ _id: "test-tasche", name: "Testtasche", price: 39, stock: 2 }),
-  /** Ausdrücklich auf Anfrage, mit Namenwunsch */
+  /** Ausdrücklich auf Anfrage mit Ab-Preis, mit Namenwunsch */
   saeckli: product({
     _id: "test-saeckli",
     name: "Testsäckli",
     price: 19,
+    priceMode: "from",
     onRequest: true,
     personalizable: true,
     withName: true,
   }),
-  /** Lager 0 → automatisch auf Anfrage */
+  /** Auf Anfrage ohne Betrag («Preis auf Anfrage»; in Sanity ist der Preis leer → 0) */
+  anfertigung: product({ _id: "test-anfertigung", name: "Testanfertigung", price: 0, priceMode: "request", onRequest: true }),
+  /** Lager 0 → automatisch auf Anfrage (ohne Ab-Preis: bleibt beim festen Preis) */
   leer: product({ _id: "test-leer", name: "Leeres Lagerprodukt", price: 15, stock: 0 }),
   /** Ausgeschaltet → ausverkauft */
   weg: product({ _id: "test-weg", name: "Ausverkauftes Produkt", price: 12, available: false }),
@@ -86,7 +90,14 @@ export const e2eCategories: Category[] = [
     title: "Testprodukte",
     slug: "test",
     description: null,
-    products: [e2eProducts.socken, e2eProducts.tasche, e2eProducts.saeckli, e2eProducts.leer, e2eProducts.weg],
+    products: [
+      e2eProducts.socken,
+      e2eProducts.tasche,
+      e2eProducts.saeckli,
+      e2eProducts.anfertigung,
+      e2eProducts.leer,
+      e2eProducts.weg,
+    ],
   },
   { _id: "c2", title: "Testvorlagen", slug: "vorlagen", description: null, products: [e2eProducts.vorlage] },
 ];

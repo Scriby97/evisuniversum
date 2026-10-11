@@ -102,6 +102,7 @@ const product = (p: Partial<Product> & Pick<Product, "_id" | "name" | "price">):
   details: null,
   images: null,
   stock: null,
+  priceMode: "fixed",
   personalizable: false,
   withSymbols: true,
   withNote: true,

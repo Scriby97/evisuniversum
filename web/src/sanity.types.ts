@@ -96,7 +96,7 @@ export type Product = {
   name: string;
   slug: Slug;
   category: CategoryReference;
-  price: number;
+  price?: number;
   colors?: Array<string>;
   sizes?: Array<string>;
   customFields?: Array<{
@@ -127,6 +127,7 @@ export type Product = {
   withNote?: boolean;
   withName?: boolean;
   onRequest?: boolean;
+  priceMode?: "fixed" | "from" | "request";
   digital?: boolean;
   available?: boolean;
   stock?: number;
@@ -495,7 +496,7 @@ export type SETTINGS_QUERY_RESULT = {
 
 // Source: ../web/src/lib/sanity.ts
 // Variable: CATEGORIES_QUERY
-// Query: *[_type == "category" && defined(slug.current)] | order(sortOrder asc, title asc) {  _id, title, "slug": slug.current, description,  "products": *[_type == "product" && references(^._id) && defined(slug.current)]    | order(sortOrder asc, name asc) {      _id, name, "slug": slug.current, price, colors, sizes, extras, customFields, description, details, images,      "personalizable": coalesce(personalizable, false),      "withSymbols": coalesce(withSymbols, true),      "withNote": coalesce(withNote, true),      "withName": coalesce(withName, false),      // Bestand 0 → automatisch «Auf Anfrage»      "onRequest": coalesce(onRequest, false) || (defined(stock) && stock <= 0),      stock,      "digital": coalesce(digital, false),      "available": coalesce(available, true)    }}
+// Query: *[_type == "category" && defined(slug.current)] | order(sortOrder asc, title asc) {  _id, title, "slug": slug.current, description,  "products": *[_type == "product" && references(^._id) && defined(slug.current)]    | order(sortOrder asc, name asc) {      _id, name, "slug": slug.current, colors, sizes, extras, customFields, description, details,      // Leere Bildplätze (Bild hinzugefügt, aber keine Datei gewählt) weglassen      "images": images[defined(asset)],      // Bei «Preis auf Anfrage» darf der Preis fehlen; angezeigt wird er dann nicht      "price": coalesce(price, 0),      // Ab-Preis / Preis auf Anfrage gibt es nur bei Produkten, die ausdrücklich auf Anfrage sind      "priceMode": select(onRequest == true => coalesce(priceMode, "fixed"), "fixed"),      "personalizable": coalesce(personalizable, false),      "withSymbols": coalesce(withSymbols, true),      "withNote": coalesce(withNote, true),      "withName": coalesce(withName, false),      // Bestand 0 → automatisch «Auf Anfrage»      "onRequest": coalesce(onRequest, false) || (defined(stock) && stock <= 0),      stock,      "digital": coalesce(digital, false),      "available": coalesce(available, true)    }}
 export type CATEGORIES_QUERY_RESULT = Array<{
   _id: string;
   title: string;
@@ -505,7 +506,6 @@ export type CATEGORIES_QUERY_RESULT = Array<{
     _id: string;
     name: string;
     slug: string;
-    price: number;
     colors: Array<string> | null;
     sizes: Array<string> | null;
     extras: Array<{
@@ -523,7 +523,7 @@ export type CATEGORIES_QUERY_RESULT = Array<{
     description: string | null;
     details: RichText | null;
     images: Array<{
-      asset?: SanityImageAssetReference;
+      asset: SanityImageAssetReference;
       media?: unknown;
       hotspot?: SanityImageHotspot;
       crop?: SanityImageCrop;
@@ -531,6 +531,8 @@ export type CATEGORIES_QUERY_RESULT = Array<{
       _type: "image";
       _key: string;
     }> | null;
+    price: number | 0;
+    priceMode: "fixed" | "from" | "request";
     personalizable: boolean | false;
     withSymbols: boolean | true;
     withNote: boolean | true;
@@ -568,7 +570,7 @@ export type EVENTS_QUERY_RESULT = Array<{
 declare global {
   interface SanityQueries {
     '*[_type == "siteSettings" && _id == "siteSettings"][0]': SETTINGS_QUERY_RESULT;
-    '*[_type == "category" && defined(slug.current)] | order(sortOrder asc, title asc) {\n  _id, title, "slug": slug.current, description,\n  "products": *[_type == "product" && references(^._id) && defined(slug.current)]\n    | order(sortOrder asc, name asc) {\n      _id, name, "slug": slug.current, price, colors, sizes, extras, customFields, description, details, images,\n      "personalizable": coalesce(personalizable, false),\n      "withSymbols": coalesce(withSymbols, true),\n      "withNote": coalesce(withNote, true),\n      "withName": coalesce(withName, false),\n      // Bestand 0 \u2192 automatisch \xABAuf Anfrage\xBB\n      "onRequest": coalesce(onRequest, false) || (defined(stock) && stock <= 0),\n      stock,\n      "digital": coalesce(digital, false),\n      "available": coalesce(available, true)\n    }\n}': CATEGORIES_QUERY_RESULT;
+    '*[_type == "category" && defined(slug.current)] | order(sortOrder asc, title asc) {\n  _id, title, "slug": slug.current, description,\n  "products": *[_type == "product" && references(^._id) && defined(slug.current)]\n    | order(sortOrder asc, name asc) {\n      _id, name, "slug": slug.current, colors, sizes, extras, customFields, description, details,\n      // Leere Bildpl\xE4tze (Bild hinzugef\xFCgt, aber keine Datei gew\xE4hlt) weglassen\n      "images": images[defined(asset)],\n      // Bei \xABPreis auf Anfrage\xBB darf der Preis fehlen; angezeigt wird er dann nicht\n      "price": coalesce(price, 0),\n      // Ab-Preis / Preis auf Anfrage gibt es nur bei Produkten, die ausdr\xFCcklich auf Anfrage sind\n      "priceMode": select(onRequest == true => coalesce(priceMode, "fixed"), "fixed"),\n      "personalizable": coalesce(personalizable, false),\n      "withSymbols": coalesce(withSymbols, true),\n      "withNote": coalesce(withNote, true),\n      "withName": coalesce(withName, false),\n      // Bestand 0 \u2192 automatisch \xABAuf Anfrage\xBB\n      "onRequest": coalesce(onRequest, false) || (defined(stock) && stock <= 0),\n      stock,\n      "digital": coalesce(digital, false),\n      "available": coalesce(available, true)\n    }\n}': CATEGORIES_QUERY_RESULT;
     '*[_type == "event" && coalesce(endDate, date) >= $today] | order(date asc) {\n  _id, title, date, endDate, time, location, description, link, image\n}': EVENTS_QUERY_RESULT;
   }
 }

@@ -19,6 +19,7 @@ test("Anfrage: Namenwunsch und Name der Kundin bleiben getrennt", async ({ page 
   const mail = forms[0];
   expect(mail.subject).toMatch(/^Anfrage AN-\d{6}-\d{4} für «Testsäckli» von Test Kundin$/);
   expect(mail.Name).toBe("Test Kundin");
+  expect(mail.Produkt).toBe("Testsäckli (ab CHF 19.00)");
   expect(mail.Auswahl).toContain("Namenwunsch: «Mia»");
   expect(mail.Menge).toBe("2");
   expect(mail["Bemerkung / Wunsch"]).toBe("Zwei Stück bitte");
@@ -41,4 +42,16 @@ test("Anfrage für Produkt mit Lager 0: alles freiwillig", async ({ page }) => {
   await page.getByRole("button", { name: "Anfrage senden" }).click();
   await expect(page.getByRole("heading", { name: /Danke für deine Anfrage/ })).toBeVisible();
   expect(forms[0].Auswahl).toBe("–");
+});
+
+test("Anfrage für Produkt mit «Preis auf Anfrage»", async ({ page }) => {
+  const { forms } = await mockServices(page);
+  await page.goto("/shop/test-anfertigung");
+  await expect(page.getByText("Preis auf Anfrage")).toBeVisible();
+  await page.getByRole("link", { name: "Anfrage stellen" }).click();
+  await page.getByLabel("Name", { exact: true }).fill("Test");
+  await page.getByLabel("E-Mail", { exact: true }).fill("t@example.ch");
+  await page.getByRole("button", { name: "Anfrage senden" }).click();
+  await expect(page.getByRole("heading", { name: /Danke für deine Anfrage/ })).toBeVisible();
+  expect(forms[0].Produkt).toBe("Testanfertigung (Preis auf Anfrage)");
 });

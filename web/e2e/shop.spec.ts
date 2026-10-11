@@ -24,6 +24,17 @@ test("Shop zeigt je nach Produkt den richtigen Knopf", async ({ page }) => {
     await expect(card(name).getByRole("link", { name: "Auf Anfrage" })).toHaveAttribute("href", `/anfrage/${slug}`);
     await expect(card(name).getByText("Ausverkauft")).toHaveCount(0);
   }
+  await expect(card("Testanfertigung").getByRole("link", { name: "Auf Anfrage" })).toBeVisible();
+
+  // Preisangabe: fix, ab-Preis oder ohne Betrag
+  await expect(card("Testtasche")).toContainText("CHF 39.00");
+  await expect(card("Testsäckli")).toContainText("ab CHF 19.00");
+  await expect(card("Testanfertigung")).toContainText("Preis auf Anfrage");
+  await expect(card("Testanfertigung")).not.toContainText("CHF");
+  // Lager 0 ohne ausdrückliches «Auf Anfrage»: bleibt beim festen Preis
+  await expect(card("Leeres Lagerprodukt")).toContainText("CHF 15.00");
+  await expect(card("Leeres Lagerprodukt")).not.toContainText("ab CHF");
+
   // Ausgeschaltet: ausverkauft, kein Knopf
   await expect(card("Ausverkauftes Produkt").getByText("Ausverkauft", { exact: true })).toBeVisible();
   await expect(card("Ausverkauftes Produkt").getByRole("button")).toHaveCount(0);

@@ -4,7 +4,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MailIcon, ProductOptions } from "@/components/AddToCart";
 import { ProductGallery } from "@/components/ProductGallery";
-import { formatPrice, getProducts, getSettings, imageUrl, ogImageSize, ogImageUrl } from "@/lib/sanity";
+import { formatProductPrice } from "@/lib/format";
+import { getProducts, getSettings, imageUrl, ogImageSize, ogImageUrl } from "@/lib/sanity";
 
 // Statischer Export: nur die beim Build bekannten Produkte gibt es als Seite
 export const dynamicParams = false;
@@ -59,7 +60,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         <div className="flex flex-col gap-5">
           <div>
             <h1 className="font-serif text-4xl font-medium sm:text-5xl">{product.name}</h1>
-            <p className="mt-2 text-xl text-muted">{formatPrice(product.price)}</p>
+            <p className="mt-2 text-xl text-muted">{formatProductPrice(product)}</p>
             {product.available && typeof product.stock === "number" && (
               <p className="mt-1 text-sm text-accent">
                 {product.stock > 0

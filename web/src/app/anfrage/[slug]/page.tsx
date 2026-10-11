@@ -3,7 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { InquiryForm } from "@/components/InquiryForm";
 import { SanityImage } from "@/components/SanityImage";
-import { formatPrice, getProducts, getSettings } from "@/lib/sanity";
+import { formatProductPrice } from "@/lib/format";
+import { getProducts, getSettings } from "@/lib/sanity";
 
 // Statischer Export: für jedes Produkt eine Anfrageseite (verlinkt wird sie nur bei «Auf Anfrage»)
 export const dynamicParams = false;
@@ -43,7 +44,7 @@ export default async function InquiryPage({ params }: { params: Promise<{ slug: 
           </div>
           <div className="p-5">
             <p className="font-serif text-xl font-medium">{product.name}</p>
-            <p className="text-muted">{formatPrice(product.price)}</p>
+            <p className="text-muted">{formatProductPrice(product)}</p>
             {product.description && <p className="mt-2 text-sm text-muted">{product.description}</p>}
           </div>
         </div>
@@ -61,7 +62,7 @@ export default async function InquiryPage({ params }: { params: Promise<{ slug: 
             onRequest: product.onRequest,
           }}
           productName={product.name}
-          price={product.price}
+          priceText={formatProductPrice(product)}
           symbols={(settings.motifs ?? []).map((m) => m.name)}
           notePlaceholder={settings.notePlaceholder || "z. B. Blauer Flamingo"}
           namePlaceholder={settings.namePlaceholder || "z. B. Alina"}

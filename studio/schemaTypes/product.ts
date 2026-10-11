@@ -24,8 +24,14 @@ export const product = defineType({
     defineField({
       name: 'price',
       title: 'Preis (CHF)',
+      description: 'Bei Produkten auf Anfrage mit «Preis auf Anfrage» darfst du das Feld leer lassen.',
       type: 'number',
-      validation: (r) => r.required().min(0),
+      validation: (r) =>
+        r.min(0).custom((price, {document}) =>
+          price === undefined && !(document?.onRequest && document?.priceMode === 'request')
+            ? 'Bitte einen Preis eingeben'
+            : true,
+        ),
     }),
     defineField({
       name: 'colors',
@@ -193,6 +199,22 @@ export const product = defineType({
         'Statt «In den Warenkorb» steht «Auf Anfrage». Die Bestellung ist dann eine Anfrage – du prüfst, ob du das Produkt herstellen kannst.',
       type: 'boolean',
       initialValue: false,
+    }),
+    defineField({
+      name: 'priceMode',
+      title: 'Preisangabe',
+      description: 'Wie der Preis im Shop erscheint – praktisch für Einzelstücke und Anfertigungen.',
+      type: 'string',
+      options: {
+        list: [
+          {title: 'Fixer Preis (z. B. «CHF 19.00»)', value: 'fixed'},
+          {title: 'Ab-Preis (z. B. «ab CHF 19.00»)', value: 'from'},
+          {title: 'Preis auf Anfrage (ohne Betrag)', value: 'request'},
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'fixed',
+      hidden: ({document}) => !document?.onRequest,
     }),
     defineField({
       name: 'digital',

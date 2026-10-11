@@ -31,7 +31,13 @@ const CATEGORIES_QUERY = defineQuery(`*[_type == "category" && defined(slug.curr
   _id, title, "slug": slug.current, description,
   "products": *[_type == "product" && references(^._id) && defined(slug.current)]
     | order(sortOrder asc, name asc) {
-      _id, name, "slug": slug.current, price, colors, sizes, extras, customFields, description, details, images,
+      _id, name, "slug": slug.current, colors, sizes, extras, customFields, description, details,
+      // Leere Bildplätze (Bild hinzugefügt, aber keine Datei gewählt) weglassen
+      "images": images[defined(asset)],
+      // Bei «Preis auf Anfrage» darf der Preis fehlen; angezeigt wird er dann nicht
+      "price": coalesce(price, 0),
+      // Ab-Preis / Preis auf Anfrage gibt es nur bei Produkten, die ausdrücklich auf Anfrage sind
+      "priceMode": select(onRequest == true => coalesce(priceMode, "fixed"), "fixed"),
       "personalizable": coalesce(personalizable, false),
       "withSymbols": coalesce(withSymbols, true),
       "withNote": coalesce(withNote, true),
@@ -90,7 +96,10 @@ export async function getUpcomingEvents(): Promise<Event[]> {
 
 /** Bild-URL; mit `crop` schneidet Sanity auf dieses Seitenverhältnis zu – nach dem Bildausschnitt (Hotspot) im Studio */
 export function imageUrl(image?: SanityImage | null, crop?: { width: number; height: number }): string | null {
-  if (!builder || !image) return null;
+  // Bildplatz ohne Datei (im Studio hinzugefügt, aber leer gelassen): kein Bild statt Build-Abbruch
+  if (!builder || !image || (typeof image === "object" && "_type" in image && !("asset" in image && image.asset))) {
+    return null;
+  }
   const img = builder.image(image);
   return (crop ? img.width(crop.width).height(crop.height).fit("crop") : img).url();
 }

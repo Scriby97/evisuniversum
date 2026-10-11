@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
-import { formatPrice } from "@/lib/format";
 import { inputClass, sendForm, web3formsKey } from "@/lib/web3forms";
 import { OptionFields, readChoices, type CartProduct } from "./AddToCart";
 import { ConfirmationCopy } from "./ConfirmationCopy";
@@ -19,14 +18,15 @@ function newInquiryNumber() {
 export function InquiryForm({
   product,
   productName,
-  price,
+  priceText,
   symbols,
   notePlaceholder,
   namePlaceholder,
 }: {
   product: CartProduct;
   productName: string;
-  price: number;
+  /** «CHF 19.00», «ab CHF 19.00» oder «Preis auf Anfrage» */
+  priceText: string;
   symbols: string[];
   notePlaceholder: string;
   namePlaceholder: string;
@@ -55,7 +55,7 @@ export function InquiryForm({
       `Anfragenummer: ${number}`,
       `Datum: ${new Date().toLocaleDateString("de-CH")}`,
       "",
-      `Produkt: ${productName} (${formatPrice(price)})`,
+      `Produkt: ${productName} (${priceText})`,
       `Menge: ${form.get("quantity")}`,
       ...choices,
       message ? `Bemerkung / Wunsch: ${message}` : null,
@@ -74,7 +74,7 @@ export function InquiryForm({
         subject: `Anfrage ${number} für «${productName}» von ${form.get("name")}`,
         botcheck: form.get("botcheck"),
         Anfragenummer: number,
-        Produkt: `${productName} (${formatPrice(price)})`,
+        Produkt: `${productName} (${priceText})`,
         "Link zum Produkt": `${window.location.origin}/shop/${product.slug}`,
         Menge: form.get("quantity"),
         Auswahl: choices.length ? choices.join("\n") : "–",

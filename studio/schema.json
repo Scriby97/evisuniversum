@@ -509,7 +509,7 @@
         "value": {
           "type": "number"
         },
-        "optional": false
+        "optional": true
       },
       "colors": {
         "type": "objectAttribute",
@@ -747,6 +747,27 @@
         "type": "objectAttribute",
         "value": {
           "type": "boolean"
+        },
+        "optional": true
+      },
+      "priceMode": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "fixed"
+            },
+            {
+              "type": "string",
+              "value": "from"
+            },
+            {
+              "type": "string",
+              "value": "request"
+            }
+          ]
         },
         "optional": true
       },
