@@ -1,4 +1,4 @@
-import {defineField, defineType} from 'sanity'
+import {defineArrayMember, defineField, defineType} from 'sanity'
 import {altText} from './altText'
 
 export const product = defineType({
@@ -171,10 +171,19 @@ export const product = defineType({
     defineField({
       name: 'withSymbols',
       title: 'Symbolauswahl anbieten',
-      description: 'Symbol aus der Symbol-Auswahl (F1–F18) wählen lassen.',
+      description: 'Ein Motiv aus «Motive & Symbole» wählen lassen.',
       type: 'boolean',
       initialValue: true,
       hidden: ({document}) => !document?.personalizable,
+    }),
+    defineField({
+      name: 'motifGroups',
+      title: 'Welche Motive stehen zur Auswahl?',
+      description: 'Eine oder mehrere Motiv-Sammlungen, z. B. nur die Taschen-Motive. Leer lassen = alle Motive.',
+      type: 'array',
+      of: [defineArrayMember({type: 'reference', to: [{type: 'motifGroup'}]})],
+      validation: (r) => r.unique(),
+      hidden: ({document}) => !document?.personalizable || document?.withSymbols === false,
     }),
     defineField({
       name: 'withNote',

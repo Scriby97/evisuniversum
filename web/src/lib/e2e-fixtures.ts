@@ -1,4 +1,4 @@
-import type { Category, Event, Product, SiteSettings } from "./sanity";
+import type { Category, Event, MotifGroup, Product, SiteSettings } from "./sanity";
 
 // Feste Testdaten für die automatischen Tests (E2E=1, siehe e2e/). Jedes Produkt deckt einen Fall ab,
 // der schon einmal kaputt war oder leicht kaputtgehen kann. Nicht für die echte Website.
@@ -9,10 +9,6 @@ export const e2eSettings: SiteSettings = {
   heroSubtitle: "Testdaten",
   notePlaceholder: "z. B. Blauer Flamingo",
   namePlaceholder: "z. B. Alina",
-  motifs: [
-    { _key: "m1", name: "Herz" },
-    { _key: "m2", name: "Panda" },
-  ],
   shippingOptions: [
     { _key: "s0", name: "Versandtasche", price: 2.5, envelope: true },
     { _key: "s1", name: "Economy", price: 9 },
@@ -39,6 +35,7 @@ const product = (p: Partial<Product> & Pick<Product, "_id" | "name" | "price">):
     images: null,
     stock: null,
     priceMode: "fixed",
+    motifGroupIds: [],
     personalizable: false,
     withSymbols: true,
     withNote: true,
@@ -73,6 +70,8 @@ export const e2eProducts = {
     price: 19,
     priceMode: "from",
     onRequest: true,
+    // Nur die Taschen-Motive
+    motifGroupIds: ["g2"],
     personalizable: true,
     withName: true,
   }),
@@ -85,6 +84,19 @@ export const e2eProducts = {
   /** Digital → keine Adresse, kein Versand */
   vorlage: product({ _id: "test-vorlage", name: "Testvorlage", price: 9, digital: true }),
 };
+
+export const e2eMotifGroups: MotifGroup[] = [
+  {
+    _id: "g1",
+    title: "Kleine Motive",
+    description: "Ca. 3 cm – ideal für Socken",
+    motifs: [
+      { _key: "m1", name: "Herz" },
+      { _key: "m2", name: "Panda" },
+    ],
+  },
+  { _id: "g2", title: "Taschen-Motive", description: null, motifs: [{ _key: "m3", name: "Blume" }] },
+];
 
 export const e2eCategories: Category[] = [
   {

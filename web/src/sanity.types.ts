@@ -41,6 +41,44 @@ export type SanityImageAssetReference = {
   [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
 };
 
+export type MotifGroup = {
+  _id: string;
+  _type: "motifGroup";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title: string;
+  description?: string;
+  sortOrder?: number;
+  motifs?: Array<{
+    name: string;
+    image?: {
+      asset?: SanityImageAssetReference;
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
+      _type: "image";
+    };
+    _key: string;
+  }>;
+};
+
+export type SanityImageCrop = {
+  _type: "sanity.imageCrop";
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+};
+
+export type SanityImageHotspot = {
+  _type: "sanity.imageHotspot";
+  x: number;
+  y: number;
+  height: number;
+  width: number;
+};
+
 export type Event = {
   _id: string;
   _type: "event";
@@ -64,27 +102,18 @@ export type Event = {
   link?: string;
 };
 
-export type SanityImageCrop = {
-  _type: "sanity.imageCrop";
-  top: number;
-  bottom: number;
-  left: number;
-  right: number;
-};
-
-export type SanityImageHotspot = {
-  _type: "sanity.imageHotspot";
-  x: number;
-  y: number;
-  height: number;
-  width: number;
-};
-
 export type CategoryReference = {
   _ref: string;
   _type: "reference";
   _weak?: boolean;
   [internalGroqTypeReferenceTo]?: "category";
+};
+
+export type MotifGroupReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "motifGroup";
 };
 
 export type Product = {
@@ -124,6 +153,11 @@ export type Product = {
   }>;
   personalizable?: boolean;
   withSymbols?: boolean;
+  motifGroups?: Array<
+    {
+      _key: string;
+    } & MotifGroupReference
+  >;
   withNote?: boolean;
   withName?: boolean;
   onRequest?: boolean;
@@ -216,17 +250,6 @@ export type SiteSettings = {
   personalizationText?: RichText;
   notePlaceholder?: string;
   namePlaceholder?: string;
-  motifs?: Array<{
-    name: string;
-    image?: {
-      asset?: SanityImageAssetReference;
-      media?: unknown;
-      hotspot?: SanityImageHotspot;
-      crop?: SanityImageCrop;
-      _type: "image";
-    };
-    _key: string;
-  }>;
   aboutTitle?: string;
   aboutText?: RichText;
   aboutImage?: {
@@ -368,10 +391,12 @@ export type Geopoint = {
 export type AllSanitySchemaTypes =
   | RichText
   | SanityImageAssetReference
-  | Event
+  | MotifGroup
   | SanityImageCrop
   | SanityImageHotspot
+  | Event
   | CategoryReference
+  | MotifGroupReference
   | Product
   | Category
   | Slug
@@ -446,17 +471,6 @@ export type SETTINGS_QUERY_RESULT = {
   personalizationText?: RichText;
   notePlaceholder?: string;
   namePlaceholder?: string;
-  motifs?: Array<{
-    name: string;
-    image?: {
-      asset?: SanityImageAssetReference;
-      media?: unknown;
-      hotspot?: SanityImageHotspot;
-      crop?: SanityImageCrop;
-      _type: "image";
-    };
-    _key: string;
-  }>;
   aboutTitle?: string;
   aboutText?: RichText;
   aboutImage?: {
@@ -500,7 +514,7 @@ export type SETTINGS_QUERY_RESULT = {
 
 // Source: ../web/src/lib/sanity.ts
 // Variable: CATEGORIES_QUERY
-// Query: *[_type == "category" && defined(slug.current)] | order(sortOrder asc, title asc) {  _id, title, "slug": slug.current, description,  "products": *[_type == "product" && references(^._id) && defined(slug.current)]    | order(sortOrder asc, name asc) {      _id, name, "slug": slug.current, colors, sizes, extras, customFields, description, details,      // Leere Bildplätze (Bild hinzugefügt, aber keine Datei gewählt) weglassen      "images": images[defined(asset)],      // Bei «Preis auf Anfrage» darf der Preis fehlen; angezeigt wird er dann nicht      "price": coalesce(price, 0),      // Ab-Preis / Preis auf Anfrage gibt es nur bei Produkten, die ausdrücklich auf Anfrage sind      "priceMode": select(onRequest == true => coalesce(priceMode, "fixed"), "fixed"),      "personalizable": coalesce(personalizable, false),      "withSymbols": coalesce(withSymbols, true),      "withNote": coalesce(withNote, true),      "withName": coalesce(withName, false),      // Bestand 0 → automatisch «Auf Anfrage»      "onRequest": coalesce(onRequest, false) || (defined(stock) && stock <= 0),      stock,      "digital": coalesce(digital, false),      "available": coalesce(available, true)    }}
+// Query: *[_type == "category" && defined(slug.current)] | order(sortOrder asc, title asc) {  _id, title, "slug": slug.current, description,  "products": *[_type == "product" && references(^._id) && defined(slug.current)]    | order(sortOrder asc, name asc) {      _id, name, "slug": slug.current, colors, sizes, extras, customFields, description, details,      // Leere Bildplätze (Bild hinzugefügt, aber keine Datei gewählt) weglassen      "images": images[defined(asset)],      // Bei «Preis auf Anfrage» darf der Preis fehlen; angezeigt wird er dann nicht      "price": coalesce(price, 0),      // Ab-Preis / Preis auf Anfrage gibt es nur bei Produkten, die ausdrücklich auf Anfrage sind      "priceMode": select(onRequest == true => coalesce(priceMode, "fixed"), "fixed"),      // Motiv-Sammlungen, aus denen gewählt werden kann (leer = alle)      "motifGroupIds": coalesce(motifGroups[]._ref, []),      "personalizable": coalesce(personalizable, false),      "withSymbols": coalesce(withSymbols, true),      "withNote": coalesce(withNote, true),      "withName": coalesce(withName, false),      // Bestand 0 → automatisch «Auf Anfrage»      "onRequest": coalesce(onRequest, false) || (defined(stock) && stock <= 0),      stock,      "digital": coalesce(digital, false),      "available": coalesce(available, true)    }}
 export type CATEGORIES_QUERY_RESULT = Array<{
   _id: string;
   title: string;
@@ -537,6 +551,7 @@ export type CATEGORIES_QUERY_RESULT = Array<{
     }> | null;
     price: number | 0;
     priceMode: "fixed" | "from" | "request";
+    motifGroupIds: Array<string> | Array<never>;
     personalizable: boolean | false;
     withSymbols: boolean | true;
     withNote: boolean | true;
@@ -546,6 +561,26 @@ export type CATEGORIES_QUERY_RESULT = Array<{
     digital: boolean | false;
     available: boolean | true;
   }>;
+}>;
+
+// Source: ../web/src/lib/sanity.ts
+// Variable: MOTIF_GROUPS_QUERY
+// Query: *[_type == "motifGroup" && count(motifs) > 0] | order(sortOrder asc, title asc) {  _id, title, description, motifs}
+export type MOTIF_GROUPS_QUERY_RESULT = Array<{
+  _id: string;
+  title: string;
+  description: string | null;
+  motifs: Array<{
+    name: string;
+    image?: {
+      asset?: SanityImageAssetReference;
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
+      _type: "image";
+    };
+    _key: string;
+  }> | null;
 }>;
 
 // Source: ../web/src/lib/sanity.ts
@@ -574,7 +609,8 @@ export type EVENTS_QUERY_RESULT = Array<{
 declare global {
   interface SanityQueries {
     '*[_type == "siteSettings" && _id == "siteSettings"][0]': SETTINGS_QUERY_RESULT;
-    '*[_type == "category" && defined(slug.current)] | order(sortOrder asc, title asc) {\n  _id, title, "slug": slug.current, description,\n  "products": *[_type == "product" && references(^._id) && defined(slug.current)]\n    | order(sortOrder asc, name asc) {\n      _id, name, "slug": slug.current, colors, sizes, extras, customFields, description, details,\n      // Leere Bildpl\xE4tze (Bild hinzugef\xFCgt, aber keine Datei gew\xE4hlt) weglassen\n      "images": images[defined(asset)],\n      // Bei \xABPreis auf Anfrage\xBB darf der Preis fehlen; angezeigt wird er dann nicht\n      "price": coalesce(price, 0),\n      // Ab-Preis / Preis auf Anfrage gibt es nur bei Produkten, die ausdr\xFCcklich auf Anfrage sind\n      "priceMode": select(onRequest == true => coalesce(priceMode, "fixed"), "fixed"),\n      "personalizable": coalesce(personalizable, false),\n      "withSymbols": coalesce(withSymbols, true),\n      "withNote": coalesce(withNote, true),\n      "withName": coalesce(withName, false),\n      // Bestand 0 \u2192 automatisch \xABAuf Anfrage\xBB\n      "onRequest": coalesce(onRequest, false) || (defined(stock) && stock <= 0),\n      stock,\n      "digital": coalesce(digital, false),\n      "available": coalesce(available, true)\n    }\n}': CATEGORIES_QUERY_RESULT;
+    '*[_type == "category" && defined(slug.current)] | order(sortOrder asc, title asc) {\n  _id, title, "slug": slug.current, description,\n  "products": *[_type == "product" && references(^._id) && defined(slug.current)]\n    | order(sortOrder asc, name asc) {\n      _id, name, "slug": slug.current, colors, sizes, extras, customFields, description, details,\n      // Leere Bildpl\xE4tze (Bild hinzugef\xFCgt, aber keine Datei gew\xE4hlt) weglassen\n      "images": images[defined(asset)],\n      // Bei \xABPreis auf Anfrage\xBB darf der Preis fehlen; angezeigt wird er dann nicht\n      "price": coalesce(price, 0),\n      // Ab-Preis / Preis auf Anfrage gibt es nur bei Produkten, die ausdr\xFCcklich auf Anfrage sind\n      "priceMode": select(onRequest == true => coalesce(priceMode, "fixed"), "fixed"),\n      // Motiv-Sammlungen, aus denen gew\xE4hlt werden kann (leer = alle)\n      "motifGroupIds": coalesce(motifGroups[]._ref, []),\n      "personalizable": coalesce(personalizable, false),\n      "withSymbols": coalesce(withSymbols, true),\n      "withNote": coalesce(withNote, true),\n      "withName": coalesce(withName, false),\n      // Bestand 0 \u2192 automatisch \xABAuf Anfrage\xBB\n      "onRequest": coalesce(onRequest, false) || (defined(stock) && stock <= 0),\n      stock,\n      "digital": coalesce(digital, false),\n      "available": coalesce(available, true)\n    }\n}': CATEGORIES_QUERY_RESULT;
+    '*[_type == "motifGroup" && count(motifs) > 0] | order(sortOrder asc, title asc) {\n  _id, title, description, motifs\n}': MOTIF_GROUPS_QUERY_RESULT;
     '*[_type == "event" && coalesce(endDate, date) >= $today] | order(date asc) {\n  _id, title, date, endDate, time, location, description, link, image\n}': EVENTS_QUERY_RESULT;
   }
 }

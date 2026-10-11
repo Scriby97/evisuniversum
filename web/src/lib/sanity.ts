@@ -1,9 +1,15 @@
 import { createClient } from "@sanity/client";
 import { createImageUrlBuilder, type SanityImageSource } from "@sanity/image-url";
 import { defineQuery } from "groq";
-import type { CATEGORIES_QUERY_RESULT, EVENTS_QUERY_RESULT, RichText, SETTINGS_QUERY_RESULT } from "../sanity.types";
-import { e2eCategories, e2eEvents, e2eSettings } from "./e2e-fixtures";
-import { placeholderCategories, placeholderEvents, placeholderSettings } from "./placeholder";
+import type {
+  CATEGORIES_QUERY_RESULT,
+  EVENTS_QUERY_RESULT,
+  MOTIF_GROUPS_QUERY_RESULT,
+  RichText,
+  SETTINGS_QUERY_RESULT,
+} from "../sanity.types";
+import { e2eCategories, e2eEvents, e2eMotifGroups, e2eSettings } from "./e2e-fixtures";
+import { placeholderCategories, placeholderEvents, placeholderMotifGroups, placeholderSettings } from "./placeholder";
 
 // E2E=1: feste Testdaten für die automatischen Tests (npm run test:e2e), unabhängig von Evis Inhalten
 const e2e = process.env.E2E === "1";
@@ -38,6 +44,8 @@ const CATEGORIES_QUERY = defineQuery(`*[_type == "category" && defined(slug.curr
       "price": coalesce(price, 0),
       // Ab-Preis / Preis auf Anfrage gibt es nur bei Produkten, die ausdrücklich auf Anfrage sind
       "priceMode": select(onRequest == true => coalesce(priceMode, "fixed"), "fixed"),
+      // Motiv-Sammlungen, aus denen gewählt werden kann (leer = alle)
+      "motifGroupIds": coalesce(motifGroups[]._ref, []),
       "personalizable": coalesce(personalizable, false),
       "withSymbols": coalesce(withSymbols, true),
       "withNote": coalesce(withNote, true),
@@ -48,6 +56,10 @@ const CATEGORIES_QUERY = defineQuery(`*[_type == "category" && defined(slug.curr
       "digital": coalesce(digital, false),
       "available": coalesce(available, true)
     }
+}`);
+
+const MOTIF_GROUPS_QUERY = defineQuery(`*[_type == "motifGroup" && count(motifs) > 0] | order(sortOrder asc, title asc) {
+  _id, title, description, motifs
 }`);
 
 const EVENTS_QUERY = defineQuery(`*[_type == "event" && coalesce(endDate, date) >= $today] | order(date asc) {
@@ -69,6 +81,7 @@ export type Category = CATEGORIES_QUERY_RESULT[number];
 export type Product = Category["products"][number];
 export type CustomField = NonNullable<Product["customFields"]>[number];
 export type Event = EVENTS_QUERY_RESULT[number];
+export type MotifGroup = MOTIF_GROUPS_QUERY_RESULT[number];
 
 export async function getSettings(): Promise<SiteSettings> {
   if (e2e) return e2eSettings;
@@ -95,6 +108,20 @@ export async function getUpcomingEvents(): Promise<Event[]> {
 }
 
 /** Bild-URL; mit `crop` schneidet Sanity auf dieses Seitenverhältnis zu – nach dem Bildausschnitt (Hotspot) im Studio */
+/** Motiv-Sammlungen mit mindestens einem Motiv, in der Reihenfolge aus dem Studio */
+export async function getMotifGroups(): Promise<MotifGroup[]> {
+  if (e2e) return e2eMotifGroups;
+  if (!client) return placeholderMotifGroups;
+  return client.fetch(MOTIF_GROUPS_QUERY);
+}
+
+/** Symbolauswahl eines Produkts: seine Sammlungen, oder alle, wenn keine gewählt ist */
+export function symbolGroupsFor(product: Pick<Product, "motifGroupIds">, groups: MotifGroup[]) {
+  const ids: readonly string[] = product.motifGroupIds;
+  const chosen = ids.length ? groups.filter((g) => ids.includes(g._id)) : groups;
+  return chosen.map((g) => ({ title: g.title, names: (g.motifs ?? []).map((m) => m.name) }));
+}
+
 export function imageUrl(image?: SanityImage | null, crop?: { width: number; height: number }): string | null {
   // Bildplatz ohne Datei (im Studio hinzugefügt, aber leer gelassen): kein Bild statt Build-Abbruch
   if (!builder || !image || (typeof image === "object" && "_type" in image && !("asset" in image && image.asset))) {

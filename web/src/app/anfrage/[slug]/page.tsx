@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { InquiryForm } from "@/components/InquiryForm";
 import { SanityImage } from "@/components/SanityImage";
 import { formatProductPrice } from "@/lib/format";
-import { getProducts, getSettings } from "@/lib/sanity";
+import { getMotifGroups, getProducts, getSettings, symbolGroupsFor } from "@/lib/sanity";
 
 // Statischer Export: für jedes Produkt eine Anfrageseite (verlinkt wird sie nur bei «Auf Anfrage»)
 export const dynamicParams = false;
@@ -23,7 +23,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export default async function InquiryPage({ params }: { params: Promise<{ slug: string }> }) {
-  const [product, settings] = await Promise.all([findProduct((await params).slug), getSettings()]);
+  const [product, settings, motifGroups] = await Promise.all([
+    findProduct((await params).slug),
+    getSettings(),
+    getMotifGroups(),
+  ]);
   if (!product) notFound();
 
   return (
@@ -63,7 +67,7 @@ export default async function InquiryPage({ params }: { params: Promise<{ slug: 
           }}
           productName={product.name}
           priceText={formatProductPrice(product)}
-          symbols={(settings.motifs ?? []).map((m) => m.name)}
+          symbolGroups={symbolGroupsFor(product, motifGroups)}
           notePlaceholder={settings.notePlaceholder || "z. B. Blauer Flamingo"}
           namePlaceholder={settings.namePlaceholder || "z. B. Alina"}
         />

@@ -139,22 +139,6 @@ export const siteSettings = defineType({
       type: 'string',
       group: 'shop',
     }),
-    defineField({
-      name: 'motifs',
-      title: 'Motive & Symbole',
-      type: 'array',
-      group: 'shop',
-      of: [
-        defineArrayMember({
-          type: 'object',
-          fields: [
-            defineField({name: 'name', title: 'Name', type: 'string', validation: (r) => r.required()}),
-            defineField({name: 'image', title: 'Bild', type: 'image'}),
-          ],
-          preview: {select: {title: 'name', media: 'image'}},
-        }),
-      ],
-    }),
 
     defineField({name: 'aboutTitle', title: 'Titel', type: 'string', group: 'about'}),
     defineField({name: 'aboutText', title: 'Text', type: 'richText', group: 'about'}),

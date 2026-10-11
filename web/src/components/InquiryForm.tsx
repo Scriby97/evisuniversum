@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { inputClass, sendForm, web3formsKey } from "@/lib/web3forms";
-import { OptionFields, readChoices, type CartProduct } from "./AddToCart";
+import { OptionFields, readChoices, type CartProduct, type SymbolGroup } from "./AddToCart";
 import { ConfirmationCopy } from "./ConfirmationCopy";
 
 type Status = "idle" | "sending" | "success" | "error";
@@ -19,7 +19,7 @@ export function InquiryForm({
   product,
   productName,
   priceText,
-  symbols,
+  symbolGroups,
   notePlaceholder,
   namePlaceholder,
 }: {
@@ -27,7 +27,7 @@ export function InquiryForm({
   productName: string;
   /** «CHF 19.00», «ab CHF 19.00» oder «Preis auf Anfrage» */
   priceText: string;
-  symbols: string[];
+  symbolGroups: SymbolGroup[];
   notePlaceholder: string;
   namePlaceholder: string;
 }) {
@@ -123,7 +123,7 @@ export function InquiryForm({
       )}
       <OptionFields
         product={product}
-        symbols={symbols}
+        symbolGroups={symbolGroups}
         notePlaceholder={notePlaceholder}
         namePlaceholder={namePlaceholder}
         allOptional

@@ -64,6 +64,8 @@ export function QuickAdd({ product }: { product: CartProduct }) {
   );
 }
 
+export type SymbolGroup = { title: string; names: string[] };
+
 export type ChoiceValues = Omit<CartItem, "id" | "quantity" | "slug">;
 
 // Liest die gewählten Optionen aus einem Formular mit <OptionFields>
@@ -88,18 +90,19 @@ export function readChoices(form: FormData, product: CartProduct): ChoiceValues 
 // Auswahlfelder eines Produkts – für den Warenkorb (mit Pflichtfeldern) und die Anfrage (alles freiwillig)
 export function OptionFields({
   product,
-  symbols,
+  symbolGroups,
   notePlaceholder,
   namePlaceholder,
   allOptional = false,
 }: {
   product: CartProduct;
-  symbols: string[];
+  /** Motive zur Auswahl, nach Motiv-Sammlung gruppiert */
+  symbolGroups: SymbolGroup[];
   notePlaceholder: string;
   namePlaceholder: string;
   allOptional?: boolean;
 }) {
-  const showSymbols = product.personalizable && product.withSymbols && symbols.length > 0;
+  const showSymbols = product.personalizable && product.withSymbols && symbolGroups.some((g) => g.names.length > 0);
   const isRequired = (required?: boolean) => !allOptional && required !== false;
 
   return (
@@ -147,11 +150,21 @@ export function OptionFields({
           Symbol
           <select name="symbol" className={inputClass} defaultValue="">
             <option value="">Kein Symbol</option>
-            {symbols.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
+            {symbolGroups.length === 1
+              ? symbolGroups[0].names.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))
+              : symbolGroups.map((g) => (
+                  <optgroup key={g.title} label={g.title}>
+                    {g.names.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
           </select>
           <Link href="/shop#personalisierung" className="text-xs text-accent hover:text-accent-dark">
             Alle Symbole ansehen
@@ -179,12 +192,12 @@ export function OptionFields({
 // Vollständige Auswahl auf der Produktseite (Warenkorb)
 export function ProductOptions({
   product,
-  symbols,
+  symbolGroups,
   notePlaceholder,
   namePlaceholder,
 }: {
   product: CartProduct;
-  symbols: string[];
+  symbolGroups: SymbolGroup[];
   notePlaceholder: string;
   namePlaceholder: string;
 }) {
@@ -200,7 +213,7 @@ export function ProductOptions({
     <form id="auswahl" onSubmit={handleSubmit} onChange={() => setAdded(false)} className="flex flex-col gap-4">
       <OptionFields
         product={product}
-        symbols={symbols}
+        symbolGroups={symbolGroups}
         notePlaceholder={notePlaceholder}
         namePlaceholder={namePlaceholder}
       />

@@ -27,6 +27,7 @@ export default defineConfig({
             S.documentTypeListItem('product').title('Produkte'),
             S.documentTypeListItem('category').title('Kategorien'),
             S.documentTypeListItem('event').title('Märkte & Events'),
+            S.documentTypeListItem('motifGroup').title('Motive & Symbole'),
           ]),
     }),
   ],

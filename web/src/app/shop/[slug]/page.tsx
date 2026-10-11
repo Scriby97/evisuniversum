@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { MailIcon, ProductOptions } from "@/components/AddToCart";
 import { ProductGallery } from "@/components/ProductGallery";
 import { formatProductPrice } from "@/lib/format";
-import { getProducts, getSettings, imageUrl, ogImageSize, ogImageUrl } from "@/lib/sanity";
+import { getMotifGroups, getProducts, getSettings, imageUrl, ogImageSize, ogImageUrl, symbolGroupsFor } from "@/lib/sanity";
 
 // Statischer Export: nur die beim Build bekannten Produkte gibt es als Seite
 export const dynamicParams = false;
@@ -39,14 +39,18 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
-  const [product, settings] = await Promise.all([findProduct((await params).slug), getSettings()]);
+  const [product, settings, motifGroups] = await Promise.all([
+    findProduct((await params).slug),
+    getSettings(),
+    getMotifGroups(),
+  ]);
   if (!product) notFound();
 
   const images = (product.images ?? []).flatMap((image) => {
     const src = imageUrl(image);
     return src ? [{ src, alt: image.alt || product.name }] : [];
   });
-  const symbols = (settings.motifs ?? []).map((m) => m.name);
+  const symbolGroups = symbolGroupsFor(product, motifGroups);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
@@ -98,7 +102,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                 withName: product.withName,
                 onRequest: product.onRequest,
               }}
-              symbols={symbols}
+              symbolGroups={symbolGroups}
               notePlaceholder={settings.notePlaceholder || "z. B. Blauer Flamingo"}
               namePlaceholder={settings.namePlaceholder || "z. B. Alina"}
             />

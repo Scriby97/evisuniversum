@@ -1,4 +1,4 @@
-import type { Category, Event, Product, SiteSettings } from "./sanity";
+import type { Category, Event, MotifGroup, Product, SiteSettings } from "./sanity";
 
 // Wird nur angezeigt, solange kein Sanity-Projekt verbunden ist.
 // Diese Texte können als Startinhalt ins Studio übernommen werden.
@@ -38,14 +38,6 @@ export const placeholderSettings: SiteSettings = {
   personalizationTitle: "Personalisierung",
   personalizationText:
     "Viele Socken und Taschen kann ich nach deinen Wünschen besticken – mit einem Motiv, einem Namen oder einem kurzen Text.\n\nSo funktioniert’s: Wähle unten ein Motiv aus und schreib deinen Wunsch beim Bestellen ins Feld «Personalisierung». Ich melde mich bei dir, falls etwas unklar ist. Auch Bestellungen für Gruppen oder besondere Anlässe sind möglich – schreib mir einfach.",
-  motifs: [
-    { _key: "m1", name: "Herz" },
-    { _key: "m2", name: "Stadtwappen" },
-    { _key: "m3", name: "Panda" },
-    { _key: "m4", name: "Flugzeug" },
-    { _key: "m5", name: "Blumen" },
-    { _key: "m6", name: "Initialen" },
-  ],
   aboutTitle: "Hallo, ich bin Evi ♡",
   aboutText: `Hinter evi’s universum steckt meine Freude daran, kreativ zu sein und aus kleinen Ideen persönliche Geschenke zu machen.
 
@@ -103,6 +95,7 @@ const product = (p: Partial<Product> & Pick<Product, "_id" | "name" | "price">):
   images: null,
   stock: null,
   priceMode: "fixed",
+  motifGroupIds: [],
   personalizable: false,
   withSymbols: true,
   withNote: true,
@@ -150,6 +143,22 @@ export const placeholderCategories: Category[] = [
     products: [
       product({ _id: "diy-gemeinsame-reise", name: "Für die gemeinsame Reise durchs Leben", price: 9, digital: true }),
       product({ _id: "diy-ruhestand", name: "Ruhestand-Geschenk «Ab jetzt gehört die Zeit dir»", price: 9, digital: true }),
+    ],
+  },
+];
+
+export const placeholderMotifGroups: MotifGroup[] = [
+  {
+    _id: "g1",
+    title: "Motive & Symbole",
+    description: null,
+    motifs: [
+      { _key: "m1", name: "Herz" },
+      { _key: "m2", name: "Stadtwappen" },
+      { _key: "m3", name: "Panda" },
+      { _key: "m4", name: "Flugzeug" },
+      { _key: "m5", name: "Blumen" },
+      { _key: "m6", name: "Initialen" },
     ],
   },
 ];
