@@ -1475,6 +1475,13 @@
                   "type": "number"
                 },
                 "optional": false
+              },
+              "envelope": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "boolean"
+                },
+                "optional": true
               }
             },
             "rest": {
@@ -1489,6 +1496,13 @@
               }
             }
           }
+        },
+        "optional": true
+      },
+      "envelopeMaxItems": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "number"
         },
         "optional": true
       },

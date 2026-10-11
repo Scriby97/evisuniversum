@@ -242,8 +242,10 @@ export type SiteSettings = {
   shippingOptions?: Array<{
     name: string;
     price: number;
+    envelope?: boolean;
     _key: string;
   }>;
+  envelopeMaxItems?: number;
   twintQr?: {
     asset?: SanityImageAssetReference;
     media?: unknown;
@@ -470,8 +472,10 @@ export type SETTINGS_QUERY_RESULT = {
   shippingOptions?: Array<{
     name: string;
     price: number;
+    envelope?: boolean;
     _key: string;
   }>;
+  envelopeMaxItems?: number;
   twintQr?: {
     asset?: SanityImageAssetReference;
     media?: unknown;

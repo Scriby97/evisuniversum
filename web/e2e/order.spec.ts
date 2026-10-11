@@ -24,8 +24,8 @@ test("Bestellung mit QR-Rechnung: Mail an Evi, Lagerabzug, Bestätigung", async 
   expect(mail.Bestellung).toContain("Namenwunsch: «Alina»");
   expect(mail.Bestellung).toContain("Bemerkung/Wunsch: «Bitte in Rosa»");
   expect(mail.Bestellung).toContain("1 × Testtasche à CHF 39.00");
-  expect(mail.Versand).toBe("Economy: CHF 9.00");
-  expect(mail.Total).toBe("CHF 78.00");
+  expect(mail.Versand).toBe("Versandtasche: CHF 2.50"); // 2 Produkte
+  expect(mail.Total).toBe("CHF 71.50");
   expect(mail.Nachricht).toBe("Freue mich!");
 
   // Lagerabzug nur für Produkte mit gezähltem Bestand (Socken: Lagerfeld leer)
@@ -37,7 +37,7 @@ test("Bestellung mit QR-Rechnung: Mail an Evi, Lagerabzug, Bestätigung", async 
   const mailto = await page.getByRole("link", { name: "Bestätigung an mich mailen" }).getAttribute("href");
   const url = new URL(mailto!);
   expect(decodeURIComponent(url.pathname)).toBe("kundin@example.ch");
-  expect(url.searchParams.get("body")!.replace(/\u00a0/g, " ")).toContain("Total: CHF 78.00");
+  expect(url.searchParams.get("body")!.replace(/\u00a0/g, " ")).toContain("Total: CHF 71.50");
   await expect(cartCount(page)).toHaveAccessibleName("Warenkorb (0)");
 });
 
@@ -50,7 +50,7 @@ test("Bestellung mit TWINT zeigt QR-Code und Betrag", async ({ page }) => {
   await page.getByRole("button", { name: "Verbindlich bestellen" }).click();
   await expect(page.getByText("jetzt nur noch mit TWINT bezahlen")).toBeVisible();
   await expect(page.getByRole("img", { name: /TWINT-QR-Code/ })).toBeVisible();
-  await expect(page.locator("ol")).toContainText("CHF 48.00");
+  await expect(page.locator("ol")).toContainText("CHF 41.50");
   expect(forms[0].Zahlungsart).toMatch(/^TWINT/);
 });
 

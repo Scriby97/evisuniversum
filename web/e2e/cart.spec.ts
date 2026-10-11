@@ -25,28 +25,42 @@ test("Pflichtauswahl muss gewählt sein, Zusatzoption kostet extra", async ({ pa
   await expect(line).toContainText("Name «Alina»");
 });
 
-test("Mengen, Versandarten, Gratisversand und Geschenkverpackung", async ({ page }) => {
+test("Versand: bis 3 Produkte Versandtasche, ab 4 oder mit Geschenkverpackung Paket", async ({ page }) => {
   await addTasche(page);
   await page.goto("/bestellen");
-  await expect(total(page)).toHaveText("CHF 48.00"); // 39 + Economy 9
+  const shippingChoice = page.getByRole("group", { name: "Versandart" });
 
-  await page.getByRole("button", { name: "Testtasche: eins mehr" }).click();
-  await expect(total(page)).toHaveText("CHF 87.00"); // 78 + 9
+  // 1 Produkt: Versandtasche, keine Auswahl nötig
+  await expect(total(page)).toHaveText("CHF 41.50"); // 39 + 2.50
+  await expect(shippingChoice).toHaveCount(0);
 
-  await page.getByLabel("Priority").check();
-  await expect(total(page)).toHaveText("CHF 88.50");
-
+  // Geschenkverpackung → immer Paket: Economy vorausgewählt, Priority wählbar
   await page.getByLabel(/Als Geschenk verpacken/).check();
-  await expect(total(page)).toHaveText("CHF 93.50");
+  await expect(total(page)).toHaveText("CHF 53.00"); // 39 + Economy 9 + Verpackung 5
+  await expect(page.getByLabel("Versandtasche")).toHaveCount(0);
+  await page.getByLabel("Priority").check();
+  await expect(total(page)).toHaveText("CHF 54.50");
 
-  // Ab CHF 100 ist Economy gratis
-  await page.getByLabel("Economy").check();
+  // Ohne Verpackung wieder Versandtasche
+  await page.getByLabel(/Als Geschenk verpacken/).uncheck();
+  await expect(total(page)).toHaveText("CHF 41.50");
+
+  // 2 Stück: noch Versandtasche
   await page.getByRole("button", { name: "Testtasche: eins mehr" }).click();
-  await expect(page.getByText("Nur noch 2 an Lager")).toBeVisible(); // 3 bestellt, 2 an Lager
-  await expect(total(page)).toHaveText("CHF 122.00"); // 117 + Verpackung 5, Versand gratis
+  await expect(total(page)).toHaveText("CHF 80.50"); // 78 + 2.50
 
-  // Mehr als an Lager → auf Anfrage → kein TWINT
+  // 3 Stück (mehr als an Lager → auf Anfrage, kein TWINT); ab CHF 100 ist die Standard-Versandart gratis
+  await page.getByRole("button", { name: "Testtasche: eins mehr" }).click();
+  await expect(page.getByText("Nur noch 2 an Lager")).toBeVisible();
   await expect(page.getByLabel(/TWINT – direkt/)).toBeDisabled();
+  await expect(total(page)).toHaveText("CHF 117.00");
+
+  // 4 Stück → Paket; die vorher gewählte Priority bleibt gewählt, Economy ist gratis (ab CHF 100)
+  await page.getByRole("button", { name: "Testtasche: eins mehr" }).click();
+  await expect(shippingChoice).toBeVisible();
+  await expect(total(page)).toHaveText("CHF 166.50"); // 156 + Priority 10.50
+  await page.getByLabel("Economy").check();
+  await expect(total(page)).toHaveText("CHF 156.00");
 
   await page.getByRole("button", { name: "Entfernen" }).click();
   await expect(page.getByText("Dein Warenkorb ist noch leer.")).toBeVisible();

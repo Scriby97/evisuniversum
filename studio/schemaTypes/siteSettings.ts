@@ -173,22 +173,43 @@ export const siteSettings = defineType({
       name: 'shippingOptions',
       title: 'Versandarten',
       description:
-        'Im Warenkorb wählbar, sobald etwas verschickt werden muss. Die erste ist vorausgewählt (und wird bei «Gratisversand ab» gratis).',
+        'Im Warenkorb wählbar, sobald etwas verschickt werden muss. Versandarten mit Haken «Versandtasche» gelten für kleine Sendungen (siehe unten), die anderen für Pakete. Die erste passende ist vorausgewählt (und wird bei «Gratisversand ab» gratis).',
       type: 'array',
       group: 'order',
+      validation: (r) => r.min(1).error('Mindestens eine Versandart eintragen, sonst wird kein Versand berechnet.'),
       of: [
         defineArrayMember({
           type: 'object',
           fields: [
             defineField({name: 'name', title: 'Bezeichnung', type: 'string', validation: (r) => r.required()}),
             defineField({name: 'price', title: 'Preis (CHF)', type: 'number', validation: (r) => r.required().min(0)}),
+            defineField({
+              name: 'envelope',
+              title: 'Versandtasche / Luftpolsterumschlag',
+              description: 'Nur für kleine Sendungen ohne Geschenkverpackung (bis zur Anzahl Produkte unten).',
+              type: 'boolean',
+              initialValue: false,
+            }),
           ],
           preview: {
-            select: {title: 'name', price: 'price'},
-            prepare: ({title, price}) => ({title, subtitle: `CHF ${price ?? 0}`}),
+            select: {title: 'name', price: 'price', envelope: 'envelope'},
+            prepare: ({title, price, envelope}) => ({
+              title,
+              subtitle: `CHF ${price ?? 0}${envelope ? ' · Versandtasche' : ' · Paket'}`,
+            }),
           },
         }),
       ],
+    }),
+    defineField({
+      name: 'envelopeMaxItems',
+      title: 'Versandtasche bis … Produkte',
+      description:
+        'Bis zu so vielen Produkten (ohne digitale) wird in der Versandtasche verschickt. Mehr Produkte oder mit Geschenkverpackung = Paket.',
+      type: 'number',
+      initialValue: 3,
+      validation: (r) => r.min(1).integer(),
+      group: 'order',
     }),
     defineField({
       name: 'twintQr',

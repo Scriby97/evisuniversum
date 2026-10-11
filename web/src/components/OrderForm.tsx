@@ -38,12 +38,16 @@ function newOrderNumber() {
 export function OrderForm({
   products,
   shippingOptions,
+  envelopeMaxItems,
   freeShippingFrom,
   giftWrapPrice,
   twintQrUrl,
 }: {
   products: OrderProduct[];
-  shippingOptions: { name: string; price: number }[];
+  /** envelope = Versandtasche für kleine Sendungen, sonst Paket */
+  shippingOptions: { name: string; price: number; envelope?: boolean }[];
+  /** Versandtasche bis zu so vielen (nicht digitalen) Produkten */
+  envelopeMaxItems: number;
   freeShippingFrom?: number;
   giftWrapPrice?: number;
   twintQrUrl?: string;
@@ -52,7 +56,7 @@ export function OrderForm({
   const [status, setStatus] = useState<Status>("idle");
   const [giftWrap, setGiftWrap] = useState(false);
   const [otherAddress, setOtherAddress] = useState(false);
-  const [shippingIndex, setShippingIndex] = useState(0);
+  const [shippingChoice, setShippingChoice] = useState<string | null>(null);
   const [payment, setPayment] = useState<Payment>("invoice");
   const [placed, setPlaced] = useState<Placed | null>(null);
 
@@ -73,12 +77,17 @@ export function OrderForm({
   });
   const subtotal = lines.reduce((sum, l) => sum + l.unitPrice * l.quantity, 0);
   const needsShipping = lines.some((l) => !l.product.digital);
-  const freeShipping = freeShippingFrom !== undefined && subtotal >= freeShippingFrom;
-  const shippingOption = shippingOptions[shippingIndex] ?? shippingOptions[0];
-  // «Gratisversand ab» gilt für die erste (Standard-)Versandart
-  const shipping = !needsShipping || (freeShipping && shippingIndex === 0) ? 0 : shippingOption.price;
   const canGiftWrap = needsShipping && giftWrapPrice !== undefined;
   const wrapping = canGiftWrap && giftWrap ? giftWrapPrice : 0;
+  // Bis envelopeMaxItems Produkte ohne Geschenkverpackung: Versandtasche, sonst Paket (digitale zählen nicht)
+  const physicalItems = lines.reduce((sum, l) => sum + (l.product.digital ? 0 : l.quantity), 0);
+  const envelope = !wrapping && physicalItems <= envelopeMaxItems && shippingOptions.some((o) => o.envelope);
+  const fitting = shippingOptions.filter((o) => Boolean(o.envelope) === envelope);
+  const options = fitting.length ? fitting : shippingOptions;
+  const shippingOption = options.find((o) => o.name === shippingChoice) ?? options[0];
+  const freeShipping = freeShippingFrom !== undefined && subtotal >= freeShippingFrom;
+  // «Gratisversand ab» gilt für die erste (Standard-)Versandart
+  const shipping = !needsShipping || (freeShipping && shippingOption === options[0]) ? 0 : shippingOption.price;
   const total = subtotal + shipping + wrapping;
   const hasRequests = lines.some((l) => l.onRequest);
   const dropped = cart.length - lines.length;
@@ -127,7 +136,7 @@ export function OrderForm({
       "",
       `Zwischentotal: ${formatPrice(subtotal)}`,
       needsShipping &&
-        `${shippingOptions.length > 1 ? `Versand (${shippingOption.name})` : "Versand"}: ${shipping === 0 ? "gratis" : formatPrice(shipping)}`,
+        `Versand (${shippingOption.name}): ${shipping === 0 ? "gratis" : formatPrice(shipping)}`,
       wrapping > 0 && `Geschenkverpackung: ${formatPrice(wrapping)}`,
       `Total: ${formatPrice(total)}${hasRequests ? " (Produkte auf Anfrage noch nicht definitiv)" : ""}`,
       "",
@@ -328,17 +337,17 @@ export function OrderForm({
         {dropped > 0 && (
           <p className="text-sm text-muted">Nicht mehr verfügbare Artikel werden nicht mitbestellt.</p>
         )}
-        {needsShipping && shippingOptions.length > 1 && (
+        {needsShipping && options.length > 1 && (
           <fieldset className="ml-auto flex w-full max-w-xs flex-col gap-1 text-sm">
             <legend className="mb-1">Versandart</legend>
-            {shippingOptions.map((option, i) => (
+            {options.map((option, i) => (
               <label key={option.name} className="flex items-center justify-between gap-3">
                 <span className="flex items-center gap-2">
                   <input
                     type="radio"
                     name="shippingOption"
-                    checked={shippingIndex === i}
-                    onChange={() => setShippingIndex(i)}
+                    checked={shippingOption === option}
+                    onChange={() => setShippingChoice(option.name)}
                     className="size-4 accent-accent"
                   />
                   {option.name}
@@ -355,7 +364,7 @@ export function OrderForm({
           <dd className="text-right">{formatPrice(subtotal)}</dd>
           {needsShipping && (
             <>
-              <dt className="text-muted">{shippingOptions.length > 1 ? shippingOption.name : "Versand"}</dt>
+              <dt className="text-muted">{shippingOption.name}</dt>
               <dd className="text-right">{shipping === 0 ? "gratis" : formatPrice(shipping)}</dd>
             </>
           )}

@@ -27,9 +27,11 @@ export default async function OrderPage() {
           products={available}
           shippingOptions={
             settings.shippingOptions?.length
-              ? settings.shippingOptions.map(({ name, price }) => ({ name, price }))
-              : [{ name: "Versand", price: 0 }]
+              ? settings.shippingOptions.map(({ name, price, envelope }) => ({ name, price, envelope }))
+              : // Im Studio ist mindestens eine Versandart Pflicht; das hier ist nur ein Notnagel
+                [{ name: "Versand", price: 9 }]
           }
+          envelopeMaxItems={settings.envelopeMaxItems ?? 3}
           freeShippingFrom={settings.freeShippingFrom}
           giftWrapPrice={settings.giftWrapPrice}
           twintQrUrl={imageUrl(settings.twintQr) ?? undefined}

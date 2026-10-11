@@ -14,9 +14,11 @@ export const e2eSettings: SiteSettings = {
     { _key: "m2", name: "Panda" },
   ],
   shippingOptions: [
+    { _key: "s0", name: "Versandtasche", price: 2.5, envelope: true },
     { _key: "s1", name: "Economy", price: 9 },
     { _key: "s2", name: "Priority", price: 10.5 },
   ],
+  envelopeMaxItems: 3,
   freeShippingFrom: 100,
   giftWrapPrice: 5,
   twintQr: { _type: "image", asset: { _type: "reference", _ref: "image-e2etwint-100x150-png" } },
