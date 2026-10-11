@@ -1,11 +1,16 @@
 // Cloudflare Worker: liefert die statische Seite aus `out/` aus und zieht nach einer Bestellung
 // den Lagerbestand in Sanity ab. Der Schreibschlüssel (SANITY_WRITE_TOKEN) ist ein Secret des
-// Workers und gelangt nie in den Browser.
+// Workers und gelangt nie in den Browser. Ausserdem meldet er fehlgeschlagene Builds per ntfy (build-notify.ts).
+
+import { buildNotification, sendToNtfy, type BuildEvent } from "./build-notify";
 
 interface Env {
   ASSETS: { fetch(request: Request): Promise<Response> };
   SANITY_WRITE_TOKEN?: string;
+  NTFY_TOPIC?: string;
 }
+
+type QueueBatch = { messages: { body: unknown; ack(): void; retry(): void }[] };
 
 type StockDoc = { _id: string; _rev: string; stock: number; slug: string };
 
@@ -17,6 +22,23 @@ const worker = {
     const url = new URL(request.url);
     if (url.pathname === "/api/stock") return handleStock(request, env, url);
     return env.ASSETS.fetch(request);
+  },
+
+  // Build-Ereignisse aus der Queue «evisuniversum-builds»
+  async queue(batch: QueueBatch, env: Env): Promise<void> {
+    for (const message of batch.messages) {
+      const notification = buildNotification(message.body as BuildEvent);
+      if (!notification || !env.NTFY_TOPIC) {
+        message.ack();
+        continue;
+      }
+      try {
+        await sendToNtfy(env.NTFY_TOPIC, notification);
+        message.ack();
+      } catch {
+        message.retry();
+      }
+    }
   },
 };
 

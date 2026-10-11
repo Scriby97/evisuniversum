@@ -1,6 +1,6 @@
 // Cloudflare Worker: liefert die statische Seite aus `out/` aus; worker/index.ts beantwortet
-// zusätzlich /api/stock (Lagerbestand nach Bestellungen abziehen).
-// Secret SANITY_WRITE_TOKEN im Cloudflare-Dashboard setzen (Settings → Variables and Secrets).
+// zusätzlich /api/stock (Lagerbestand nach Bestellungen abziehen) und meldet fehlgeschlagene Builds per ntfy.
+// Secrets SANITY_WRITE_TOKEN und NTFY_TOPIC im Cloudflare-Dashboard setzen (Settings → Variables and Secrets).
 {
   "name": "evisuniversum",
   "main": "worker/index.ts",
@@ -12,5 +12,10 @@
     "html_handling": "auto-trailing-slash",
     // unbekannte Adressen → out/404.html
     "not_found_handling": "404-page"
+  },
+  // Build-Ereignisse (Event Subscription «Workers Builds» im Dashboard) → worker/build-notify.ts
+  // Die Queue muss im Dashboard existieren, sonst schlägt das Deployment fehl.
+  "queues": {
+    "consumers": [{ "queue": "evisuniversum-builds", "max_batch_size": 10, "max_batch_timeout": 5 }]
   }
 }
