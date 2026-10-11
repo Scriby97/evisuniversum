@@ -94,6 +94,23 @@ export function setQuantity(id: string, quantity: number) {
   );
 }
 
+// Wie viele veraltete Artikel in dieser Sitzung entfernt wurden (für den Hinweis im Warenkorb)
+let prunedCount = 0;
+
+/** Entfernt Artikel, deren Produkt es nicht mehr gibt oder das nicht mehr verfügbar ist */
+export function pruneCart(orderableSlugs: string[]) {
+  const valid = new Set(orderableSlugs);
+  const items = read();
+  const kept = items.filter((i) => valid.has(i.slug));
+  if (kept.length === items.length) return;
+  prunedCount += items.length - kept.length;
+  write(kept);
+}
+
+export function usePrunedCount() {
+  return useSyncExternalStore(subscribe, () => prunedCount, () => 0);
+}
+
 export function clearCart() {
   write(empty);
 }

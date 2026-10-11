@@ -3,7 +3,7 @@ import { Cormorant_Garamond, Inter } from "next/font/google";
 import { ComingSoonGate } from "@/components/ComingSoonGate";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
-import { getSettings, type SiteSettings } from "@/lib/sanity";
+import { getProducts, getSettings, type SiteSettings } from "@/lib/sanity";
 import "./globals.css";
 
 // Token aus Cloudflare → Web Analytics (öffentlich, steht ohnehin im HTML). Leer = keine Statistik.
@@ -32,11 +32,13 @@ function isComingSoon(settings: SiteSettings) {
 }
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const settings = await getSettings();
+  const [settings, products] = await Promise.all([getSettings(), getProducts()]);
+  // Gleiche Auswahl wie der Warenkorb auf /bestellen
+  const orderableSlugs = products.filter((p) => p.available).map((p) => p.slug);
   const siteName = settings.siteName ?? "evi’s universum";
   const page = (
     <>
-      <Header siteName={siteName} logo={settings.logo} />
+      <Header siteName={siteName} logo={settings.logo} orderableSlugs={orderableSlugs} />
       <main className="flex-1">{children}</main>
       <Footer settings={settings} />
     </>

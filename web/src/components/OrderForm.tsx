@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
-import { clearCart, setQuantity, useCart } from "@/lib/cart";
+import { useEffect, useState, type FormEvent } from "react";
+import { clearCart, pruneCart, setQuantity, useCart, usePrunedCount } from "@/lib/cart";
 import { formatPrice } from "@/lib/format";
 import { inputClass, sendForm, web3formsKey } from "@/lib/web3forms";
 import { ConfirmationCopy } from "./ConfirmationCopy";
@@ -54,6 +54,17 @@ export function OrderForm({
 }) {
   const cart = useCart();
   const [status, setStatus] = useState<Status>("idle");
+  const removed = usePrunedCount();
+
+  // Artikel, die es nicht mehr gibt (gelöscht, umbenannt, ausgeschaltet), aus dem Browser-Speicher entfernen
+  useEffect(() => pruneCart(products.map((p) => p.slug)), [products]);
+  const removedNotice =
+    removed > 0 ? (
+      <p className="rounded-lg bg-sand/60 p-3 text-sm text-muted">
+        {removed === 1 ? "Ein Artikel ist" : `${removed} Artikel sind`} nicht mehr erhältlich und{" "}
+        {removed === 1 ? "wurde" : "wurden"} aus deinem Warenkorb entfernt.
+      </p>
+    ) : null;
   const [giftWrap, setGiftWrap] = useState(false);
   const [otherAddress, setOtherAddress] = useState(false);
   const [shippingChoice, setShippingChoice] = useState<string | null>(null);
@@ -90,7 +101,6 @@ export function OrderForm({
   const shipping = !needsShipping || (freeShipping && shippingOption === options[0]) ? 0 : shippingOption.price;
   const total = subtotal + shipping + wrapping;
   const hasRequests = lines.some((l) => l.onRequest);
-  const dropped = cart.length - lines.length;
   // TWINT nur mit hinterlegtem QR-Code und ohne Produkte auf Anfrage (dort steht der Preis noch nicht fest)
   const canTwint = Boolean(twintQrUrl) && !hasRequests;
   const paymentMethod: Payment = canTwint ? payment : "invoice";
@@ -256,6 +266,7 @@ export function OrderForm({
   if (lines.length === 0) {
     return (
       <div className="flex flex-col items-start gap-4">
+        {removedNotice}
         <p className="text-muted">Dein Warenkorb ist noch leer.</p>
         <Link href="/shop" className="rounded-full bg-accent px-6 py-3 text-white hover:bg-accent-dark">
           Zum Shop
@@ -334,9 +345,7 @@ export function OrderForm({
             </li>
           ))}
         </ul>
-        {dropped > 0 && (
-          <p className="text-sm text-muted">Nicht mehr verfügbare Artikel werden nicht mitbestellt.</p>
-        )}
+        {removedNotice}
         {needsShipping && options.length > 1 && (
           <fieldset className="ml-auto flex w-full max-w-xs flex-col gap-1 text-sm">
             <legend className="mb-1">Versandart</legend>

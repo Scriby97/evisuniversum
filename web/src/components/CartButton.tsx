@@ -3,8 +3,11 @@
 import Link from "next/link";
 import { useCart } from "@/lib/cart";
 
-export function CartButton() {
-  const count = useCart().reduce((sum, item) => sum + item.quantity, 0);
+// Zählt nur Produkte, die es im Shop noch gibt (veraltete Einträge im Browser-Speicher nicht)
+export function CartButton({ orderableSlugs }: { orderableSlugs: string[] }) {
+  const count = useCart()
+    .filter((item) => orderableSlugs.includes(item.slug))
+    .reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <Link href="/bestellen" className="relative flex items-center text-muted hover:text-ink" aria-label={`Warenkorb (${count})`}>

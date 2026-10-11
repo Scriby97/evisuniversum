@@ -80,3 +80,34 @@ test("Warenkorb bleibt nach dem Neuladen erhalten", async ({ page }) => {
   await page.reload();
   await expect(cartCount(page)).toHaveAccessibleName("Warenkorb (1)");
 });
+
+test("Veraltete Artikel im Browser-Speicher: Symbol zählt sie nicht, Warenkorb räumt sie weg", async ({ page }) => {
+  await page.goto("/");
+  await page.evaluate(() =>
+    localStorage.setItem(
+      "evisuniversum-cart",
+      JSON.stringify([
+        { id: "a", slug: "test-tasche", quantity: 1 },
+        { id: "b", slug: "geloeschtes-produkt", quantity: 2 },
+        { id: "c", slug: "test-weg", quantity: 1 }, // ausgeschaltet
+      ]),
+    ),
+  );
+  await page.reload();
+  await expect(cartCount(page)).toHaveAccessibleName("Warenkorb (1)");
+
+  await page.goto("/bestellen");
+  await expect(page.getByText("2 Artikel sind nicht mehr erhältlich und wurden aus deinem Warenkorb entfernt.")).toBeVisible();
+  await expect(page.getByRole("listitem").filter({ hasText: "Testtasche" })).toBeVisible();
+  const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("evisuniversum-cart")!));
+  expect(stored.map((i: { slug: string }) => i.slug)).toEqual(["test-tasche"]);
+
+  // Nur Veraltetes im Speicher: Hinweis statt kommentarlos «leer»
+  await page.evaluate(() =>
+    localStorage.setItem("evisuniversum-cart", JSON.stringify([{ id: "x", slug: "geloeschtes-produkt", quantity: 2 }])),
+  );
+  await page.reload();
+  await expect(page.getByText("Ein Artikel ist nicht mehr erhältlich")).toBeVisible();
+  await expect(page.getByText("Dein Warenkorb ist noch leer.")).toBeVisible();
+  await expect(cartCount(page)).toHaveAccessibleName("Warenkorb (0)");
+});

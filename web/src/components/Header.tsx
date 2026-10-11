@@ -12,7 +12,16 @@ const links = [
   { href: "/kontakt", label: "Kontakt" },
 ];
 
-export function Header({ siteName, logo }: { siteName: string; logo?: SanityImage }) {
+export function Header({
+  siteName,
+  logo,
+  orderableSlugs,
+}: {
+  siteName: string;
+  logo?: SanityImage;
+  /** Produkte, die man bestellen/anfragen kann – für die Zahl am Warenkorb-Symbol */
+  orderableSlugs: string[];
+}) {
   const logoSrc = imageUrl(logo);
   return (
     <header className="relative border-b border-sand print:hidden">
@@ -27,10 +36,10 @@ export function Header({ siteName, logo }: { siteName: string; logo?: SanityImag
               {link.label}
             </Link>
           ))}
-          <CartButton />
+          <CartButton orderableSlugs={orderableSlugs} />
         </nav>
         <div className="flex shrink-0 items-center gap-3 lg:hidden">
-          <CartButton />
+          <CartButton orderableSlugs={orderableSlugs} />
           <MobileMenu links={links} />
         </div>
       </div>
