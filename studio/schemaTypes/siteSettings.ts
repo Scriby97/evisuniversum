@@ -14,7 +14,7 @@ export const siteSettings = defineType({
   title: 'Website-Einstellungen',
   type: 'document',
   groups: [
-    {name: 'launch', title: 'Im Aufbau'},
+    {name: 'launch', title: 'Wartung'},
     {name: 'home', title: 'Startseite', default: true},
     {name: 'shop', title: 'Shop & Personalisierung'},
     {name: 'about', title: 'Über mich'},
@@ -23,30 +23,34 @@ export const siteSettings = defineType({
     {name: 'legal', title: 'Kontakt & Rechtliches'},
   ],
   fields: [
+    // Feldnamen stammen noch von der «Bald online»-Seite vor dem Start; heute ist es der Wartungsmodus
     defineField({
       name: 'comingSoon',
-      title: 'Website noch im Aufbau',
+      title: 'Website vorübergehend sperren (Wartungsmodus)',
       description:
-        'Eingeschaltet: Besucher sehen nur die «Bald online»-Seite. Ausschalten, sobald die Website fertig ist.',
+        'Eingeschaltet: Besucherinnen sehen nur die Wartungsseite mit deinem Text. Mit dem Passwort kommst du trotzdem auf die Website und kannst deine Änderungen prüfen. Danach ausschalten und Publish – nach 3–5 Minuten ist die Seite wieder für alle offen.',
       type: 'boolean',
-      initialValue: true,
+      initialValue: false,
       group: 'launch',
     }),
     defineField({
       name: 'comingSoonText',
-      title: 'Text auf der «Bald online»-Seite',
+      title: 'Text auf der Wartungsseite',
+      description: 'z. B. «Ich nehme gerade ein paar Änderungen vor – schau bald wieder vorbei!»',
       type: 'text',
       rows: 3,
       group: 'launch',
-      hidden: ({document}) => document?.comingSoon === false,
     }),
     defineField({
       name: 'previewPassword',
-      title: 'Passwort für die Vorschau',
-      description: 'Damit kommst du (und wer es kennt) an der «Bald online»-Seite vorbei. Gross-/Kleinschreibung egal.',
+      title: 'Passwort, um trotzdem auf die Website zu kommen',
+      description: 'Für dich (und wer es kennt), solange der Wartungsmodus an ist. Gross-/Kleinschreibung egal.',
       type: 'string',
       group: 'launch',
-      hidden: ({document}) => document?.comingSoon === false,
+      validation: (r) =>
+        r.custom((pw, {document}) =>
+          document?.comingSoon && !pw ? 'Bitte ein Passwort eintragen, sonst kommst du selbst nicht mehr auf die Seite.' : true,
+        ),
     }),
 
     defineField({name: 'siteName', title: 'Name der Website', type: 'string', group: 'home'}),

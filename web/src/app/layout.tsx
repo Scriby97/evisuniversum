@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Inter } from "next/font/google";
-import { ComingSoonGate } from "@/components/ComingSoonGate";
+import { MaintenanceGate } from "@/components/MaintenanceGate";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { getProducts, getSettings, type SiteSettings } from "@/lib/sanity";
@@ -22,13 +22,13 @@ export async function generateMetadata(): Promise<Metadata> {
     metadataBase: new URL("https://evisuniversum.ch"),
     // Vorschaubild beim Teilen des Links (WhatsApp, Facebook, …)
     openGraph: { images: [{ url: "/og.jpg", width: 689, height: 361 }], locale: "de_CH", siteName },
-    // Solange die Seite im Aufbau ist, soll Google sie nicht aufnehmen
-    robots: isComingSoon(settings) ? { index: false, follow: false } : undefined,
   };
 }
 
-function isComingSoon(settings: SiteSettings) {
-  return settings.comingSoon === true && Boolean(settings.previewPassword);
+// Wartungsmodus aus dem Studio. Google wird bewusst nicht ausgesperrt: die Inhalte stehen weiter im HTML,
+// und ein «noindex» würde die Seite bei längerer Wartung aus den Suchergebnissen werfen.
+function isMaintenance(settings: SiteSettings) {
+  return settings.comingSoon === true;
 }
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
@@ -49,14 +49,14 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       className={`${heading.variable} ${body.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">
-        {isComingSoon(settings) ? (
-          <ComingSoonGate
+        {isMaintenance(settings) ? (
+          <MaintenanceGate
             siteName={siteName}
-            text={settings.comingSoonText ?? "Meine Homepage entsteht gerade und ist bald online."}
-            password={settings.previewPassword!}
+            text={settings.comingSoonText || "Ich nehme gerade ein paar Änderungen vor – schau bald wieder vorbei!"}
+            password={settings.previewPassword}
           >
             {page}
-          </ComingSoonGate>
+          </MaintenanceGate>
         ) : (
           page
         )}
