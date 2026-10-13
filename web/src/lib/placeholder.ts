@@ -64,7 +64,7 @@ Schön, dass du in meinem kleinen Universum vorbeischaust. ♡`,
   ],
   ownerName: "Eva-Maria Doyon",
   address: "Spiezstrasse 51A\n3645 Gwatt (Thun)",
-  email: "evis.universum@gmx.ch",
+  email: "shop@evisuniversum.ch",
   agbText: `## Geltungsbereich
 Diese AGB gelten für alle Bestellungen bei evi’s universum. (VORLAGE – vor dem Livegang prüfen und anpassen.)
 
