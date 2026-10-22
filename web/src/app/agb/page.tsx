@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { RichText } from "@/components/RichText";
 import { getSettings } from "@/lib/sanity";
 
-export const metadata: Metadata = { title: "AGB" };
+export const metadata: Metadata = { title: "AGB", alternates: { canonical: "/agb" } };
 
 export default async function TermsPage() {
   const settings = await getSettings();

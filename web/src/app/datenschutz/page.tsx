@@ -3,7 +3,7 @@ import { RichText } from "@/components/RichText";
 import { privacyDefault } from "@/lib/privacy-default";
 import { getSettings } from "@/lib/sanity";
 
-export const metadata: Metadata = { title: "Datenschutz" };
+export const metadata: Metadata = { title: "Datenschutz", alternates: { canonical: "/datenschutz" } };
 
 export default async function PrivacyPage() {
   const settings = await getSettings();

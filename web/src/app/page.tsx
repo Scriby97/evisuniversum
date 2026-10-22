@@ -1,9 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon, iconNames } from "@/components/Icons";
 import { ProductCard } from "@/components/ProductCard";
 import { SanityImage } from "@/components/SanityImage";
 import { formatEventDate } from "@/lib/format";
 import { getProducts, getSettings, getUpcomingEvents } from "@/lib/sanity";
+
+// Kanonische Adresse: Aufrufe mit Zusätzen wie ?fbclid=… (Facebook, WhatsApp) zählen als dieselbe Seite
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export default async function Home() {
   const [settings, products, events] = await Promise.all([getSettings(), getProducts(), getUpcomingEvents()]);

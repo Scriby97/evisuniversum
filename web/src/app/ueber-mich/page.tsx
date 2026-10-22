@@ -3,7 +3,7 @@ import { RichText } from "@/components/RichText";
 import { SanityImage } from "@/components/SanityImage";
 import { getSettings } from "@/lib/sanity";
 
-export const metadata: Metadata = { title: "Über mich" };
+export const metadata: Metadata = { title: "Über mich", alternates: { canonical: "/ueber-mich" } };
 
 export default async function AboutPage() {
   const settings = await getSettings();

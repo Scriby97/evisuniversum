@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ContactForm } from "@/components/ContactForm";
 import { getSettings } from "@/lib/sanity";
 
-export const metadata: Metadata = { title: "Kontakt" };
+export const metadata: Metadata = { title: "Kontakt", alternates: { canonical: "/kontakt" } };
 
 export default async function ContactPage() {
   const settings = await getSettings();

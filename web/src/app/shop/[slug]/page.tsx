@@ -26,6 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title: product.name,
     description: product.description,
+    alternates: { canonical: `/shop/${product.slug}` },
     // Ersetzt das allgemeine Vorschaubild aus dem Layout durch das erste Produktfoto
     openGraph: ogImage
       ? {

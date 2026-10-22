@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getSettings } from "@/lib/sanity";
 
-export const metadata: Metadata = { title: "Impressum" };
+export const metadata: Metadata = { title: "Impressum", alternates: { canonical: "/impressum" } };
 
 export default async function ImprintPage() {
   const settings = await getSettings();

@@ -5,7 +5,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { SanityImage } from "@/components/SanityImage";
 import { getCategories, getMotifGroups, getSettings } from "@/lib/sanity";
 
-export const metadata: Metadata = { title: "Shop" };
+export const metadata: Metadata = { title: "Shop", alternates: { canonical: "/shop" } };
 
 export default async function ShopPage() {
   const [settings, allCategories, motifGroups] = await Promise.all([getSettings(), getCategories(), getMotifGroups()]);

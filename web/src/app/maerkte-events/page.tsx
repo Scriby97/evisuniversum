@@ -5,7 +5,7 @@ import { SimpleText } from "@/components/SimpleText";
 import { formatEventDate } from "@/lib/format";
 import { getUpcomingEvents } from "@/lib/sanity";
 
-export const metadata: Metadata = { title: "Märkte & Events" };
+export const metadata: Metadata = { title: "Märkte & Events", alternates: { canonical: "/maerkte-events" } };
 
 
 export default async function EventsPage() {

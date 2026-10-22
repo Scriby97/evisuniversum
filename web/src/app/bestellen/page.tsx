@@ -3,7 +3,7 @@ import { RichText } from "@/components/RichText";
 import { OrderForm } from "@/components/OrderForm";
 import { getProducts, getSettings, imageUrl } from "@/lib/sanity";
 
-export const metadata: Metadata = { title: "Warenkorb" };
+export const metadata: Metadata = { title: "Warenkorb", alternates: { canonical: "/bestellen" } };
 
 export default async function OrderPage() {
   const [settings, products] = await Promise.all([getSettings(), getProducts()]);

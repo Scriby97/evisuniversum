@@ -3,7 +3,7 @@ import { RichText } from "@/components/RichText";
 import Link from "next/link";
 import { getSettings } from "@/lib/sanity";
 
-export const metadata: Metadata = { title: "FAQ" };
+export const metadata: Metadata = { title: "FAQ", alternates: { canonical: "/faq" } };
 
 export default async function FaqPage() {
   const settings = await getSettings();
