@@ -6,8 +6,16 @@ import { SanityImage } from "@/components/SanityImage";
 import { formatEventDate } from "@/lib/format";
 import { getProducts, getSettings, getUpcomingEvents } from "@/lib/sanity";
 
-// Kanonische Adresse: Aufrufe mit Zusätzen wie ?fbclid=… (Facebook, WhatsApp) zählen als dieselbe Seite
-export const metadata: Metadata = { alternates: { canonical: "/" } };
+// Kanonische Adresse: Aufrufe mit Zusätzen wie ?fbclid=… (Facebook, WhatsApp) zählen als dieselbe Seite.
+// Der Titel der Startseite sagt Google zusätzlich, was es hier gibt (der Name allein ist zu wenig).
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSettings();
+  const siteName = settings.siteName ?? "evi’s universum";
+  return {
+    title: { absolute: `${siteName} – bestickte Socken & persönliche Geschenke aus Thun` },
+    alternates: { canonical: "/" },
+  };
+}
 
 export default async function Home() {
   const [settings, products, events] = await Promise.all([getSettings(), getProducts(), getUpcomingEvents()]);
