@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useId, useState, type FormEvent } from "react";
 import { addToCart, type CartItem } from "@/lib/cart";
@@ -72,7 +73,7 @@ export function QuickAdd({ product }: { product: CartProduct }) {
   );
 }
 
-export type SymbolGroup = { title: string; names: string[] };
+export type SymbolGroup = { title: string; motifs: { name: string; image: string | null }[] };
 
 export type ChoiceValues = Omit<CartItem, "id" | "quantity" | "slug">;
 
@@ -111,7 +112,7 @@ export function OptionFields({
   namePlaceholder: string;
   allOptional?: boolean;
 }) {
-  const showSymbols = product.personalizable && product.withSymbols && symbolGroups.some((g) => g.names.length > 0);
+  const showSymbols = product.personalizable && product.withSymbols && symbolGroups.some((g) => g.motifs.length > 0);
   const isRequired = (required?: boolean) => !allOptional && required !== false;
   const id = useId();
 
@@ -274,22 +275,46 @@ function SymbolSelect({
   groups: SymbolGroup[];
   describedBy?: string;
 }) {
-  const option = (s: string) => (
-    <option key={s} value={s}>
-      {s}
+  const [value, setValue] = useState("");
+  const motifs = groups.flatMap((g) => g.motifs);
+  const withImages = motifs.some((m) => m.image);
+  const preview = motifs.find((m) => m.name === value)?.image;
+  const option = (m: { name: string }) => (
+    <option key={m.name} value={m.name}>
+      {m.name}
     </option>
   );
-  return (
-    <select id={id} name={name} className={inputClass} defaultValue="" aria-describedby={describedBy}>
+  const select = (
+    <select
+      id={id}
+      name={name}
+      className={withImages ? `${inputClass} min-w-0 flex-1` : inputClass}
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      aria-describedby={describedBy}
+    >
       <option value="">{emptyLabel}</option>
       {groups.length === 1
-        ? groups[0].names.map(option)
+        ? groups[0].motifs.map(option)
         : groups.map((g) => (
             <optgroup key={g.title} label={g.title}>
-              {g.names.map(option)}
+              {g.motifs.map(option)}
             </optgroup>
           ))}
     </select>
+  );
+  if (!withImages) return select;
+  // Vorschau des gewählten Motivs neben der Auswahl; der Platz bleibt frei, damit nichts springt
+  return (
+    <div className="flex items-center gap-3">
+      {select}
+      <div
+        className={`relative size-16 shrink-0 overflow-hidden rounded-xl border bg-white ${preview ? "border-sand" : "border-dashed border-muted/40"}`}
+        data-testid={`${name}-preview`}
+      >
+        {preview && <Image src={preview} alt={`Motiv ${value}`} fill sizes="64px" className="object-contain p-1" />}
+      </div>
+    </div>
   );
 }
 

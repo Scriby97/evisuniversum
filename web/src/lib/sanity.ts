@@ -124,7 +124,11 @@ export async function getMotifGroups(): Promise<MotifGroup[]> {
 export function symbolGroupsFor(product: Pick<Product, "motifGroupIds">, groups: MotifGroup[]) {
   const ids: readonly string[] = product.motifGroupIds;
   const chosen = ids.length ? groups.filter((g) => ids.includes(g._id)) : groups;
-  return chosen.map((g) => ({ title: g.title, names: (g.motifs ?? []).map((m) => m.name) }));
+  // Kleines Vorschaubild je Motiv: die Kundin sieht in der Auswahl gleich, welches Motiv sie wählt
+  return chosen.map((g) => ({
+    title: g.title,
+    motifs: (g.motifs ?? []).map((m) => ({ name: m.name, image: imageUrl(m.image, { width: 160, height: 160 }) })),
+  }));
 }
 
 export function imageUrl(image?: SanityImage | null, crop?: { width: number; height: number }): string | null {
