@@ -46,12 +46,24 @@ export function buildNotification(event: BuildEvent): Notification | null {
   };
 }
 
-export async function sendToNtfy(topic: string, n: Notification) {
+export class NtfyError extends Error {
+  constructor(readonly status: number, text: string) {
+    super(`ntfy: ${status} ${text.slice(0, 300)}`);
+  }
+}
+
+// «ntfy.sh/abc» oder «https://ntfy.sh/abc» (aus der App kopiert) → «abc»
+const cleanTopic = (topic: string) => topic.trim().replace(/^(https?:\/\/)?ntfy\.sh\//, "");
+
+// Mit Token (Secret NTFY_TOKEN, Konto auf ntfy.sh) zählt ntfy die Nachrichten pro Konto statt pro Absender-Adresse.
+// Ohne Token teilen sich alle Cloudflare-Worker einer Adresse das Tageskontingent (Fehler 429).
+export async function sendToNtfy(topic: string, n: Notification, token?: string) {
   // JSON statt Header, damit Umlaute im Titel ankommen
   const res = await fetch("https://ntfy.sh/", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ topic, ...n }),
+    headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token.trim()}` } : {}) },
+    body: JSON.stringify({ topic: cleanTopic(topic), ...n }),
   });
-  if (!res.ok) throw new Error(`ntfy: ${res.status}`);
+  // Antwort von ntfy ins Log (Worker → Observability), damit man sieht, warum etwas nicht ankommt
+  if (!res.ok) throw new NtfyError(res.status, await res.text());
 }

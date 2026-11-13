@@ -17,5 +17,7 @@
   // Die Queue muss im Dashboard existieren, sonst schlägt das Deployment fehl.
   "queues": {
     "consumers": [{ "queue": "evisuniversum-builds", "max_batch_size": 10, "max_batch_timeout": 5 }]
-  }
+  },
+  // Logs im Dashboard (Worker → Observability → Logs)
+  "observability": { "enabled": true }
 }

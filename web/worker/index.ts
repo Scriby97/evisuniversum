@@ -2,15 +2,16 @@
 // den Lagerbestand in Sanity ab. Der Schreibschlüssel (SANITY_WRITE_TOKEN) ist ein Secret des
 // Workers und gelangt nie in den Browser. Ausserdem meldet er fehlgeschlagene Builds per ntfy (build-notify.ts).
 
-import { buildNotification, sendToNtfy, type BuildEvent } from "./build-notify";
+import { buildNotification, NtfyError, sendToNtfy, type BuildEvent } from "./build-notify";
 
 interface Env {
   ASSETS: { fetch(request: Request): Promise<Response> };
   SANITY_WRITE_TOKEN?: string;
   NTFY_TOPIC?: string;
+  NTFY_TOKEN?: string;
 }
 
-type QueueBatch = { messages: { body: unknown; ack(): void; retry(): void }[] };
+type QueueBatch = { messages: { body: unknown; ack(): void; retry(options?: { delaySeconds?: number }): void }[] };
 
 type StockDoc = { _id: string; _rev: string; stock: number; slug: string };
 
@@ -27,16 +28,23 @@ const worker = {
   // Build-Ereignisse aus der Queue «evisuniversum-builds»
   async queue(batch: QueueBatch, env: Env): Promise<void> {
     for (const message of batch.messages) {
-      const notification = buildNotification(message.body as BuildEvent);
+      const event = message.body as BuildEvent;
+      const notification = buildNotification(event);
+      console.log("Build-Ereignis:", event?.type, notification ? "→ ntfy" : "→ keine Nachricht", env.NTFY_TOPIC ? "" : "(NTFY_TOPIC fehlt)");
       if (!notification || !env.NTFY_TOPIC) {
         message.ack();
         continue;
       }
       try {
-        await sendToNtfy(env.NTFY_TOPIC, notification);
+        await sendToNtfy(env.NTFY_TOPIC, notification, env.NTFY_TOKEN);
         message.ack();
-      } catch {
-        message.retry();
+        console.log("ntfy: gesendet");
+      } catch (error) {
+        console.error("ntfy fehlgeschlagen:", String(error));
+        // Falsches Topic o. Ä. (4xx) wird nicht besser → aufgeben; Überlastung (429, 5xx, Netz) → in einer Minute nochmals
+        const status = error instanceof NtfyError ? error.status : 0;
+        if (status >= 400 && status < 500 && status !== 429) message.ack();
+        else message.retry({ delaySeconds: 60 });
       }
     }
   },
