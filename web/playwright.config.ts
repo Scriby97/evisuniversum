@@ -16,6 +16,8 @@ export default defineConfig({
   use: {
     baseURL: `http://localhost:${port}`,
     trace: "retain-on-failure",
+    // Ohne Animationen prüfen (halb eingeblendete Texte würden den Kontrast-Test verfälschen)
+    contextOptions: { reducedMotion: "reduce" },
   },
   projects: [
     {

@@ -37,7 +37,7 @@ function sameChoice(a: Omit<CartItem, "id" | "quantity">, b: Omit<CartItem, "id"
 }
 
 const storageKey = "evisuniversum-cart";
-const changeEvent = "evisuniversum-cart-change";
+export const changeEvent = "evisuniversum-cart-change";
 const empty: CartItem[] = [];
 
 let cachedRaw: string | null = null;

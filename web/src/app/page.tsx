@@ -22,11 +22,18 @@ export default async function Home() {
   // Reihenfolge wie im Studio gewählt; gelöschte Produkte fallen weg
   const featured = (settings.featuredProducts ?? []).flatMap((ref) => products.filter((p) => p._id === ref._ref));
   const nextEvent = events[0];
+  // Instagram-Kasten: Einblick mit Evis eigenen Produktfotos (nichts von Instagram eingebettet).
+  // Bevorzugt Produkte, die nicht schon bei den Lieblingsstücken stehen; gleichmässig über das ganze Sortiment
+  // verteilt (die Produkte sind nach Kategorie sortiert), damit nicht nur Socken erscheinen.
+  const featuredIds = new Set(featured.map((p) => p._id));
+  const fresh = products.filter((p) => !featuredIds.has(p._id) && p.images?.[0]?.asset);
+  const pool = fresh.length >= 6 ? fresh : products.filter((p) => p.images?.[0]?.asset);
+  const glimpses = Array.from({ length: Math.min(6, pool.length) }, (_, i) => pool[Math.floor((i * pool.length) / Math.min(6, pool.length))].images![0]);
 
   return (
     <>
       <section className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-12 md:grid-cols-2 md:py-20">
-        <div className="flex flex-col items-center gap-5 text-center md:items-start md:text-left">
+        <div className="hero-in flex flex-col items-center gap-5 text-center md:items-start md:text-left">
           <h1 className="flex flex-col gap-1 font-serif leading-tight">
             {settings.heroTitle && <span className="text-3xl italic text-muted sm:text-4xl">{settings.heroTitle}</span>}
             <span className="text-6xl font-medium sm:text-7xl">{settings.siteName}</span>
@@ -44,24 +51,24 @@ export default async function Home() {
             </Link>
           </div>
         </div>
-        <div className="relative aspect-[4/5] overflow-hidden rounded-3xl">
+        <div className="hero-photo relative aspect-[4/5] overflow-hidden rounded-3xl">
           <SanityImage image={settings.heroImage} alt="" sizes="(min-width: 768px) 560px, 100vw" priority />
         </div>
       </section>
 
       {settings.heroText && (
-        <section className="mx-auto max-w-3xl px-4 py-16 text-center">
+        <section className="reveal mx-auto max-w-3xl px-4 py-16 text-center">
           <p className="whitespace-pre-line font-serif text-2xl leading-relaxed text-muted">{settings.heroText}</p>
         </section>
       )}
 
       {settings.highlights && settings.highlights.length > 0 && (
-        <section className="mx-auto grid max-w-6xl gap-6 px-4 sm:grid-cols-2 lg:grid-cols-3">
+        <section className="reveal-row mx-auto grid max-w-6xl gap-6 px-4 sm:grid-cols-2 lg:grid-cols-3">
           {settings.highlights.map((h) => (
             <Link
               key={h._key}
               href={h.link ?? "/shop"}
-              className="group flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm"
+              className="reveal zoom-card group flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm"
             >
               <div className="relative aspect-[4/3]">
                 <SanityImage image={h.image} alt={h.title} sizes="(min-width: 1024px) 380px, 100vw" />
@@ -77,13 +84,13 @@ export default async function Home() {
 
       {featured.length > 0 && (
         <section className="mx-auto mt-20 max-w-6xl px-4">
-          <div className="mb-6 flex flex-wrap items-baseline justify-between gap-4">
+          <div className="reveal mb-6 flex flex-wrap items-baseline justify-between gap-4">
             <h2 className="font-serif text-4xl font-medium">Lieblingsstücke</h2>
             <Link href="/shop" className="text-sm text-accent hover:text-accent-dark">
               Zum ganzen Shop →
             </Link>
           </div>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="reveal-row grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {featured.map((product) => (
               <ProductCard key={product._id} product={product} />
             ))}
@@ -94,7 +101,7 @@ export default async function Home() {
       {(nextEvent || settings.instagram) && (
         <section className="mx-auto mt-20 grid max-w-6xl gap-6 px-4 md:grid-cols-2">
           {nextEvent && (
-            <Link href="/maerkte-events" className="group flex flex-col gap-2 rounded-2xl bg-mint/40 p-8">
+            <Link href="/maerkte-events" className="reveal zoom-card group flex flex-col gap-2 rounded-2xl bg-mint/40 p-8">
               {nextEvent.image?.asset && (
                 <div className="relative mb-3 aspect-[16/9] overflow-hidden rounded-xl">
                   <SanityImage
@@ -121,8 +128,17 @@ export default async function Home() {
               href={settings.instagram}
               target="_blank"
               rel="noreferrer"
-              className="group flex flex-col gap-2 rounded-2xl bg-sand/60 p-8"
+              className={`reveal zoom-card group flex flex-col gap-2 rounded-2xl bg-sand/60 p-8 ${nextEvent ? "" : "md:col-span-2"}`}
             >
+              {glimpses.length >= 3 && (
+                <div className="mb-3 grid grid-cols-3 gap-2" aria-hidden>
+                  {glimpses.slice(0, glimpses.length >= 6 ? 6 : 3).map((image, i) => (
+                    <div key={i} className="relative aspect-square overflow-hidden rounded-xl">
+                      <SanityImage image={image} alt="" decorative crop={{ width: 400, height: 400 }} sizes="180px" />
+                    </div>
+                  ))}
+                </div>
+              )}
               <p className="flex items-center gap-2 text-sm uppercase tracking-wide text-accent">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} className="size-5" aria-hidden>
                   <rect x="3" y="3" width="18" height="18" rx="5" />
@@ -141,9 +157,9 @@ export default async function Home() {
 
       {settings.values && settings.values.length > 0 && (
         <section className="mx-auto mt-16 max-w-6xl px-4">
-          <ul className="grid gap-6 border-y border-sand py-8 sm:grid-cols-2 lg:grid-cols-4">
+          <ul className="values reveal-row grid gap-6 border-y border-sand py-8 sm:grid-cols-2 lg:grid-cols-4">
             {settings.values.map((value, i) => (
-              <li key={value} className="flex items-center gap-3 text-sm uppercase tracking-wide text-muted">
+              <li key={value} className="reveal flex items-center gap-3 text-sm uppercase tracking-wide text-muted">
                 <Icon name={iconNames[i % iconNames.length]} className="size-8 shrink-0 text-accent" />
                 {value}
               </li>

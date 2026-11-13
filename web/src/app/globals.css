@@ -22,3 +22,45 @@ body {
 [id] {
   scroll-margin-top: 2rem;
 }
+
+/* ---------- Animationen ----------
+   Nur ohne «Bewegung reduzieren». Scroll-Effekte hängen an der Scrollposition (nicht an einer Uhr):
+   wer schnell scrollt, sieht nie leere Flächen. Ältere Browser zeigen alles sofort.
+   Einblenden nutzt `translate`, Hover-Effekte `transform`/`scale` – so stören sie sich nicht.
+   Der Hüpfer am Warenkorb-Symbol steht in components/CartButton.tsx. */
+@media (prefers-reduced-motion: no-preference) {
+  /* Auftritt oben: Text nacheinander, die Foto-Collage «landet» wie ein Foto auf dem Tisch */
+  .hero-in > * { animation: rise 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) backwards; }
+  .hero-in > :nth-child(2) { animation-delay: 0.12s; }
+  .hero-in > :nth-child(3) { animation-delay: 0.24s; }
+  .hero-photo { animation: land 1.1s cubic-bezier(0.2, 0.7, 0.2, 1) 0.1s backwards; }
+
+  @supports (animation-timeline: view()) {
+    /* Karten und Abschnitte gleiten beim Scrollen ein, in einer Reihe leicht versetzt */
+    .reveal {
+      animation: rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 40%;
+    }
+    .reveal-row > :nth-child(4n + 2) { animation-range: entry 6% entry 46%; }
+    .reveal-row > :nth-child(4n + 3) { animation-range: entry 12% entry 52%; }
+    .reveal-row > :nth-child(4n + 4) { animation-range: entry 18% entry 58%; }
+  }
+
+  /* Fotos zoomen beim Darüberfahren sanft heran */
+  .zoom-card img { transition: scale 0.7s cubic-bezier(0.2, 0.7, 0.2, 1); }
+  .zoom-card:hover img { scale: 1.05; }
+
+  /* Symbolzeile: Herz schlägt einmal, Papierflieger hebt ab, Geschenk wackelt, Blatt wiegt sich */
+  .values li:hover [data-icon="heart"] { animation: beat 0.7s ease; }
+  .values li:hover [data-icon="plane"] { animation: fly 0.8s ease; }
+  .values li:hover [data-icon="gift"] { animation: wiggle 0.6s ease; }
+  .values li:hover [data-icon="leaf"] { animation: sway 0.9s ease; }
+}
+
+@keyframes rise { from { opacity: 0; translate: 0 24px; } }
+@keyframes land { from { opacity: 0; transform: translateY(18px) rotate(-3deg) scale(1.03); } }
+@keyframes beat { 30% { transform: scale(1.25); } 50% { transform: scale(0.95); } 70% { transform: scale(1.12); } }
+@keyframes fly { 45% { transform: translate(6px, -6px) rotate(-8deg); opacity: 0.4; } 50% { transform: translate(-6px, 6px); opacity: 0; } 100% { transform: none; opacity: 1; } }
+@keyframes wiggle { 25% { transform: rotate(-10deg); } 50% { transform: rotate(8deg); } 75% { transform: rotate(-4deg); } }
+@keyframes sway { 35% { transform: rotate(-12deg); } 70% { transform: rotate(6deg); } }

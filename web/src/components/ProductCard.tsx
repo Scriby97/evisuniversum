@@ -8,7 +8,7 @@ export function ProductCard({ product }: { product: Product }) {
   const href = `/shop/${product.slug}`;
 
   return (
-    <article className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm">
+    <article className="reveal zoom-card flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm">
       <div className="relative aspect-square">
         <Link href={href} aria-label={product.name} className="absolute inset-0">
           <SanityImage

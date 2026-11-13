@@ -19,6 +19,7 @@ export function Icon({ name, className }: { name: IconName; className?: string }
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
+      data-icon={name}
       aria-hidden
     >
       <path d={paths[name]} />
