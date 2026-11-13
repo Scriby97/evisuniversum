@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "prebuild": "node -e \"require('fs').rmSync('.next/cache/fetch-cache',{recursive:true,force:true})\"",
-    "build": "echo NTFY-TEST: absichtlich fehlgeschlagen && exit 1",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "test:e2e": "playwright test",
