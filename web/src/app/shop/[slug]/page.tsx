@@ -6,6 +6,7 @@ import { MailIcon, ProductOptions } from "@/components/AddToCart";
 import { ProductGallery } from "@/components/ProductGallery";
 import { formatProductPrice } from "@/lib/format";
 import { getMotifGroups, getProducts, getSettings, imageUrl, ogImageSize, ogImageUrl, symbolGroupsFor } from "@/lib/sanity";
+import { jsonLdScript, productJsonLd } from "@/lib/structured-data";
 
 // Statischer Export: nur die beim Build bekannten Produkte gibt es als Seite
 export const dynamicParams = false;
@@ -52,9 +53,12 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     return src ? [{ src, alt: image.alt || product.name }] : [];
   });
   const symbolGroups = symbolGroupsFor(product, motifGroups);
+  const jsonLd = productJsonLd(product, settings, images.map((i) => i.src));
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
+      {/* Produktdaten für Google (Preis, Verfügbarkeit, Versand) – unsichtbar */}
+      {jsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(jsonLd) }} />}
       <Link href="/shop" className="text-sm text-accent hover:text-accent-dark">
         ← Zurück zum Shop
       </Link>

@@ -58,3 +58,33 @@ test("Lageranzeige auf der Produktseite", async ({ page }) => {
   await page.goto("/shop/test-weg");
   await expect(page.getByText("Dieses Produkt ist im Moment leider ausverkauft.")).toBeVisible();
 });
+
+test("Produktseiten liefern Preis, Verfügbarkeit und Versand für Google (unsichtbar)", async ({ page }) => {
+  const jsonLd = async (slug: string) => {
+    await page.goto(`/shop/${slug}`);
+    const scripts = page.locator('script[type="application/ld+json"]');
+    return (await scripts.count()) ? JSON.parse((await scripts.first().textContent()) ?? "") : null;
+  };
+
+  // Personalisiert: fester Preis, an Lager, Versandtasche, vom Umtausch ausgeschlossen
+  const socken = await jsonLd("test-socken");
+  expect(socken).toMatchObject({ "@type": "Product", name: "Testsocken", brand: { name: expect.any(String) } });
+  expect(socken.offers).toMatchObject({
+    priceCurrency: "CHF",
+    price: "25.00",
+    availability: "https://schema.org/InStock",
+    shippingDetails: { shippingRate: { value: "2.50", currency: "CHF" }, shippingDestination: { addressCountry: "CH" } },
+    hasMerchantReturnPolicy: { returnPolicyCategory: "https://schema.org/MerchantReturnNotPermitted" },
+  });
+
+  // Digital: kein Versand, keine Rückgaberegel angegeben
+  const vorlage = await jsonLd("test-vorlage");
+  expect(vorlage.offers.shippingDetails.shippingRate.value).toBe("0.00");
+  expect(vorlage.offers.hasMerchantReturnPolicy).toBeUndefined();
+
+  // Ausgeschaltet → ausverkauft
+  expect((await jsonLd("test-weg")).offers.availability).toBe("https://schema.org/OutOfStock");
+
+  // Auf Anfrage, Ab-Preis, Preis auf Anfrage oder Lager 0: nicht direkt kaufbar → keine Produktdaten
+  for (const slug of ["test-saeckli", "test-anfertigung", "test-leer"]) expect(await jsonLd(slug)).toBeNull();
+});
