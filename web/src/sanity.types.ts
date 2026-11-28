@@ -289,6 +289,15 @@ export type SiteSettings = {
   address?: string;
   email?: string;
   instagram?: string;
+  instagramImages?: Array<{
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+    _key: string;
+  }>;
   agbText?: RichText;
   privacyText?: RichText;
 };
@@ -510,6 +519,15 @@ export type SETTINGS_QUERY_RESULT = {
   address?: string;
   email?: string;
   instagram?: string;
+  instagramImages?: Array<{
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: "image";
+    _key: string;
+  }>;
   agbText?: RichText;
   privacyText?: RichText;
 } | null;

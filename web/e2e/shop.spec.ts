@@ -88,3 +88,12 @@ test("Produktseiten liefern Preis, Verfügbarkeit und Versand für Google (unsic
   // Auf Anfrage, Ab-Preis, Preis auf Anfrage oder Lager 0: nicht direkt kaufbar → keine Produktdaten
   for (const slug of ["test-saeckli", "test-anfertigung", "test-leer"]) expect(await jsonLd(slug)).toBeNull();
 });
+
+test("Instagram-Kasten zeigt alle im Studio gewählten Bilder (auch nur 2) und verlinkt aufs Profil", async ({ page }) => {
+  await page.goto("/");
+  const card = page.locator('a[href="https://www.instagram.com/example/"]', { hasText: "Folge mir auf Instagram" });
+  await expect(card).toBeVisible();
+  const images = card.locator("img");
+  await expect(images).toHaveCount(2);
+  for (const n of [1, 2]) await expect(images.nth(n - 1)).toHaveAttribute("src", new RegExp(`e2einsta${n}`));
+});

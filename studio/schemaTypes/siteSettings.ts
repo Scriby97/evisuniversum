@@ -20,6 +20,7 @@ export const siteSettings = defineType({
     {name: 'about', title: 'Über mich'},
     {name: 'order', title: 'Bestellung & Versand'},
     {name: 'faq', title: 'FAQ'},
+    {name: 'instagram', title: 'Instagram'},
     {name: 'legal', title: 'Kontakt & Rechtliches'},
   ],
   fields: [
@@ -244,7 +245,24 @@ export const siteSettings = defineType({
     defineField({name: 'ownerName', title: 'Name (Inhaberin)', type: 'string', group: 'legal'}),
     defineField({name: 'address', title: 'Adresse', type: 'text', rows: 3, group: 'legal'}),
     defineField({name: 'email', title: 'E-Mail', type: 'string', group: 'legal'}),
-    defineField({name: 'instagram', title: 'Instagram-Link', type: 'url', group: 'legal'}),
+    defineField({
+      name: 'instagram',
+      title: 'Instagram-Link',
+      description: 'Adresse deines Instagram-Profils, z. B. https://www.instagram.com/deinname/ – leer = kein Instagram-Kasten auf der Startseite.',
+      type: 'url',
+      group: 'instagram',
+    }),
+    defineField({
+      name: 'instagramImages',
+      title: 'Bilder im Instagram-Kasten',
+      description:
+        '1 bis 6 Bilder, z. B. von deinen Instagram-Beiträgen – alle erscheinen, das Raster passt sich an (schön sind 3 oder 6). Reihenfolge per Ziehen. Leer = automatisch 6 Produktfotos aus dem Shop.',
+      type: 'array',
+      group: 'instagram',
+      of: [defineArrayMember({type: 'image', options: {hotspot: true}, fields: [altText]})],
+      options: {layout: 'grid'},
+      validation: (r) => r.max(6),
+    }),
     defineField({
       name: 'agbText',
       title: 'AGB',

@@ -21,6 +21,13 @@ export const e2eSettings: SiteSettings = {
   ownerName: "Test Inhaberin",
   address: "Teststrasse 1\n3600 Thun",
   email: "shop@example.ch",
+  instagram: "https://www.instagram.com/example/",
+  // Im Studio ausgewählte Bilder für den Instagram-Kasten
+  instagramImages: [1, 2].map((n) => ({
+    _type: "image" as const,
+    _key: `insta${n}`,
+    asset: { _type: "reference" as const, _ref: `image-e2einsta${n}-400x400-jpg` },
+  })),
 };
 
 const product = (p: Partial<Product> & Pick<Product, "_id" | "name" | "price">): Product => {

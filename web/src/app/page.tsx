@@ -22,13 +22,18 @@ export default async function Home() {
   // Reihenfolge wie im Studio gewählt; gelöschte Produkte fallen weg
   const featured = (settings.featuredProducts ?? []).flatMap((ref) => products.filter((p) => p._id === ref._ref));
   const nextEvent = events[0];
-  // Instagram-Kasten: Einblick mit Evis eigenen Produktfotos (nichts von Instagram eingebettet).
-  // Bevorzugt Produkte, die nicht schon bei den Lieblingsstücken stehen; gleichmässig über das ganze Sortiment
-  // verteilt (die Produkte sind nach Kategorie sortiert), damit nicht nur Socken erscheinen.
+  // Instagram-Kasten: die Bilder, die Evi im Studio ausgewählt hat (Reiter «Instagram»), sonst automatisch
+  // Produktfotos (nichts von Instagram eingebettet). Automatisch: bevorzugt Produkte, die nicht schon bei den
+  // Lieblingsstücken stehen, gleichmässig über das ganze Sortiment verteilt, damit nicht nur Socken erscheinen.
   const featuredIds = new Set(featured.map((p) => p._id));
   const fresh = products.filter((p) => !featuredIds.has(p._id) && p.images?.[0]?.asset);
   const pool = fresh.length >= 6 ? fresh : products.filter((p) => p.images?.[0]?.asset);
-  const glimpses = Array.from({ length: Math.min(6, pool.length) }, (_, i) => pool[Math.floor((i * pool.length) / Math.min(6, pool.length))].images![0]);
+  // Jedes gewählte Bild erscheint (1–6); ohne Auswahl 6 Produktfotos bzw. 3, wenn es weniger gibt
+  const chosen = (settings.instagramImages ?? []).filter((image) => image.asset).slice(0, 6);
+  const automatic = Array.from({ length: Math.min(6, pool.length) }, (_, i) => pool[Math.floor((i * pool.length) / Math.min(6, pool.length))].images![0]);
+  const glimpses = chosen.length > 0 ? chosen : automatic.slice(0, automatic.length >= 6 ? 6 : automatic.length >= 3 ? 3 : 0);
+  // Raster passend zur Anzahl: 1 breit, 2 nebeneinander, 4 als Quadrat, sonst Dreierreihen
+  const glimpseCols = { 1: "grid-cols-1", 2: "grid-cols-2", 4: "grid-cols-2" }[glimpses.length] ?? "grid-cols-3";
 
   return (
     <>
@@ -130,11 +135,17 @@ export default async function Home() {
               rel="noreferrer"
               className={`reveal zoom-card group flex flex-col gap-2 rounded-2xl bg-sand/60 p-8 ${nextEvent ? "" : "md:col-span-2"}`}
             >
-              {glimpses.length >= 3 && (
-                <div className="mb-3 grid grid-cols-3 gap-2" aria-hidden>
-                  {glimpses.slice(0, glimpses.length >= 6 ? 6 : 3).map((image, i) => (
-                    <div key={i} className="relative aspect-square overflow-hidden rounded-xl">
-                      <SanityImage image={image} alt="" decorative crop={{ width: 400, height: 400 }} sizes="180px" />
+              {glimpses.length > 0 && (
+                <div className={`mb-3 grid gap-2 ${glimpseCols}`} aria-hidden>
+                  {glimpses.map((image, i) => (
+                    <div key={i} className={`relative overflow-hidden rounded-xl ${glimpses.length === 1 ? "aspect-[16/9]" : "aspect-square"}`}>
+                      <SanityImage
+                        image={image}
+                        alt=""
+                        decorative
+                        crop={glimpses.length === 1 ? { width: 1200, height: 675 } : { width: 400, height: 400 }}
+                        sizes={glimpses.length === 1 ? "600px" : glimpses.length <= 2 || glimpses.length === 4 ? "300px" : "180px"}
+                      />
                     </div>
                   ))}
                 </div>
